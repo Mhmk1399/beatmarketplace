@@ -3,6 +3,7 @@
 import type { Metadata } from "next";
 
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { ToastProvider } from "@/components/ui/toast/ToastProvider";
 
 import "./globals.css";
 
@@ -18,7 +19,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full font-sans">
-        <AuthProvider>{children}</AuthProvider>
+        <ToastProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );

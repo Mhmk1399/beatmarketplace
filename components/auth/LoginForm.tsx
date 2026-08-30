@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
-import { EyeIcon, EyeOffIcon } from "@/components/ui/icons";
-import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
-import { NeumorphicInput } from "@/components/ui/neumorphic/Input";
+import { DynamicForm, type DynamicFormField } from "@/components/ui/dynamic/DynamicForm";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 type LoginFields = {
   email: string;
@@ -15,6 +14,11 @@ type LoginFields = {
 };
 
 type FieldErrors = Partial<Record<keyof LoginFields, string>>;
+
+const loginFields = [
+  { name: "email", label: "Email", type: "email", autoComplete: "email", autoFocus: true, placeholder: "you@example.com", required: true },
+  { name: "password", label: "Password", type: "password", autoComplete: "current-password", placeholder: "Your password", required: true, revealable: true },
+] satisfies readonly DynamicFormField<LoginFields>[];
 
 function validateLogin(fields: LoginFields) {
   const errors: FieldErrors = {};
@@ -28,11 +32,11 @@ function validateLogin(fields: LoginFields) {
 export function LoginForm() {
   const router = useRouter();
   const { refresh, status } = useAuth();
+  const toast = useToast();
   const [fields, setFields] = useState<LoginFields>({ email: "", password: "" });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") router.replace("/");
@@ -66,15 +70,20 @@ export function LoginForm() {
           if (issue.field === "email" || issue.field === "password") fieldErrors[issue.field] = issue.message;
         });
         setErrors(fieldErrors);
-        setServerError(data.error === "Invalid credentials." ? "The email or password is incorrect." : data.error || "We could not sign you in. Please try again.");
+        const message = data.error === "Invalid credentials." ? "The email or password is incorrect." : data.error || "We could not sign you in. Please try again.";
+        setServerError(message);
+        toast.error("Login failed", message);
         return;
       }
 
       await refresh();
+      toast.success("Welcome back", "Your session is ready.");
       router.replace("/");
       router.refresh();
     } catch {
-      setServerError("We could not reach the server. Check your connection and try again.");
+      const message = "We could not reach the server. Check your connection and try again.";
+      setServerError(message);
+      toast.error("Connection error", message);
     } finally {
       setIsSubmitting(false);
     }
@@ -90,47 +99,23 @@ export function LoginForm() {
       <h2 className="mt-3 text-4xl font-black tracking-[-0.05em] text-[#f3f0f6] sm:text-5xl">Login to your sound.</h2>
       <p className="mt-4 text-sm leading-6 text-[#858a96]">Use the email and password connected to your BeatMarketplace account.</p>
 
-      <form className="mt-9 space-y-5" onSubmit={handleSubmit} noValidate>
-        <NeumorphicInput
-          label="Email"
-          type="email"
-          name="email"
-          autoComplete="email"
-          autoFocus
-          value={fields.email}
-          error={errors.email}
-          onChange={(event) => setFields((current) => ({ ...current, email: event.target.value }))}
-          placeholder="you@example.com"
-          disabled={isSubmitting}
-        />
-        <NeumorphicInput
-          label="Password"
-          type={showPassword ? "text" : "password"}
-          name="password"
-          autoComplete="current-password"
-          value={fields.password}
-          error={errors.password}
-          onChange={(event) => setFields((current) => ({ ...current, password: event.target.value }))}
-          placeholder="Your password"
-          disabled={isSubmitting}
-          trailing={
-            <button
-              type="button"
-              className="flex size-9 items-center justify-center rounded-xl text-[#8d929e] transition-colors hover:text-[#d8b4fe]"
-              onClick={() => setShowPassword((visible) => !visible)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
-            </button>
-          }
-        />
-
-        {serverError && <p className="rounded-2xl bg-[#ff6b8a]/8 px-4 py-3 text-sm leading-6 text-[#ff9bb0]" role="alert">{serverError}</p>}
-
-        <NeumorphicButton type="submit" variant="accent" size="lg" className="mt-2 w-full" disabled={isSubmitting || status === "loading"}>
-          {isSubmitting ? <><span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" /> Signing in…</> : "Login"}
-        </NeumorphicButton>
-      </form>
+      <DynamicForm
+        className="mt-9"
+        fields={loginFields}
+        values={fields}
+        errors={errors}
+        formError={serverError}
+        isSubmitting={isSubmitting}
+        disabled={status === "loading"}
+        submitLabel="Login"
+        submittingLabel="Signing in…"
+        fullWidthSubmit
+        onValueChange={(name, value) => {
+          setFields((current) => ({ ...current, [name]: value }));
+          setErrors((current) => ({ ...current, [name]: undefined }));
+        }}
+        onSubmit={handleSubmit}
+      />
 
       <p className="mt-8 text-center text-sm text-[#858a96]">
         Don&apos;t have an account?{" "}

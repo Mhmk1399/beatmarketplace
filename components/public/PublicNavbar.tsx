@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { BrandMark } from "@/components/public/BrandMark";
 import { NeumorphicButton, NeumorphicLink } from "@/components/ui/neumorphic/Button";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 function getInitials(firstName: string, lastName: string) {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
@@ -15,14 +16,21 @@ function getInitials(firstName: string, lastName: string) {
 export function PublicNavbar() {
   const { logout, status, user } = useAuth();
   const router = useRouter();
+  const toast = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   async function handleLogout() {
     setIsLoggingOut(true);
-    await logout();
-    router.push("/");
-    router.refresh();
-    setIsLoggingOut(false);
+    try {
+      await logout();
+      toast.success("Signed out", "Your session has been cleared.");
+      router.push("/");
+      router.refresh();
+    } catch {
+      toast.error("Could not sign out", "Please try again.");
+    } finally {
+      setIsLoggingOut(false);
+    }
   }
 
   return (
@@ -58,6 +66,10 @@ export function PublicNavbar() {
                   </p>
                 </div>
               </div>
+              <NeumorphicLink href="/dashboard" size="sm" className="px-3">
+                <span className="sm:hidden">App</span>
+                <span className="hidden sm:inline">Dashboard</span>
+              </NeumorphicLink>
               <NeumorphicButton size="sm" variant="quiet" onClick={handleLogout} disabled={isLoggingOut}>
                 {isLoggingOut ? "Leaving…" : "Logout"}
               </NeumorphicButton>

@@ -62,15 +62,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
-    try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "same-origin",
-      });
-    } finally {
-      setUser(null);
-      setStatus("anonymous");
-    }
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "same-origin",
+    });
+    if (!response.ok) throw new Error("Logout request failed.");
+    setUser(null);
+    setStatus("anonymous");
   }, []);
 
   useEffect(() => {

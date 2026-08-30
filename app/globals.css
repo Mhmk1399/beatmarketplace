@@ -244,6 +244,149 @@ input {
   animation: float-soft 7s 1.1s ease-in-out infinite;
 }
 
+.dashboard-canvas {
+  background:
+    radial-gradient(circle at 78% 8%, rgba(139, 92, 246, 0.075), transparent 31rem),
+    linear-gradient(145deg, #181b21, #14171c 72%);
+}
+
+.dashboard-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.025);
+  background: rgba(23, 26, 32, 0.86);
+  box-shadow: 0 9px 26px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(16px);
+}
+
+.dashboard-sidebar-shell {
+  background: linear-gradient(90deg, rgba(12, 14, 18, 0.2), transparent);
+}
+
+.dashboard-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(168, 85, 247, 0.22) transparent;
+}
+
+.dashboard-nav-item {
+  border: 1px solid transparent;
+  color: #8f95a1;
+  transition: color 170ms ease, transform 170ms ease, background 170ms ease, box-shadow 170ms ease;
+}
+
+.dashboard-nav-item:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.025);
+  color: #e5e2e9;
+  box-shadow:
+    4px 5px 10px rgba(0, 0, 0, 0.2),
+    -3px -3px 8px rgba(255, 255, 255, 0.018);
+}
+
+.dashboard-nav-item-active,
+.dashboard-nav-item-active:hover {
+  transform: none;
+  border-color: rgba(168, 85, 247, 0.12);
+  background: #171a20;
+  color: #c795ff;
+  box-shadow:
+    inset 5px 5px 11px rgba(0, 0, 0, 0.5),
+    inset -4px -4px 9px rgba(255, 255, 255, 0.032);
+}
+
+.dashboard-workspace-button,
+.dashboard-user-button {
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.dashboard-workspace-button:hover,
+.dashboard-user-button:hover {
+  transform: translateY(-1px);
+}
+
+.dashboard-workspace-button:active,
+.dashboard-user-button:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 5px 5px 11px rgba(0, 0, 0, 0.48),
+    inset -4px -4px 9px rgba(255, 255, 255, 0.03);
+}
+
+.dashboard-menu-item {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.9rem;
+  padding: 0 0.75rem;
+  color: #a0a5b0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.dashboard-menu-item:hover {
+  background: rgba(255, 255, 255, 0.035);
+  color: #f0edf3;
+}
+
+.dashboard-avatar {
+  background-color: #171a20;
+}
+
+.dashboard-mobile-drawer {
+  animation: dashboard-drawer-in 190ms ease-out;
+}
+
+.dashboard-quick-link,
+.dashboard-domain-card {
+  transition: transform 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+.dashboard-quick-link:hover {
+  transform: translateX(3px);
+}
+
+.dashboard-domain-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    14px 15px 30px rgba(0, 0, 0, 0.52),
+    -8px -8px 20px rgba(255, 255, 255, 0.04);
+}
+
+@keyframes dashboard-drawer-in {
+  from {
+    transform: translateX(-1.5rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.toast-progress {
+  animation-name: toast-countdown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+  animation-play-state: var(--toast-paused, running);
+}
+
+@keyframes toast-enter {
+  from {
+    transform: translateY(0.6rem) scale(0.985);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
 @keyframes float-soft {
   0%,
   100% {

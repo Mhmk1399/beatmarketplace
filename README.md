@@ -20,6 +20,9 @@ This repo is at the beginning of the foundation phase and includes:
 - a responsive public homepage with clearly labeled static music previews
 - dedicated, accessible login and signup pages connected to the real auth API
 - authentication-aware public navigation and logout
+- one shared responsive dashboard shell for Personal, Producer Studio, and Admin workspaces
+- server-authoritative workspace access based on the authenticated user's current database roles
+- shared typed form, table, modal, and global toast primitives for future feature UI
 
 See [CURRENT_PLATFORM_STATE.md](./CURRENT_PLATFORM_STATE.md) for the exact implemented scope and [MODEL_TREE.md](./MODEL_TREE.md) for domain relationships.
 
@@ -67,4 +70,4 @@ JWT_AUDIENCE=beatmarketplace-web
 
 ## Current boundary
 
-The homepage previews discovery, playback, mood browsing, and a producer studio visually. Those areas use isolated static demo content; their APIs and workflows are not implemented yet. The next milestone should be selected from the documented model and API candidates before Track Studio work begins.
+The homepage previews discovery, playback, and mood browsing visually. Dashboard links for Tracks, Contracts, Producer Profile, Users, Genres, Moods, Instruments, and Settings are structural placeholders only. Their CRUD APIs and workflows are not implemented yet, and the next milestone should be selected before that domain work begins.

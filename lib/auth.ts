@@ -20,6 +20,10 @@ export type AuthenticationResult =
   | { ok: true; user: AuthenticatedUser }
   | { ok: false; response: NextResponse };
 
+export type SessionResolution =
+  | { ok: true; user: AuthenticatedUser }
+  | { ok: false; reason: "MISSING" | "INVALID" | "NOT_FOUND" | "DISABLED" };
+
 export async function hashPassword(password: string) {
   return hash(password, 12);
 }
@@ -84,28 +88,32 @@ export function getAccessToken(request: Request) {
   return getCookieValue(request, AUTH_COOKIE_NAME);
 }
 
-export async function authenticateRequest(request: Request): Promise<AuthenticationResult> {
-  const token = getAccessToken(request);
-  if (!token) {
-    return { ok: false, response: NextResponse.json({ error: "Unauthorized." }, { status: 401 }) };
-  }
+export async function resolveAuthenticatedUser(token: string | null | undefined): Promise<SessionResolution> {
+  if (!token) return { ok: false, reason: "MISSING" };
 
   const payload = verifyAccessToken(token);
-  if (!payload) {
-    return { ok: false, response: NextResponse.json({ error: "Invalid or expired session." }, { status: 401 }) };
-  }
+  if (!payload) return { ok: false, reason: "INVALID" };
 
   await connectToDatabase();
   const user = await UserModel.findById(payload.sub);
-  if (!user) {
-    return { ok: false, response: NextResponse.json({ error: "User not found." }, { status: 401 }) };
-  }
-
-  if (user.status && user.status !== "ACTIVE") {
-    return { ok: false, response: NextResponse.json({ error: "Account access is disabled." }, { status: 403 }) };
-  }
+  if (!user) return { ok: false, reason: "NOT_FOUND" };
+  if (user.status && user.status !== "ACTIVE") return { ok: false, reason: "DISABLED" };
 
   return { ok: true, user };
+}
+
+export async function authenticateRequest(request: Request): Promise<AuthenticationResult> {
+  const resolution = await resolveAuthenticatedUser(getAccessToken(request));
+  if (resolution.ok) return resolution;
+
+  const errors = {
+    MISSING: { error: "Unauthorized.", status: 401 },
+    INVALID: { error: "Invalid or expired session.", status: 401 },
+    NOT_FOUND: { error: "User not found.", status: 401 },
+    DISABLED: { error: "Account access is disabled.", status: 403 },
+  } as const;
+  const failure = errors[resolution.reason];
+  return { ok: false, response: NextResponse.json({ error: failure.error }, { status: failure.status }) };
 }
 
 export function setAuthCookie(response: NextResponse, token: string) {

@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
-import { EyeIcon, EyeOffIcon } from "@/components/ui/icons";
-import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
-import { NeumorphicInput } from "@/components/ui/neumorphic/Input";
+import { DynamicForm, type DynamicFormField } from "@/components/ui/dynamic/DynamicForm";
+import { useToast } from "@/components/ui/toast/ToastProvider";
 
 type SignupFields = {
   firstName: string;
@@ -29,6 +28,15 @@ const initialFields: SignupFields = {
   confirmPassword: "",
 };
 
+const signupFields = [
+  { name: "firstName", label: "First name", autoComplete: "given-name", autoFocus: true, required: true, colSpan: 1 },
+  { name: "lastName", label: "Last name", autoComplete: "family-name", required: true, colSpan: 1 },
+  { name: "email", label: "Email", type: "email", autoComplete: "email", placeholder: "you@example.com", required: true },
+  { name: "phoneNumber", label: "Phone (optional)", type: "tel", autoComplete: "tel", placeholder: "+989121234567", hint: "Use international E.164 format if supplied, for example +989121234567." },
+  { name: "password", label: "Password", type: "password", autoComplete: "new-password", hint: "8–128 characters.", required: true, revealable: true },
+  { name: "confirmPassword", label: "Confirm password", type: "password", autoComplete: "new-password", required: true, revealable: true },
+] satisfies readonly DynamicFormField<SignupFields>[];
+
 function validateSignup(fields: SignupFields) {
   const errors: FieldErrors = {};
   if (!fields.firstName.trim()) errors.firstName = "First name is required.";
@@ -48,11 +56,11 @@ function validateSignup(fields: SignupFields) {
 export function SignupForm() {
   const router = useRouter();
   const { refresh, status } = useAuth();
+  const toast = useToast();
   const [fields, setFields] = useState<SignupFields>(initialFields);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (status === "authenticated") router.replace("/");
@@ -97,15 +105,20 @@ export function SignupForm() {
           if (issue.field in initialFields) fieldErrors[issue.field as keyof SignupFields] = issue.message;
         });
         setErrors(fieldErrors);
-        setServerError(data.error || "We could not create your account. Please try again.");
+        const message = data.error || "We could not create your account. Please try again.";
+        setServerError(message);
+        toast.error("Account creation failed", message);
         return;
       }
 
       await refresh();
+      toast.success("Account created", "Welcome to BeatMarketplace.");
       router.replace("/");
       router.refresh();
     } catch {
-      setServerError("We could not reach the server. Check your connection and try again.");
+      const message = "We could not reach the server. Check your connection and try again.";
+      setServerError(message);
+      toast.error("Connection error", message);
     } finally {
       setIsSubmitting(false);
     }
@@ -115,39 +128,27 @@ export function SignupForm() {
     return <p className="text-center text-sm text-[#9da2ad]" role="status">Your account is ready. Returning you home…</p>;
   }
 
-  const passwordToggle = (
-    <button
-      type="button"
-      className="flex size-9 items-center justify-center rounded-xl text-[#8d929e] transition-colors hover:text-[#d8b4fe]"
-      onClick={() => setShowPassword((visible) => !visible)}
-      aria-label={showPassword ? "Hide passwords" : "Show passwords"}
-    >
-      {showPassword ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
-    </button>
-  );
-
   return (
     <div>
       <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#a875f5]">Create your account</p>
       <h2 className="mt-3 text-4xl font-black tracking-[-0.05em] text-[#f3f0f6] sm:text-5xl">Make room for your sound.</h2>
       <p className="mt-4 text-sm leading-6 text-[#858a96]">Join as a listener today. Your same account can become a producer when you are ready.</p>
 
-      <form className="mt-9 space-y-5" onSubmit={handleSubmit} noValidate>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <NeumorphicInput label="First name" name="firstName" autoComplete="given-name" autoFocus value={fields.firstName} error={errors.firstName} onChange={(event) => updateField("firstName", event.target.value)} disabled={isSubmitting} />
-          <NeumorphicInput label="Last name" name="lastName" autoComplete="family-name" value={fields.lastName} error={errors.lastName} onChange={(event) => updateField("lastName", event.target.value)} disabled={isSubmitting} />
-        </div>
-        <NeumorphicInput label="Email" type="email" name="email" autoComplete="email" value={fields.email} error={errors.email} onChange={(event) => updateField("email", event.target.value)} placeholder="you@example.com" disabled={isSubmitting} />
-        <NeumorphicInput label="Phone (optional)" type="tel" name="phoneNumber" autoComplete="tel" value={fields.phoneNumber} error={errors.phoneNumber} hint="Use international E.164 format if supplied, for example +989121234567." onChange={(event) => updateField("phoneNumber", event.target.value)} placeholder="+989121234567" disabled={isSubmitting} />
-        <NeumorphicInput label="Password" type={showPassword ? "text" : "password"} name="password" autoComplete="new-password" value={fields.password} error={errors.password} hint="8–128 characters." onChange={(event) => updateField("password", event.target.value)} disabled={isSubmitting} trailing={passwordToggle} />
-        <NeumorphicInput label="Confirm password" type={showPassword ? "text" : "password"} name="confirmPassword" autoComplete="new-password" value={fields.confirmPassword} error={errors.confirmPassword} onChange={(event) => updateField("confirmPassword", event.target.value)} disabled={isSubmitting} />
-
-        {serverError && <p className="rounded-2xl bg-[#ff6b8a]/8 px-4 py-3 text-sm leading-6 text-[#ff9bb0]" role="alert">{serverError}</p>}
-
-        <NeumorphicButton type="submit" variant="accent" size="lg" className="mt-2 w-full" disabled={isSubmitting || status === "loading"}>
-          {isSubmitting ? <><span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" /> Creating account…</> : "Create account"}
-        </NeumorphicButton>
-      </form>
+      <DynamicForm
+        className="mt-9"
+        columns={2}
+        fields={signupFields}
+        values={fields}
+        errors={errors}
+        formError={serverError}
+        isSubmitting={isSubmitting}
+        disabled={status === "loading"}
+        submitLabel="Create account"
+        submittingLabel="Creating account…"
+        fullWidthSubmit
+        onValueChange={(name, value) => updateField(name, String(value))}
+        onSubmit={handleSubmit}
+      />
 
       <p className="mt-8 text-center text-sm text-[#858a96]">
         Already have an account?{" "}
