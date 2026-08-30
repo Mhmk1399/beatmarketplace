@@ -1,39 +1,38 @@
-// Log in an existing user and return a signed access token.
 import { NextResponse } from "next/server";
 
-import { signAccessToken, verifyPassword, sanitizeUser } from "@/lib/auth";
-import { getUserByEmail } from "@/lib/store";
+import { serializeUser, setAuthCookie, signAccessToken, verifyPassword } from "@/lib/auth";
+import { connectToDatabase } from "@/lib/db";
+import { loginSchema, validationError } from "@/lib/validation";
+import UserModel from "@/models/User";
+
+const DUMMY_PASSWORD_HASH = "$2a$12$V6nWkH5VJgk5tV3XqkWkE.9Xc9xUeMNrV4t7Ca2vQ7k0Wm2TQw3V6";
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as {
-      email?: string;
-      password?: string;
-    };
-
-    const email = body.email?.trim().toLowerCase();
-    const password = body.password ?? "";
-
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
+    const parsed = loginSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json(validationError(parsed.error), { status: 400 });
     }
 
-    const user = getUserByEmail(email);
-    if (!user) {
+    await connectToDatabase();
+    const user = await UserModel.findOne({ email: parsed.data.email }).select("+passwordHash");
+    const isValidPassword = await verifyPassword(parsed.data.password, user?.passwordHash ?? DUMMY_PASSWORD_HASH);
+
+    if (!user || !isValidPassword) {
       return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
     }
 
-    const isValid = await verifyPassword(password, user.passwordHash);
-    if (!isValid) {
-      return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
+    if (user.status && user.status !== "ACTIVE") {
+      return NextResponse.json({ error: "This account is unavailable." }, { status: 403 });
     }
 
-    const token = signAccessToken(user);
+    user.lastLoginAt = new Date();
+    await user.save();
 
-    return NextResponse.json({
-      user: sanitizeUser(user),
-      token,
-    });
+    const token = signAccessToken({ id: user.id, roles: user.roles });
+    const response = NextResponse.json({ user: serializeUser(user) });
+    response.headers.set("Cache-Control", "no-store");
+    return setAuthCookie(response, token);
   } catch (error) {
     console.error("Login error", error);
     return NextResponse.json({ error: "Failed to log in." }, { status: 500 });

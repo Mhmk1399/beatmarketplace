@@ -1,22 +1,32 @@
-// Authorization helpers for the marketplace MVP.
-// These checks intentionally keep ownership logic close to the domain so future
-// route-level authorization can stay readable and consistent.
-import type { Beat, ProducerProfile, User, UserRole } from "@/lib/types";
+import { NextResponse } from "next/server";
 
-export function userHasRole(user: Pick<User, "roles"> | null | undefined, role: UserRole) {
-  return Boolean(user && user.roles.includes(role));
+import type { UserRole } from "@/lib/types";
+
+type AuthorizedUser = {
+  id: string;
+  roles: UserRole[];
+};
+
+export function userHasRole(user: AuthorizedUser, role: UserRole) {
+  return user.roles.includes(role);
 }
 
-export function userCanManageProducer(user: Pick<User, "id" | "roles"> | null | undefined, producer: Pick<ProducerProfile, "userId">) {
-  if (!user) return false;
-  return user.id === producer.userId || user.roles.includes("ADMIN");
+export function requireRole(user: AuthorizedUser, role: UserRole) {
+  if (userHasRole(user, role) || userHasRole(user, "ADMIN")) return null;
+
+  return NextResponse.json({ error: `${role.toLowerCase()} access required.` }, { status: 403 });
 }
 
-export function userCanManageBeat(user: Pick<User, "id" | "roles"> | null | undefined, beat: Pick<Beat, "producerId">) {
-  if (!user) return false;
-  return user.id === beat.producerId || user.roles.includes("ADMIN");
+export function userCanManageOwnedResource(user: AuthorizedUser, ownerId: string) {
+  return user.id === ownerId || userHasRole(user, "ADMIN");
 }
 
-export function userCanBecomeProducer(user: Pick<User, "roles"> | null | undefined) {
-  return Boolean(user && user.roles.includes("USER"));
+export function requireResourceOwner(user: AuthorizedUser, ownerId: string) {
+  if (userCanManageOwnedResource(user, ownerId)) return null;
+
+  return NextResponse.json({ error: "Permission denied." }, { status: 403 });
+}
+
+export function userCanBecomeProducer(user: AuthorizedUser) {
+  return userHasRole(user, "USER");
 }

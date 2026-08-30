@@ -1,30 +1,39 @@
 # BeatMarketplace
 
-A modular beat marketplace MVP built in Next.js with a domain-first architecture aimed at the first full product flow:
+A modular music marketplace built in Next.js with a domain-first architecture. The first complete product flow is:
 
-REGISTER → BECOME PRODUCER → CREATE BEAT → PUBLISH → MARKETPLACE → BUY LICENSE → PURCHASE
+REGISTER / LOGIN → USER PROFILE → BECOME PRODUCER
 
 ## Current implementation status
 
 This repo is at the beginning of the foundation phase and includes:
 
-- user registration and login APIs
-- JWT-based authenticated user retrieval
-- role and ownership helpers
+- MongoDB-backed user, producer-profile, genre, mood, instrument, track, and contract schemas
+- independently managed genre, mood, and instrument taxonomies referenced by tracks
+- object-storage metadata for artwork, preview audio, masters, stems, avatars, and banners
+- user-linked track collaborators with credits, invitation state, and revenue shares
+- reusable contracts with pricing, offer rules, deliverables, territories, rights, and governed tracks
+- validated registration and login APIs
+- JWT authentication through HTTP-only cookies or bearer tokens
+- centralized role and resource-ownership authorization helpers
 - producer profile conversion
-- beat creation and marketplace listing
-- a single-page demo UI to exercise the flow
+- a responsive public homepage with clearly labeled static music previews
+- dedicated, accessible login and signup pages connected to the real auth API
+- authentication-aware public navigation and logout
+
+See [CURRENT_PLATFORM_STATE.md](./CURRENT_PLATFORM_STATE.md) for the exact implemented scope and [MODEL_TREE.md](./MODEL_TREE.md) for domain relationships.
 
 ## Architecture approach
 
-This project intentionally starts as a modular monolith in spirit, with clear domain boundaries rather than microservices. The initial modules are organized as a small set of reusable services and route handlers:
+This project is a modular monolith with clear domain boundaries rather than microservices. Its current modules are organized as reusable models, utilities, and route handlers:
 
 - auth
 - users
 - producers
-- beats
-- marketplace
 - shared
+- genres / moods / instruments
+- tracks
+- contracts
 
 This keeps the system simple enough to understand while making later growth straightforward.
 
@@ -40,16 +49,22 @@ This keeps the system simple enough to understand while making later growth stra
    ```
 3. Open http://localhost:3000
 
+MongoDB must be available at `MONGODB_URI` before using the API.
+
 ## Environment variables
 
 Create a .env.local file with at least:
 
 ```bash
-JWT_SECRET=change-me
+JWT_SECRET=replace-with-at-least-32-random-characters
 JWT_EXPIRES_IN=7d
 MONGODB_URI=mongodb://localhost:27017/beatmarketplace-dev
+JWT_ISSUER=beatmarketplace
+JWT_AUDIENCE=beatmarketplace-web
 ```
 
-## Next milestone
+`JWT_SECRET` is mandatory in production and must contain at least 32 characters. The development-only fallback must never be used for a deployed application.
 
-The next targeted implementation is the checkout and purchase flow with order snapshots, price validation, payment abstraction, and entitlements.
+## Current boundary
+
+The homepage previews discovery, playback, mood browsing, and a producer studio visually. Those areas use isolated static demo content; their APIs and workflows are not implemented yet. The next milestone should be selected from the documented model and API candidates before Track Studio work begins.

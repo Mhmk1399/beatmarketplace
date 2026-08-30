@@ -1,51 +1,48 @@
-// Register a new user and issue an access token.
 import { NextResponse } from "next/server";
 
-import { hashPassword, signAccessToken } from "@/lib/auth";
-import { createUserRecord, getUserByEmail } from "@/lib/store";
-import { sanitizeUser } from "@/lib/auth";
+import { hashPassword, serializeUser, setAuthCookie, signAccessToken } from "@/lib/auth";
+import { connectToDatabase } from "@/lib/db";
+import { registerSchema, validationError } from "@/lib/validation";
+import UserModel from "@/models/User";
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as {
-      email?: string;
-      password?: string;
-      firstName?: string;
-      lastName?: string;
-    };
-
-    const email = body.email?.trim();
-    const password = body.password ?? "";
-    const firstName = body.firstName?.trim() ?? "";
-    const lastName = body.lastName?.trim() ?? "";
-
-    if (!email || !password || !firstName || !lastName) {
-      return NextResponse.json({ error: "Email, password, first name, and last name are required." }, { status: 400 });
+    const parsed = registerSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return NextResponse.json(validationError(parsed.error), { status: 400 });
     }
 
-    const normalizedEmail = email.toLowerCase();
-    if (getUserByEmail(normalizedEmail)) {
-      return NextResponse.json({ error: "User already exists." }, { status: 409 });
+    await connectToDatabase();
+
+    const identityFilters: Array<Record<string, string>> = [{ email: parsed.data.email }];
+    if (parsed.data.phoneNumber) identityFilters.push({ phoneNumber: parsed.data.phoneNumber });
+
+    const existingUser = await UserModel.exists({ $or: identityFilters });
+    if (existingUser) {
+      return NextResponse.json({ error: "Email or phone number is already registered." }, { status: 409 });
     }
 
-    const passwordHash = await hashPassword(password);
-    const user = createUserRecord({
-      email: normalizedEmail,
+    const passwordHash = await hashPassword(parsed.data.password);
+    const user = await UserModel.create({
+      email: parsed.data.email,
       passwordHash,
-      firstName,
-      lastName,
+      firstName: parsed.data.firstName,
+      lastName: parsed.data.lastName,
+      phoneNumber: parsed.data.phoneNumber,
       roles: ["USER"],
       isEmailVerified: false,
     });
 
-    const token = signAccessToken(user);
-
-    return NextResponse.json({
-      user: sanitizeUser(user),
-      token,
-    }, { status: 201 });
+    const token = signAccessToken({ id: user.id, roles: user.roles });
+    const response = NextResponse.json({ user: serializeUser(user) }, { status: 201 });
+    response.headers.set("Cache-Control", "no-store");
+    return setAuthCookie(response, token);
   } catch (error) {
-    console.error("Register error", error);
+    if (typeof error === "object" && error && "code" in error && error.code === 11000) {
+      return NextResponse.json({ error: "Email or phone number is already registered." }, { status: 409 });
+    }
+
+    console.error("Registration error", error);
     return NextResponse.json({ error: "Failed to register user." }, { status: 500 });
   }
 }

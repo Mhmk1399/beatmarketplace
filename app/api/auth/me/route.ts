@@ -1,29 +1,17 @@
-// Return the currently authenticated user when a valid bearer token is supplied.
 import { NextResponse } from "next/server";
 
-import { getBearerToken, getUserFromToken, sanitizeUser } from "@/lib/auth";
-import { getUserById } from "@/lib/store";
+import { authenticateRequest, serializeUser } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
-    const token = getBearerToken(request);
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-    }
+    const authentication = await authenticateRequest(request);
+    if (!authentication.ok) return authentication.response;
 
-    const payload = getUserFromToken(token);
-    if (!payload || !payload.sub) {
-      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
-    }
-
-    const user = getUserById(payload.sub);
-    if (!user) {
-      return NextResponse.json({ error: "User not found." }, { status: 404 });
-    }
-
-    return NextResponse.json({ user: sanitizeUser(user) });
+    const response = NextResponse.json({ user: serializeUser(authentication.user) });
+    response.headers.set("Cache-Control", "no-store");
+    return response;
   } catch (error) {
-    console.error("Me error", error);
+    console.error("Current-user error", error);
     return NextResponse.json({ error: "Failed to retrieve user." }, { status: 500 });
   }
 }

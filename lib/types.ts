@@ -2,40 +2,21 @@
 // These models are intentionally simple but structured enough to grow into a
 // fuller ownership, licensing, and publishing model without major rewrites.
 export type UserRole = "USER" | "PRODUCER" | "ADMIN";
+export type UserStatus = "ACTIVE" | "SUSPENDED" | "DEACTIVATED";
 
-export type BeatStatus = "DRAFT" | "PROCESSING" | "PUBLISHED" | "UNPUBLISHED" | "ARCHIVED";
-
-export type License = {
-  id: string;
-  name: string;
-  price: number;
-  currency: string;
-  allowedFiles: string[];
-  usageRights: string;
-  commercialUse: boolean;
-  distributionLimit: string;
-  streamingLimit: string;
-  createdAt: string;
-};
-
-export type Beat = {
-  id: string;
-  producerId: string;
-  title: string;
-  slug: string;
-  description: string;
-  genre: string;
-  mood: string;
-  bpm: number;
+export type StoredAsset = {
+  provider: "S3" | "R2" | "GCS" | "AZURE" | "OTHER";
+  bucket: string;
   key: string;
-  tags: string[];
-  coverUrl: string | null;
-  previewUrl: string | null;
-  masterUrl: string | null;
-  status: BeatStatus;
-  licenses: License[];
-  createdAt: string;
-  updatedAt: string;
+  publicUrl?: string;
+  mimeType: string;
+  originalFileName: string;
+  sizeBytes: number;
+  checksum?: string;
+  width?: number;
+  height?: number;
+  durationSeconds?: number;
+  uploadedAt: string;
 };
 
 export type ProducerProfile = {
@@ -43,16 +24,7 @@ export type ProducerProfile = {
   userId: string;
   stageName: string;
   bio: string;
-  avatarUrl: string | null;
-  bannerUrl: string | null;
-  location: string | null;
-  genres: string[];
-  socialLinks: {
-    instagram?: string;
-    twitter?: string;
-    youtube?: string;
-    spotify?: string;
-  };
+  genreIds: string[];
   storefrontName: string;
   createdAt: string;
   updatedAt: string;
@@ -61,11 +33,34 @@ export type ProducerProfile = {
 export type User = {
   id: string;
   email: string;
-  passwordHash: string;
+  phoneNumber?: string;
   firstName: string;
   lastName: string;
   roles: UserRole[];
   isEmailVerified: boolean;
+  isPhoneVerified: boolean;
+  status: UserStatus;
+  profile: {
+    username?: string;
+    displayName?: string;
+    bio: string;
+    avatar?: StoredAsset;
+    banner?: StoredAsset;
+    location?: {
+      city?: string;
+      countryCode?: string;
+    };
+    website?: string;
+    socialLinks: {
+      instagram?: string;
+      twitter?: string;
+      youtube?: string;
+      spotify?: string;
+      soundcloud?: string;
+      tiktok?: string;
+    };
+  };
+  lastLoginAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
