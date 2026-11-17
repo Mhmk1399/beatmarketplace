@@ -1,23 +1,31 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useId, useState } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
 import { BrandMark } from "@/components/public/BrandMark";
+import { PublicMobileNav } from "@/components/public/PublicMobileNav";
+import { DiscIcon, MenuIcon, StoreIcon, TagIcon } from "@/components/ui/icons";
 import { NeumorphicButton, NeumorphicLink } from "@/components/ui/neumorphic/Button";
 import { useToast } from "@/components/ui/toast/ToastProvider";
+import { useMarketplace } from "@/components/marketplace/MarketplaceProvider";
 
 function getInitials(firstName: string, lastName: string) {
   return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
 }
 
-export function PublicNavbar() {
+export function PublicNavbar({ overlay = false }: { overlay?: boolean }) {
   const { logout, status, user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const toast = useToast();
+  const { cart } = useMarketplace();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuId = useId();
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   async function handleLogout() {
     setIsLoggingOut(true);
@@ -33,60 +41,56 @@ export function PublicNavbar() {
     }
   }
 
+  const exploreActive = pathname === "/marketplace" || pathname.startsWith("/tracks/");
   return (
-    <header className="sticky top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-5">
-      <nav aria-label="Primary navigation" className="neo-raised mx-auto flex min-h-16 max-w-7xl items-center gap-3 rounded-[22px] px-3 sm:px-5">
-        <BrandMark className="shrink-0" />
-
-        <div className="ml-4 hidden items-center gap-1 md:flex">
-          <Link href="/#sounds" className="rounded-xl px-3 py-2 text-sm font-medium text-[#969ba7] transition-colors hover:text-[#f2f0f7] focus-visible:text-white">
-            Sound preview
+    <><header className={`music-navbar ${overlay ? "fixed inset-x-0 w-screen" : "sticky"} top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-5`}>
+      <nav aria-label="Primary navigation" className="music-nav-shell mx-auto max-w-7xl">
+        <BrandMark className="music-nav-brand shrink-0" />
+        <div className="music-nav-links">
+          <Link href="/marketplace" className="music-nav-link" aria-current={exploreActive ? "page" : undefined}>
+            <DiscIcon className="size-4" /> Explore
           </Link>
-          <Link href="/#producer" className="rounded-xl px-3 py-2 text-sm font-medium text-[#969ba7] transition-colors hover:text-[#f2f0f7] focus-visible:text-white">
-            For producers
+          <Link href="/discounts" className="music-nav-link" aria-current={pathname === "/discounts" ? "page" : undefined}>
+            <TagIcon className="size-4" /> Live offers
           </Link>
-          <Link href="/#how-it-works" className="rounded-xl px-3 py-2 text-sm font-medium text-[#969ba7] transition-colors hover:text-[#f2f0f7] focus-visible:text-white">
-            How it works
+          <Link href="/#producer" className="music-nav-link">For producers</Link>
+          <Link href="/cart" className="music-nav-link music-nav-cart-link" aria-current={pathname === "/cart" ? "page" : undefined}>
+            <StoreIcon className="size-4" /><span>Cart</span><span className="music-cart-count">{cart.length}</span>
           </Link>
         </div>
 
-        <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3">
+        <div className="music-nav-mobile-actions">
+          <Link href="/cart" className="music-nav-cart-mobile" aria-label={`View cart, ${cart.length} ${cart.length === 1 ? "item" : "items"}`} aria-current={pathname === "/cart" ? "page" : undefined}>
+            <StoreIcon className="size-5" />{cart.length > 0 && <span>{cart.length}</span>}
+          </Link>
+          <button type="button" className="music-menu-control" aria-label="Open navigation menu" aria-expanded={menuOpen} aria-controls={menuId} aria-haspopup="dialog" onClick={() => setMenuOpen(true)}><MenuIcon className="size-5" /></button>
+        </div>
+        <div className="music-nav-account music-nav-account-desktop">
           {status === "loading" ? (
-            <div className="neo-inset h-10 w-32 animate-pulse rounded-2xl" aria-label="Loading session" />
+            <div className="neo-inset h-10 w-24 animate-pulse rounded-[var(--radius-control)]" aria-label="Loading session" />
           ) : user ? (
             <>
-              <div className="hidden min-w-0 items-center gap-2 sm:flex">
-                <span className="neo-inset flex size-10 shrink-0 items-center justify-center rounded-full text-xs font-extrabold text-[#d8b4fe]" aria-hidden="true">
-                  {getInitials(user.firstName, user.lastName)}
-                </span>
-                <div className="hidden min-w-0 lg:block">
-                  <p className="truncate text-sm font-bold text-[#e9e7ed]">{user.profile?.displayName || user.firstName}</p>
-                  <p className="text-[11px] uppercase tracking-[0.13em] text-[#777c88]">
-                    {user.roles.includes("PRODUCER") ? "Producer" : "Member"}
-                  </p>
-                </div>
-              </div>
+              <span className="music-nav-avatar hidden sm:flex" aria-label={user.profile?.displayName || user.firstName}>
+                {getInitials(user.firstName, user.lastName)}
+              </span>
               <NeumorphicLink href="/dashboard" size="sm" className="px-3">
-                <span className="sm:hidden">App</span>
-                <span className="hidden sm:inline">Dashboard</span>
+                <span className="sm:hidden">App</span><span className="hidden sm:inline">Dashboard</span>
               </NeumorphicLink>
-              <NeumorphicButton size="sm" variant="quiet" onClick={handleLogout} disabled={isLoggingOut}>
+              <NeumorphicButton size="sm" variant="quiet" className="px-3" onClick={handleLogout} disabled={isLoggingOut}>
                 {isLoggingOut ? "Leaving…" : "Logout"}
               </NeumorphicButton>
             </>
           ) : (
             <>
-              <NeumorphicLink href="/login" variant="quiet" size="sm" className="px-3 sm:px-4">
-                Login
-              </NeumorphicLink>
+              <NeumorphicLink href="/login" variant="quiet" size="sm" className="px-3 sm:px-4">Login</NeumorphicLink>
               <NeumorphicLink href="/signup" variant="accent" size="sm" className="px-3 sm:px-4">
-                <span className="sm:hidden">Join</span>
-                <span className="hidden sm:inline">Create account</span>
+                <span className="sm:hidden">Join</span><span className="hidden sm:inline">Join the music</span>
               </NeumorphicLink>
             </>
           )}
         </div>
       </nav>
     </header>
+    {menuOpen && <PublicMobileNav id={menuId} pathname={pathname} cartCount={cart.length} user={user} status={status} isLoggingOut={isLoggingOut} onClose={closeMenu} onLogout={handleLogout} />}</>
   );
 }

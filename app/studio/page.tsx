@@ -5,69 +5,54 @@ import { ArrowRightIcon, DiscIcon, StoreIcon, TagIcon } from "@/components/ui/ic
 import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
 import { NeumorphicSurface } from "@/components/ui/neumorphic/Surface";
 import { requireWorkspaceUser } from "@/lib/dashboard/session";
+import ContractModel from "@/models/Contract";
 import ProducerProfileModel from "@/models/ProducerProfile";
+import TrackModel from "@/models/Track";
 
 export default async function ProducerOverviewPage() {
   const user = await requireWorkspaceUser("producer");
-  const profile = await ProducerProfileModel.findOne({ userId: user._id });
+  const [profile, trackCount, publicCount, draftCount, licenseCount] = await Promise.all([
+    ProducerProfileModel.findOne({ userId: user._id }),
+    TrackModel.countDocuments({ producerId: user._id, status: { $ne: "ARCHIVED" } }),
+    TrackModel.countDocuments({ producerId: user._id, status: "PUBLISHED", visibility: "PUBLIC" }),
+    TrackModel.countDocuments({ producerId: user._id, status: "DRAFT" }),
+    ContractModel.countDocuments({ producerId: user._id, isActive: true }),
+  ]);
   const stageName = profile?.stageName || user.profile?.displayName || user.firstName;
-  const completionSignals = profile ? [profile.stageName, profile.storefrontName, profile.bio, profile.genreIds.length > 0] : [];
-  const completion = profile ? Math.round((completionSignals.filter(Boolean).length / completionSignals.length) * 100) : 0;
 
-  return (
-    <div className="space-y-9">
-      <DashboardPageIntro
-        eyebrow="Producer Studio"
-        title={`Your sound, ${stageName}.`}
-        description="The studio foundation is connected to your real producer identity. Catalog management remains intentionally paused for the next milestone."
-        action={<NeumorphicLink href="/studio/tracks" variant="accent">Create Track <ArrowRightIcon className="size-4" /></NeumorphicLink>}
-      />
+  return <div className="space-y-8">
+    <DashboardPageIntro eyebrow="Producer Studio" title={`Your sound, ${stageName}.`} description="Keep your catalog organized, choose the moments buyers hear, and set clear terms for every release." action={<NeumorphicLink href="/studio/tracks" variant="accent">Upload track <ArrowRightIcon className="size-4" /></NeumorphicLink>} />
 
-      {profile ? (
-        <div className="grid gap-5 xl:grid-cols-[1.15fr_.85fr]">
-          <NeumorphicSurface depth="strong" className="rounded-[28px] p-6 sm:p-8">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#a875f5]">Producer profile</p>
-                <h3 className="mt-3 text-2xl font-black tracking-[-0.035em] text-[#efecf2]">{profile.stageName}</h3>
-                <p className="mt-1 text-sm text-[#858b97]">{profile.storefrontName}</p>
-              </div>
-              <div className="neo-inset min-w-28 rounded-[18px] px-4 py-3 text-right">
-                <p className="text-2xl font-black text-[#c18dfb]">{completion}%</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#707683]">Complete</p>
-              </div>
-            </div>
-            <p className="mt-7 max-w-2xl text-sm leading-6 text-[#8b919d]">{profile.bio || "Your producer biography has not been added yet."}</p>
-            <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              <div className="neo-inset flex items-center gap-3 rounded-[18px] p-4"><TagIcon className="size-5 text-[#aa70f7]" /><div><p className="text-xs font-bold text-[#dcd9e1]">{profile.genreIds.length} connected</p><p className="mt-0.5 text-[10px] text-[#737986]">Genres</p></div></div>
-              <div className="neo-inset flex items-center gap-3 rounded-[18px] p-4"><StoreIcon className="size-5 text-[#aa70f7]" /><div className="min-w-0"><p className="truncate text-xs font-bold text-[#dcd9e1]">{profile.storefrontName}</p><p className="mt-0.5 text-[10px] text-[#737986]">Storefront</p></div></div>
-            </div>
-          </NeumorphicSurface>
+    <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">{[
+      { label: "Tracks in catalog", value: trackCount, href: "/studio/tracks" },
+      { label: "Public releases", value: publicCount, href: "/studio/tracks" },
+      { label: "Drafts", value: draftCount, href: "/studio/tracks" },
+      { label: "Active licenses", value: licenseCount, href: "/studio/contracts" },
+    ].map((stat) => <Link href={stat.href} key={stat.label} className="neo-raised rounded-[var(--radius-card)] p-5 sm:p-6"><p className="text-3xl font-black text-[var(--accent-text)]">{stat.value}</p><p className="mt-2 text-xs leading-5 text-[var(--muted)]">{stat.label}</p></Link>)}</div>
 
-          <NeumorphicSurface className="rounded-[28px] p-6 sm:p-8">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#777d89]">Quick paths</p>
-            <div className="mt-5 space-y-3">
-              {[
-                ["Tracks", "/studio/tracks", "Catalog UI is the next milestone."],
-                ["Contracts", "/studio/contracts", "Commercial terms remain model-only."],
-                ["Producer Profile", "/studio/profile", "Profile editing is not active yet."],
-              ].map(([label, href, detail]) => (
-                <Link key={href} href={href} className="dashboard-quick-link neo-inset flex items-center gap-3 rounded-[18px] p-4">
-                  <DiscIcon className="size-5 shrink-0 text-[#a875f5]" />
-                  <span className="min-w-0 flex-1"><span className="block text-sm font-bold text-[#dfdce4]">{label}</span><span className="mt-0.5 block truncate text-[10px] text-[#707683]">{detail}</span></span>
-                  <ArrowRightIcon className="size-4 shrink-0 text-[#777d89]" />
-                </Link>
-              ))}
-            </div>
-          </NeumorphicSurface>
-        </div>
-      ) : (
-        <NeumorphicSurface className="max-w-3xl rounded-[28px] p-7 sm:p-9">
-          <StoreIcon className="size-8 text-[#b47af8]" />
-          <h3 className="mt-5 text-xl font-extrabold text-[#ece9f0]">Producer profile setup is incomplete</h3>
-          <p className="mt-3 text-sm leading-6 text-[#858b97]">Your account has producer access, but no ProducerProfile record was found. No placeholder profile has been fabricated.</p>
-        </NeumorphicSurface>
-      )}
+    <div className="grid gap-5 xl:grid-cols-[1.1fr_.9fr]">
+      <NeumorphicSurface depth="strong" className="rounded-[var(--radius-card)] p-6 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-widest text-[var(--accent-text)]">Your next release</p>
+        <h3 className="mt-3 text-2xl font-extrabold tracking-tight">From master to marketplace</h3>
+        <ol className="mt-6 space-y-5">{[
+          { title: "Upload the full WAV", detail: "Your master is private. Add artwork, BPM, key and a genre so buyers can find it." },
+          { title: "Choose your best 30 seconds", detail: "Audition any section and pick its starting point. Buyers receive only the trimmed preview." },
+          { title: "Add a license, then publish", detail: "Set a price in Toman, choose usage limits and make the release public when it is ready." },
+        ].map((step, index) => <li key={step.title} className="flex gap-4"><span className="neo-inset flex size-9 shrink-0 items-center justify-center rounded-xl text-sm font-black text-[var(--accent-text)]">{index + 1}</span><div><h4 className="text-sm font-bold">{step.title}</h4><p className="mt-1 text-xs leading-6 text-[var(--muted)]">{step.detail}</p></div></li>)}</ol>
+        <div className="mt-7 flex flex-wrap gap-3"><NeumorphicLink href="/studio/tracks" size="sm">Manage tracks</NeumorphicLink><NeumorphicLink href="/studio/contracts" size="sm">Manage licenses</NeumorphicLink></div>
+      </NeumorphicSurface>
+
+      <NeumorphicSurface className="rounded-[var(--radius-card)] p-6 sm:p-8">
+        <StoreIcon className="size-7 text-[var(--accent-text)]" />
+        <h3 className="mt-4 text-xl font-extrabold">{profile?.storefrontName || `${stageName} Studio`}</h3>
+        <p className="mt-2 text-sm text-[var(--muted)]">{profile?.stageName || stageName}</p>
+        <p className="mt-5 text-sm leading-7 text-[var(--muted)]">{profile?.bio || "Your studio is ready for your next release."}</p>
+        <div className="mt-6 space-y-3">{[
+          { title: "Tracks", href: "/studio/tracks", detail: "Upload, preview and publish", Icon: DiscIcon },
+          { title: "Licenses", href: "/studio/contracts", detail: "Set prices and usage terms", Icon: TagIcon },
+          { title: "Marketplace", href: "/marketplace", detail: "See what buyers discover", Icon: StoreIcon },
+        ].map(({ title, href, detail, Icon }) => <Link key={href} href={href} className="dashboard-quick-link neo-inset flex items-center gap-3 rounded-[var(--radius-control)] p-4"><Icon className="size-5 shrink-0 text-[var(--accent-text)]" /><span className="min-w-0 flex-1"><span className="block text-sm font-bold">{title}</span><span className="mt-1 block text-xs text-[var(--muted)]">{detail}</span></span><ArrowRightIcon className="size-4 shrink-0 text-[var(--muted)]" /></Link>)}</div>
+      </NeumorphicSurface>
     </div>
-  );
+  </div>;
 }

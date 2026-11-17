@@ -1,5 +1,13 @@
 # BeatMarketplace Model Tree
 
+## Timed campaigns and storage additions (2026-11-17)
+
+`TrackDiscount` has one versioned campaign per track (`trackId` unique), an owning `producerId`, percentage, UTC `startsAt`/`endsAt` and an active switch. `Order.items` snapshots original price, savings, campaign ID/version/window and the final charged price. Changing a campaign never rewrites an existing order.
+
+Embedded storage assets now also retain an optional physical `storageKey` for sharded local/S3 objects. Public UUID media keys stay stable; purchased masters keep their exact provider/bucket/object reference. See [storage and scale](docs/STORAGE_AND_SCALE.md) for runtime adapters and deployment requirements.
+
+`HeroPlacement` schedules an admin-selected sponsored beat. It stores display order/label, UTC start/end, an active switch, agreed whole-toman fee, manual `PENDING`/`PAID`/`COMPLIMENTARY` status and reference, version and creating/updating administrators. Fees are bookkeeping; no advertising charge or settlement runs. Its declared schedule/order/track indexes are included in `npm run db:indexes`.
+
 ## Current persisted models
 
 ```text
@@ -34,6 +42,13 @@ Contract
 ├── files to deliver
 ├── territory
 └── license terms / version / effective dates
+
+HeroPlacement
+├── trackId ──────────────────> Track
+├── createdBy / updatedBy ────> User (administrator)
+├── position / label / startsAt / endsAt / isActive
+├── agreedFeeToman / paymentStatus / paymentReference
+└── version / timestamps
 ```
 
 `ObjectStorageAsset` is a reusable embedded schema, not its own MongoDB collection.
@@ -68,6 +83,10 @@ The only producer-published music model. It owns descriptive metadata, taxonomy 
 
 Defines commercial terms that can govern one or more tracks. It owns pricing, offer rules, deliverables, territory, license rights, version, and effective dates.
 
+### HeroPlacement
+
+Owns a sponsored homepage booking, separate from a track's licenses, discounts and buyer orders. The public query returns at most ten distinct beats in explicit order, only within active paid/complimentary windows. The referenced beat must still have public publication, real artwork, a master, a cropped 30-second preview, an active producer and an available non-exclusive WAV-only license. Public serialization exposes the beat and display schedule while withholding fees, payment references and admin fields. Deactivation preserves the booking record.
+
 ## Intentionally removed
 
 - `Beat` model
@@ -77,16 +96,16 @@ Defines commercial terms that can govern one or more tracks. It owns pricing, of
 - `Category` model
 - category relationship from `Genre`
 
-No track, genre, mood, instrument, or contract CRUD routes have been created yet.
+Track, contract, and genre/mood/instrument CRUD APIs now exist. See CURRENT_PLATFORM_STATE.md for current routes.
 
-## Possible future models — not created
+## Additional models and future work
 
-These should only be added when their workflows are approved.
+Implemented additions (2026-11-17): Favorite links a user and track with a compound unique index. Order owns buyer-scoped checkout idempotency, immutable track/contract/master snapshots, integer IRT amount, gateway authority/reference and conditional payment state. Order snapshots currently serve as purchased licenses and download entitlements; separate entities may become useful as fulfillment grows.
 
 ### Likely needed for the next product stages
 
 1. **Offer** — records a buyer's negotiated amount and the producer's accept, reject, or counter-offer decision for an offerable contract.
-2. **Order** — immutable checkout snapshot containing buyer, track, contract version, final price, currency, and order state.
+2. **Order** — implemented with immutable item, contract and master snapshots, total toman amount, gateway reference and state.
 3. **Payment** — payment-provider references, payment attempts, webhook state, refunds, and reconciliation data.
 4. **Entitlement** — records which purchased track files and rights a user may access after payment.
 5. **ExecutedContract** — immutable accepted contract snapshot. This prevents later edits to a reusable `Contract` template from changing a buyer's purchased rights.
@@ -104,10 +123,10 @@ These should only be added when their workflows are approved.
 ### Add only when product demand appears
 
 10. **Playlist / Collection** — curated groups of tracks.
-11. **Favorite / Follow** — buyer saves and producer-following relationships.
+11. **Favorite / Follow** — Favorite is implemented; producer following remains future work.
 12. **Review / Rating** — marketplace reputation after verified purchases exist.
 13. **Notification** — durable in-app/email notification state.
 14. **AuditLog** — security and administrative history for sensitive actions.
 15. **Role / Permission** — database-managed RBAC when the current fixed roles and code-level checks are no longer enough.
 
-The recommended next modeling decision is whether `Contract` is only a reusable template. If it is, `ExecutedContract`, `Order`, and `Entitlement` should be approved before checkout is implemented.
+`Contract` remains a reusable versioned template. `Order` now stores the immutable accepted terms and exact purchased master and provides the current download entitlement. Separate executed-contract/entitlement records can be introduced when refunds, revisions, richer fulfillment or legal document generation require independent lifecycles.

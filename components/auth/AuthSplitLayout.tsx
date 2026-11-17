@@ -7,7 +7,7 @@ export function AuthSplitLayout({ children, mode }: { children: ReactNode; mode:
   return (
     <PublicShell showFooter={false}>
       <section className="px-4 py-8 sm:px-6 sm:py-12">
-        <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[38px] bg-black/[0.055] lg:grid-cols-[1.03fr_.97fr] lg:items-stretch">
+        <div className="mx-auto grid max-w-7xl overflow-hidden rounded-[38px] bg-ink/[0.055] lg:grid-cols-[1.03fr_.97fr] lg:items-stretch">
           <div className="hidden p-4 lg:block">
             <AuthVisual mode={mode} />
           </div>

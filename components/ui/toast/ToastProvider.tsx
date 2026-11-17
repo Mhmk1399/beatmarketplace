@@ -35,10 +35,10 @@ function nextToastId() {
 }
 
 const variantStyles: Record<ToastVariant, { accent: string; icon: string }> = {
-  success: { accent: "bg-[#55d6a7]", icon: "text-[#6ee7b7]" },
-  error: { accent: "bg-[#fb7185]", icon: "text-[#fda4af]" },
-  warning: { accent: "bg-[#fbbf24]", icon: "text-[#fcd34d]" },
-  info: { accent: "bg-[#a875f5]", icon: "text-[#c4a0fb]" },
+  success: { accent: "bg-success", icon: "text-success-text" },
+  error: { accent: "bg-error", icon: "text-error-text" },
+  warning: { accent: "bg-warning", icon: "text-warning-text" },
+  info: { accent: "bg-info", icon: "text-info-text" },
 };
 
 function ToastItem({ dismiss, toast }: { dismiss: (id: string) => void; toast: ToastRecord }) {
@@ -47,8 +47,8 @@ function ToastItem({ dismiss, toast }: { dismiss: (id: string) => void; toast: T
   return (
     <div
       role={toast.variant === "error" ? "alert" : "status"}
-      className="neo-raised-strong relative grid w-full grid-cols-[auto_1fr_auto] gap-3 overflow-hidden rounded-[20px] p-4 shadow-2xl"
-      style={{ animation: "toast-enter 190ms ease-out" }}
+      className="neo-raised-strong relative grid w-full grid-cols-[auto_1fr_auto] gap-3 overflow-hidden rounded-[20px] p-4"
+      style={{ animation: "toast-enter var(--motion-base) ease-out" }}
       onMouseEnter={(event) => event.currentTarget.style.setProperty("--toast-paused", "paused")}
       onMouseLeave={(event) => event.currentTarget.style.removeProperty("--toast-paused")}
     >
@@ -57,10 +57,10 @@ function ToastItem({ dismiss, toast }: { dismiss: (id: string) => void; toast: T
         {toast.variant === "success" ? <CheckIcon className="size-5" /> : <ShieldIcon className="size-5" />}
       </span>
       <div className="min-w-0 pt-0.5">
-        <p className="text-sm font-extrabold text-[#ebe8ef]">{toast.title}</p>
-        {toast.description && <p className="mt-1 text-xs leading-5 text-[#858b97]">{toast.description}</p>}
+        <p className="text-sm font-extrabold text-foreground">{toast.title}</p>
+        {toast.description && <p className="mt-1 text-xs leading-5 text-muted">{toast.description}</p>}
       </div>
-      <button type="button" onClick={() => dismiss(toast.id)} aria-label="Dismiss notification" className="flex size-8 items-center justify-center rounded-lg text-[#777d89] hover:bg-white/[0.035] hover:text-white">
+      <button type="button" onClick={() => dismiss(toast.id)} aria-label="Dismiss notification" className="flex size-8 items-center justify-center rounded-lg text-faint hover:bg-[var(--hover-overlay)] hover:text-on-accent">
         <CloseIcon className="size-4" />
       </button>
       {toast.duration > 0 && <span className={cn("toast-progress absolute inset-x-0 bottom-0 h-0.5 origin-left", style.accent)} style={{ animationDuration: `${toast.duration}ms` }} onAnimationEnd={() => dismiss(toast.id)} aria-hidden="true" />}

@@ -1,0 +1,68 @@
+.sheet {
+  transform: translate3d(0, calc(100% + 32px), 0);
+  border-color: var(--music-border);
+  background: var(--music-glass-strong);
+  box-shadow: var(--music-shadow);
+}
+
+.dragRegion {
+  flex-shrink: 0;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.sheet[data-dragging="true"] {
+  will-change: transform;
+}
+
+.sheet[data-dragging="true"] .dragRegion,
+.sheet[data-dragging="true"] .handle {
+  cursor: grabbing;
+}
+
+.handle {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle > span {
+  width: 44px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+  opacity: .65;
+  box-shadow: var(--shadow-inset);
+  transition: width var(--motion-base), color var(--motion-base), opacity var(--motion-base);
+}
+
+.handle:hover,
+.handle:focus-visible {
+  color: var(--accent-text);
+}
+
+.handle:hover > span,
+.sheet[data-dragging="true"] .handle > span {
+  width: 52px;
+  opacity: 1;
+}
+
+.header {
+  padding-top: 0;
+}
+
+.body {
+  overscroll-behavior-y: contain;
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handle > span { transition: none; }
+}

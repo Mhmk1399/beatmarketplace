@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" fill="none">
+  <title>QW — signal artwork</title>
+  <defs>
+    <radialGradient id="sky" cx=".6" cy=".4"><stop stop-color="#49214C"/><stop offset="1" stop-color="#17131F"/></radialGradient>
+    <linearGradient id="signal" x1="180" y1="160" x2="620" y2="600" gradientUnits="userSpaceOnUse"><stop stop-color="#E6D0FF"/><stop offset=".48" stop-color="#BA7CF4"/><stop offset="1" stop-color="#E34CC1"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="25"/></filter>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0v40" stroke="#D8B4FE" stroke-opacity=".045"/></pattern>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h800v800H0z"/><path fill="url(#grid)" d="M0 0h800v800H0z"/>
+  <path d="M155 400l120-204 174 65 190 244-181 57-183-87-120-75z" stroke="#CB71EF" stroke-width="15" opacity=".4" filter="url(#glow)"/>
+  <g stroke="url(#signal)">
+    <path d="M155 400l120-204 174 65 190 244-181 57-183-87-120-75z" stroke-width="2"/>
+    <path d="M172 400l110-187 163 65 177 216-169 52-171-82-110-64z"/><path d="M189 400l100-170 152 65 164 188-157 47-159-77-100-53z"/>
+    <path d="M206 400l90-153 141 65 151 160-145 42-147-72-90-42z"/><path d="M223 400l80-136 130 65 138 132-133 37-135-67-80-31z"/>
+    <path d="M240 400l70-119 119 65 125 104-121 32-123-62-70-20z"/><path d="M257 400l60-102 108 65 112 76-109 27-111-57-60-9z"/>
+    <path d="M274 400l50-85 97 65 99 48-97 22-99-52-50 2z"/><path d="M291 400l40-68 86 65 86 20-85 17-87-47-40 13z"/>
+  </g>
+  <circle cx="449" cy="261" r="5" fill="#F1DCFF"/><circle cx="155" cy="400" r="4" fill="#F1DCFF"/><circle cx="639" cy="505" r="4" fill="#EEA2EB"/>
+  <path d="M52 52h34M52 52v34m696-34h-34m34 0v34M52 748h34m-34 0v-34m696 34h-34m34 0v-34" stroke="#D8B4FE" opacity=".4"/>
+  <text x="65" y="100" fill="#D7C8E8" font-family="Arial,sans-serif" font-size="13" letter-spacing="5">BEATMARKETPLACE / 002</text>
+  <text x="65" y="664" fill="#F3EDF9" font-family="Arial,sans-serif" font-size="76" font-weight="700" letter-spacing="-3">QW</text>
+  <text x="68" y="701" fill="#BA9DBF" font-family="Arial,sans-serif" font-size="13" letter-spacing="5">THE LISTENING ROOM</text>
+</svg>

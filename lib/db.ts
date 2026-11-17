@@ -22,8 +22,19 @@ export async function connectToDatabase() {
   if (cache.connection) return cache.connection;
 
   if (!cache.promise) {
+    mongoose.set("maxTimeMS", 10_000);
     cache.promise = mongoose.connect(config.mongoUri, {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10_000,
+      maxPoolSize: 20,
+      minPoolSize: 0,
+      maxConnecting: 4,
+      maxIdleTimeMS: 60_000,
+      waitQueueTimeoutMS: 5000,
+      // Build indexes explicitly during deployment, rather than on every app instance.
+      autoIndex: process.env.NODE_ENV !== "production",
+      autoCreate: process.env.NODE_ENV !== "production",
     });
   }
 

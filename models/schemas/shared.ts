@@ -6,6 +6,7 @@ export type ObjectStorageAsset = {
   provider: StorageProvider;
   bucket: string;
   key: string;
+  storageKey?: string;
   publicUrl?: string;
   mimeType: string;
   originalFileName: string;
@@ -26,6 +27,7 @@ export const objectStorageAssetSchema = new Schema<ObjectStorageAsset>(
     },
     bucket: { type: String, required: true, trim: true, maxlength: 255 },
     key: { type: String, required: true, trim: true, maxlength: 1_024 },
+    storageKey: { type: String, trim: true, maxlength: 1_024 },
     publicUrl: { type: String, trim: true, maxlength: 2_048 },
     mimeType: { type: String, required: true, trim: true, maxlength: 255 },
     originalFileName: { type: String, required: true, trim: true, maxlength: 255 },

@@ -1,188 +1,92 @@
 # BeatMarketplace: Current Platform State
 
-> Repository snapshot reviewed on August 30, 2026.
+Reviewed 2026-11-17. This document replaces the earlier shell-only snapshot.
 
-## What exists today
+## Working product flows
 
-BeatMarketplace is a Next.js modular monolith backed by MongoDB and Mongoose. The implemented product surface now includes a public marketing/discovery homepage, dedicated authentication pages, cookie-backed sessions, role and ownership authorization helpers, producer onboarding, and the first approved music-domain schemas.
+- Register/login -> buyer dashboard -> producer onboarding -> Producer Studio.
+- Upload a private WAV and artwork -> choose a 30-second section -> draft/publish/archive.
+- Publish -> create a versioned WAV license priced in integer toman -> discover/filter -> listen -> save -> select license -> cart.
+- Configured Zarinpal request -> gateway callback -> server verification -> paid order -> buyer-only full WAV download.
+- Admin creates/edits/deactivates genre, mood and instrument taxonomies.
+- Producer schedules a per-track percentage discount -> public live-offers page and countdown -> server-repriced cart -> immutable discounted order.
+- Admin selects an eligible beat -> records a scheduled sponsored booking and manual payment status -> homepage carousel displays current paid/complimentary placements.
 
-The authenticated product surface now also includes one shared, role-aware dashboard shell for Personal, Producer Studio, and Admin workspaces. It is a foundation rather than three separate dashboard applications.
+The homepage includes a live catalog, a real listening room using the five supplied MP3 demos, a carousel currently showing the five local demos and a full-background Three.js ribbon scene. Pointer movement, touch and page scrolling control the background independently of audio. The global player shows a real audio spectrum in its compact dock and expanded sheet. Operational actions live in the marketplace and authenticated workspaces. No fake sales or populated marketplace records are introduced.
 
-Track discovery cards, player controls, mood filters, and the Producer Studio shown on the homepage are presentation-only previews. They are intentionally isolated from the API layer and do not claim that track publishing or discovery is already live.
+## Main routes
 
-## Public web experience
-
-| Route | Current behavior |
+| Route | Behavior |
 | --- | --- |
-| `/` | Responsive public homepage with hero/player concept, demo discovery, moods, producer value proposition, workflow, and calls to action. |
-| `/login` | Accessible email/password login form connected to `POST /api/auth/login`. |
-| `/signup` | Accessible account form connected to `POST /api/auth/register`. |
-| `/dashboard` | Personal overview for any authenticated account. |
-| `/studio` | Producer overview restricted to users with the exact `PRODUCER` role. |
-| `/admin` | Operational overview restricted to users with the exact `ADMIN` role. |
+| `/` | Full-background interactive hero, sponsored carousel, listening room and live catalog |
+| `/marketplace` | Search and filter published public tracks |
+| `/discounts` | Currently active, purchasable discounted beats with live countdowns |
+| `/tracks/[id]` | Real track details, 30-second preview and license options |
+| `/cart` | Persistent device-local cart and configured gateway checkout |
+| `/dashboard` | Buyer overview and producer onboarding |
+| `/dashboard/favorites` | Account-based saved beats |
+| `/dashboard/orders` | Payment status, immutable license terms and paid WAV downloads |
+| `/studio` | Producer overview with live catalog counts |
+| `/studio/tracks` | Upload/edit/select preview/publish/archive |
+| `/studio/contracts` | License creation/editing/deactivation |
+| `/studio/discounts` | Per-track percentage campaigns, scheduling, editing and cancellation |
+| `/admin/genres`, `/admin/moods`, `/admin/instruments` | Taxonomy administration |
+| `/admin/hero` | Sponsored booking schedule, ordering and manual fee/payment records |
 
-The shared navigation restores the current session through `GET /api/auth/me`. Anonymous visitors see login and account-creation actions. Authenticated visitors see their identity, role, and a real logout action. Session credentials remain in an HTTP-only cookie; the frontend does not store tokens in local or session storage.
+Profile/settings pages and admin user management remain explicit placeholders.
 
-The visual system is a dark graphite neumorphic interface with restrained purple accents, responsive layouts, visible keyboard focus, reduced-motion support, tactile controls, reusable surfaces, inputs, buttons, and icon buttons.
+## API surface
 
-The shared UI foundation also provides a typed configuration-driven form, generic typed table, accessible controlled modal, and globally mounted toast system. Usage guidance lives in [components/ui/README.md](./components/ui/README.md).
+- Existing `/api/auth/{register,login,logout,me}` and `/api/producers`.
+- `GET/POST /api/tracks`, `GET/PATCH/DELETE /api/tracks/[id]`.
+- `GET/POST /api/contracts`, `PATCH/DELETE /api/contracts/[id]`.
+- `GET/POST /api/discounts`, `PATCH/DELETE /api/discounts/[id]` (producer-owned campaigns).
+- `GET/POST /api/taxonomy`, `PATCH /api/taxonomy/[id]`.
+- `GET /api/favorites`, `PUT/DELETE /api/favorites/[id]`.
+- `GET /api/media/[key]` for preview/artwork only, with range support and publication/ownership checks.
+- `GET/POST /api/orders`, `GET /api/orders/[id]/download?item=0`.
+- `GET /api/payments/status`, `GET /api/payments/zarinpal/callback`.
+- `GET /api/hero` for the current public sponsored deck and server time.
+- `GET/POST /api/admin/hero`, `PATCH/DELETE /api/admin/hero/[id]` for admin-only booking management; deletion deactivates the booking.
 
-## Implemented application capabilities
+Public list queries are bounded and validated. `mine=1` uses current database roles; Studio mutations enforce ownership. Track DTOs allowlist fields and exclude storage internals, private masters and collaborator records. Disabled producers are excluded from public discovery/media/favorites.
 
-| Capability | Status |
-| --- | --- |
-| Register with email, password, names, and optional phone | Implemented |
-| Login, cookie session restoration, and logout | Implemented |
-| Current authenticated user | Implemented |
-| `USER`, `PRODUCER`, and `ADMIN` roles | Implemented |
-| Shared role and resource-owner authorization checks | Implemented |
-| Create and retrieve the current user's producer profile | Implemented |
-| Public homepage and dedicated auth pages | Implemented |
-| Shared responsive dashboard shell and role-aware workspace navigation | Implemented |
-| Server-side Personal, Producer Studio, and Admin route authorization | Implemented |
-| Shared dynamic form, table, modal, and global toast primitives | Implemented |
-| Genre, mood, and instrument administration | Models only |
-| Track creation, publishing, playback, and discovery | Model only; homepage content is static demo data |
-| Contract creation and assignment | Model only |
-| Upload, checkout, payment, licensing, and fulfillment | Not implemented |
+## Theme and usability
 
-## API routes
+`app/theme.css` is the global source for the graphite/purple palette, clay/neumorphic materials, shadows, shapes, focus and motion. `app/globals.css` and existing/new components consume its semantic tokens. Shared buttons/inputs/surfaces/modals/toasts provide consistent feedback and keyboard accessibility. Interfaces include honest loading, empty, error and retry states.
 
-| Method and route | Purpose |
-| --- | --- |
-| `POST /api/auth/register` | Validate and create a user, then establish a session. |
-| `POST /api/auth/login` | Validate credentials and establish a session. |
-| `POST /api/auth/logout` | Clear the browser session cookie. |
-| `GET /api/auth/me` | Return the authenticated database user. |
-| `POST /api/producers` | Create or recover the authenticated user's producer profile. |
-| `GET /api/producers` | Return the authenticated user's producer profile. |
+The public music experience extends this system with centralized glass materials, ambient artwork lighting, music navigation and explicit playing states. Track details place album artwork, live frequency analysis and a preview timeline ahead of the license comparison. Frequency rendering reads the single global audio analyser only for the matching track, with motion and visibility controls; navigation continues to use the persistent bottom player.
 
-There are deliberately no beat or category routes. Track and taxonomy routes have not been created yet.
+The full-viewport hero begins behind the overlaid navbar. One background canvas continues through the native listening carousel below it, with two desktop cards or one compact mobile card, seamless looping and shared arrow, keyboard, mouse-drag and touch navigation. Soft viewport masks fade edges. Demo favorite hearts synchronize between both sections and persist locally; real beat favorites retain their authenticated API. Its `--hero-*` materials alias the existing graphite clay theme; controls use the shared NeumorphicButton. The current homepage explicitly selects all five local demos, while the administrator-selected placement API remains available when the demos prop is omitted. `HeroBackdrop` covers the full section and loads `HeroBackdropScene` lazily, with low DPR and bounded 24/36 FPS tiers. The scene pauses offscreen, in hidden tabs, behind modal dialogs and under reduced motion; data saver and unavailable WebGL retain the SVG background. The compact mobile carousel supports native vertical scrolling, horizontal swiping, previous/next buttons and keyboard navigation. Its optional six-second rotation pauses on hover, focus, hidden/offscreen states and playback of its selected beat, and is disabled for reduced motion.
 
-## Shared dashboard foundation
+Public navigation uses a hamburger below 1100px, with cart access in the header and account/navigation links in a modal drawer. The drawer occupies the browser's top layer above the audio dock, contains keyboard focus and closes on links, history/hash changes or a desktop resize. Workspace drawers portal above the player and close on workspace changes and the 1024px desktop breakpoint. Closing either menu restores body scrolling and focus.
 
-The three workspaces reuse the same dashboard shell, sidebar, header, workspace switcher, user menu, mobile drawer, and data-driven navigation renderer.
+## Audio guarantee
 
-Available workspaces are derived from the current MongoDB user roles after the session token is verified:
+A single global `AudioPlayerProvider` owns playback across routes. The bottom dock supplies transport, seek, volume/mute, shuffle/repeat and queue controls; mobile has a compact dock and a complete expanded player. The five public test songs play at full length with custom SVG covers. Marketplace tracks remain capped to their independently generated 30-second preview. See [audio architecture](docs/AUDIO_PLAYER.md).
 
-- Every authenticated account receives Personal at `/dashboard`.
-- `PRODUCER` adds Producer Studio at `/studio`.
-- `ADMIN` adds Admin at `/admin`.
-- Admin does not implicitly grant Producer Studio; the producer role must be present.
+The server inspects uncompressed WAV headers and streams exactly the selected 30 seconds into a separate file without source LIST/ID3 metadata. Original uploads are spooled to bounded private temporary files; complete masters are never buffered for upload/HTTP delivery. Private sharded local storage and S3/R2-compatible storage are implemented. Local delivery streams byte ranges; object storage delivery uses authorized 60-second signed URLs. See [storage and scale](docs/STORAGE_AND_SCALE.md).
 
-Anonymous access to any workspace redirects to `/login`. An authenticated user missing a workspace's required role is redirected to `/dashboard`. These checks happen in server layouts and do not rely on hidden navigation links.
+## Orders and payment boundary
 
-Currently exposed navigation:
+Prices use MongoDB Decimal128 and validated whole toman amounts. Checkout reloads current tracks/licenses and rejects stale prices/versions, self-purchases, exclusive licenses and unavailable deliverables. Buyer-scoped idempotency prevents retrying one checkout from starting a second payment. Orders snapshot the price, contract version/terms and exact master file.
 
-- Personal: Overview, Profile, Settings.
-- Producer Studio: Overview, Tracks, Contracts, Producer Profile, Settings.
-- Admin: Overview, Users, Genres, Moods, Instruments, Settings.
+Per-track discounts use a dedicated versioned model, UTC start/end instants and 1–90 percent whole-number discounts. The backend recalculates effective prices and snapshots original price/savings/campaign version; an expired campaign cannot discount a new order or change an existing quoted order. Cards share one server-aligned countdown clock. Newest public/producer catalog pages use stable range cursors. Public per-track license payloads are bounded and detailed choices can be paged.
 
-Only the three overview pages contain live dashboard information. Personal uses the authenticated account record, Producer Studio reads the existing `ProducerProfile` when available, and Admin presents current management domains without fabricated statistics. The remaining destinations are explicit structural placeholders: they contain no forms, records, CRUD behavior, or fake APIs.
+Sponsored `HeroPlacement` bookings have a UTC window, explicit order, label, active switch, version and admin audit references. Only current active `PAID`/`COMPLIMENTARY` bookings qualify, with at most ten distinct beats ordered by position. Each beat must remain published/public with real artwork, a stored master, a cropped 30-second preview, an active producer and an available non-exclusive WAV-only license. The public DTO excludes manual fees and payment references. Current discounted license prices are displayed and expired placements leave the deck through the shared server-aligned clock. The agreed fee is recorded in whole toman, but advertising collection and settlement are not implemented. Deployment index creation includes `HeroPlacement` through `npm run db:indexes`.
 
-The dashboard is responsive at desktop, tablet, and mobile widths. Desktop uses a persistent sidebar; smaller layouts use a keyboard-accessible modal drawer with focus containment, Escape handling, navigation-close behavior, and body scroll locking. Active routes use `aria-current="page"`, accent color, and an inset pressed state.
+Zarinpal configuration is external. An unconfigured gateway is visibly disabled and returns 503, never fake success. Only server verification against the persisted authority and amount transitions PENDING -> PAID. Conditional updates make duplicate callbacks safe; code101 permits recovery after an interrupted database write. Downloads require the paid order's actual buyer and use the purchased master snapshot.
 
-## Shared UI primitives
+This establishes the implemented gateway protocol, not live merchant acceptance. Producer settlement, platform commissions, refunds, financial reconciliation and exclusive-sale inventory still need development.
 
-- `DynamicForm` renders typed field definitions while each feature retains ownership of state, validation, and API submission. Login and Signup currently use it.
-- `DynamicTable<T>` renders semantic tables with typed columns, custom cells, loading rows, responsive overflow, and empty states. It does not fabricate fetching, sorting, or pagination behavior.
-- `DynamicModal` is a controlled portal modal with focus containment/restoration, Escape and backdrop behavior, body scroll locking, responsive sizing, and accessible labelling.
-- `ToastProvider` is mounted once in the root layout. `useToast()` exposes success, error, warning, informational, individual-dismiss, and dismiss-all behavior. Login, Signup, and both logout surfaces currently use it.
+## Verification
 
-Transient toasts supplement rather than replace inline validation errors. No data-layer behavior or domain APIs are embedded in these UI primitives.
+- `npm run check`: ESLint, route generation, strict TypeScript.
+- `npm test`: focused audio/validation/media/checkout/callback/download tests without real gateway requests.
+- Optimized production build.
+- Separate API integration against temporary MongoDB and synthetic audio: authentication/roles, taxonomy, ownership, upload/publication, exact preview samples, protected master, HTTP range behavior, IRT licenses, favorites and unconfigured payment safety.
+- Browser inspection and interactions on the isolated production server, including mobile layouts, player, saved beats, cart persistence and producer editor.
 
-## Current model tree
+## Remaining product scope
 
-The complete relationship map and model responsibilities are documented in [MODEL_TREE.md](./MODEL_TREE.md).
-
-Persisted collections:
-
-- `User`
-- `ProducerProfile`
-- `Genre`
-- `Mood`
-- `Instrument`
-- `Track`
-- `Contract`
-
-Reusable embedded schema:
-
-- `ObjectStorageAsset`
-
-Key relationships:
-
-- `ProducerProfile.userId → User`
-- `ProducerProfile.genreIds → Genre[]`
-- `Genre.parentGenreId → Genre`
-- `Track.producerId → User`
-- `Track.metadata.genreId → Genre`
-- `Track.metadata.moodIds → Mood[]`
-- `Track.metadata.instrumentIds → Instrument[]`
-- `Track.collaborators.userId → User[]`
-- `Contract.producerId → User`
-- `Contract.trackIds → Track[]`
-
-## Authentication and authorization
-
-- Passwords use bcrypt with cost factor 12.
-- JWTs use HS256 with issuer, audience, expiration, and token-type checks.
-- Browser sessions use HTTP-only, same-site cookies and `Secure` in production.
-- Protected requests reload the current user from MongoDB.
-- Suspended or deactivated users are rejected.
-- Role checks include an admin override.
-- Resource-owner checks compare the authenticated user with the resource owner.
-
-Still missing are email-verification workflows, password reset, rate limiting, MFA, refresh/revocation, audit logs, and database-managed permissions.
-
-## Model safeguards
-
-- Unique user email, optional phone, username, genre/mood/instrument slugs, and track slug.
-- Hierarchical genres without a separate category model.
-- Track publication requires a genre, artwork, and preview audio.
-- Scheduled tracks require a future release date.
-- Collaborators cannot duplicate the producer or each other.
-- Collaborator revenue shares cannot exceed 100%.
-- Contract prices use MongoDB Decimal128.
-- Offer minimums, territories, deliverables, track assignments, and effective dates have cross-field validation.
-- Protected master and stem fields are excluded from queries by default.
-
-## Removed domain concepts
-
-The following source code has been removed:
-
-- `Beat` model and shared beat types
-- beat validation functions
-- `/api/beats` route
-- beat publishing and listing UI
-- `Category` model
-- category references from genres
-
-## Technology
-
-- Next.js 16 and React 19
-- TypeScript in strict mode
-- MongoDB with Mongoose
-- Zod runtime request validation
-- bcrypt password hashing
-- JSON Web Tokens
-- Tailwind CSS 4
-
-## Verification completed
-
-- `npm run check` passes ESLint, Next route generation, and a cold TypeScript check.
-- `/`, `/login`, and `/signup` return successful responses.
-- A real development auth cycle passed: signup, session restoration, logout, rejected session after logout, login, restored session, and final logout.
-- Desktop and 390 px mobile layouts were visually inspected for the homepage and authentication surfaces.
-- Dashboard access was verified for `USER`, `USER + PRODUCER`, `USER + ADMIN`, and all-role combinations.
-- Dashboard layouts were checked at 1440, 1024, 768, and 390 px without horizontal overflow.
-- Nested navigation (`/studio/tracks`), mobile drawer focus, session refresh, and logout behavior were verified.
-
-Run the complete static check with:
-
-```bash
-npm run check
-```
-
-## Next implementation decision
-
-Do not treat the dashboard placeholders or the public Producer Studio concept as implemented domain features. Track CRUD, Contract CRUD, taxonomy administration, uploads, marketplace workflows, checkout, payments, analytics, notifications, and broader permissions remain intentionally postponed and require separate approval.
+BeatStars parity is not complete. See [research and feature map](docs/BEATSTARS_RESEARCH.md) and [README](README.md) for the remaining feature list and setup. The next major work includes exclusive reservations, MP3/stems, seller payout accounting, collaboration, playlists/follows, messaging, coupons/bundles, subscriptions, moderation and advanced analytics. Production object-store acceptance, distributed quotas/processing jobs and measured deployment capacity require infrastructure configuration and load testing.

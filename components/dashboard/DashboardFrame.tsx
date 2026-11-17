@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, type ReactNode } from "react";
+import { useCallback, useId, useState, type ReactNode } from "react";
 
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardMobileNav } from "@/components/dashboard/DashboardMobileNav";
@@ -23,6 +23,7 @@ export function DashboardFrame({
   workspaces: readonly WorkspaceDefinition[];
 }) {
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const navigationId = useId();
   const closeNavigation = useCallback(() => setNavigationOpen(false), []);
   const openNavigation = useCallback(() => setNavigationOpen(true), []);
 
@@ -35,13 +36,13 @@ export function DashboardFrame({
       </aside>
 
       <div className="min-w-0">
-        <DashboardHeader navigation={navigation} onOpenNavigation={openNavigation} user={user} workspace={workspace} />
+        <DashboardHeader navigation={navigation} navigationId={navigationId} navigationOpen={navigationOpen} onOpenNavigation={openNavigation} user={user} workspace={workspace} />
         <main id="dashboard-content" className="px-4 pb-12 pt-5 sm:px-6 sm:pb-16 lg:px-8 lg:pt-7">
           <div className="mx-auto w-full max-w-[92rem]">{children}</div>
         </main>
       </div>
 
-      <DashboardMobileNav activeWorkspace={workspace} navigation={navigation} onClose={closeNavigation} open={navigationOpen} user={user} workspaces={workspaces} />
+      <DashboardMobileNav activeWorkspace={workspace} id={navigationId} navigation={navigation} onClose={closeNavigation} open={navigationOpen} user={user} workspaces={workspaces} />
     </div>
   );
 }

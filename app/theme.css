@@ -1,0 +1,278 @@
+/* BeatMarketplace global design system.
+ * This file is the single source of color, material, depth, shape, and motion.
+ * Preserve the graphite/purple clay and neumorphic style in every workspace.
+ */
+:root {
+  color-scheme: dark;
+  --canvas: #171a20;
+  --canvas-deep: #111318;
+  --surface: #1d2027;
+  --surface-high: #232730;
+  --text: #f3f1f7;
+  --muted: #9a9fab;
+  --faint: #747985;
+  --accent: #9b5cf6;
+  --accent-bright: #d946ef;
+  --accent-soft: rgba(155, 92, 246, 0.18);
+  --shadow-dark: rgba(0, 0, 0, 0.52);
+  --shadow-light: rgba(255, 255, 255, 0.045);
+  --focus: #c084fc;
+
+  /* Music surfaces: luminous glass over tactile graphite, shared across routes. */
+  --music-glass: linear-gradient(145deg, rgba(42, 43, 56, .76), rgba(23, 25, 33, .88));
+  --music-glass-strong: linear-gradient(145deg, rgba(45, 45, 60, .94), rgba(22, 24, 32, .98));
+  --music-glass-border: rgba(220, 205, 255, .1);
+  --music-border: var(--music-glass-border);
+  --music-edge: var(--music-glass-border);
+  --music-shadow: 0 18px 50px rgba(0, 0, 0, .28), inset 0 1px 0 rgba(255, 255, 255, .065);
+  --music-glow: 0 0 44px rgba(155, 92, 246, .16), 0 14px 32px rgba(0, 0, 0, .3);
+  --music-artwork-shadow: 0 18px 38px rgba(0, 0, 0, .4), 0 0 0 1px rgba(255, 255, 255, .065);
+  --music-ambient: radial-gradient(ellipse at 75% 15%, rgba(155, 92, 246, .2), transparent 58%), radial-gradient(ellipse at 10% 95%, rgba(217, 70, 239, .075), transparent 45%);
+  --music-cover-shade: linear-gradient(180deg, rgba(7, 8, 13, .12), transparent 35%, rgba(7, 8, 13, .76));
+  --music-scrim: var(--music-cover-shade);
+  --music-grid: rgba(221, 202, 255, .045);
+  --music-card-fill: linear-gradient(155deg, rgba(38, 41, 51, .94), rgba(24, 26, 34, .98));
+  --music-card-hover: linear-gradient(155deg, rgba(49, 45, 64, .98), rgba(28, 29, 39, .99));
+  --music-label: #d8b4fe;
+  --music-kicker: var(--music-label);
+  --music-signal: #8fe3c3;
+  --music-signal-soft: rgba(143, 227, 195, .1);
+  --music-dark-glass: rgba(12, 13, 20, .68);
+  --music-soft-light: rgba(255, 255, 255, .04);
+  --music-rim-light: rgba(255, 255, 255, .12);
+  --music-artwork-ink: #ffffff;
+  --music-pill-fill: rgba(20, 19, 31, .72);
+  --music-search-fill: rgba(14, 16, 22, .6);
+  --music-live-shadow: 0 0 12px rgba(143, 227, 195, .45);
+
+  /* Hero materials alias the same graphite clay surfaces used across the app. */
+  --hero-backdrop-fill: var(--fill-page);
+  --hero-backdrop-shade: linear-gradient(180deg, var(--canvas-deep), transparent 24%, transparent 78%, var(--canvas));
+  --hero-backdrop-haze: var(--music-ambient);
+  --hero-copy: var(--text);
+  --hero-muted: var(--muted);
+  --hero-pink: var(--accent-text);
+  --hero-ribbon-violet: var(--accent);
+  --hero-ribbon-pink: var(--accent-bright);
+  --hero-ribbon-highlight: var(--accent-text);
+  --hero-edge: var(--border);
+  --hero-kicker-fill: var(--surface);
+  --hero-kicker-shadow: var(--shadow-inset);
+  --hero-promise-fill: var(--fill-raised);
+  --hero-promise-shadow: var(--shadow-raised);
+  --hero-card-fill: var(--fill-raised);
+  --hero-card-edge: var(--border);
+  --hero-card-shadow: var(--shadow-raised-strong);
+  --hero-side-fill: var(--fill-raised);
+  --hero-side-shadow: var(--shadow-raised);
+  --hero-art-shine: var(--fill-artwork-shine);
+  --hero-dot: var(--faint);
+  --hero-dot-active: var(--accent);
+  --hero-loading-fill: var(--surface-high);
+  --hero-slide-duration: 560ms;
+  --hero-slide-ease: cubic-bezier(.22, 1, .36, 1);
+
+  /* Luminous player material: shared by the dock, orbit button and waveform seek. */
+  --player-fill: linear-gradient(112deg, rgba(47, 29, 80, .96), rgba(20, 17, 43, .97) 44%, rgba(43, 22, 75, .96));
+  --player-border: rgba(191, 132, 255, .58);
+  --player-rim: linear-gradient(95deg, rgba(225, 192, 255, .85), rgba(159, 99, 242, .12) 34%, rgba(203, 145, 255, .55) 73%, rgba(246, 168, 255, .78));
+  --player-shadow: 0 18px 48px rgba(0, 0, 0, .4), 0 0 26px rgba(151, 66, 241, .2), inset 0 0 0 1px rgba(223, 190, 255, .1), inset 0 1px 18px rgba(196, 132, 255, .1);
+  --player-aura-left: radial-gradient(ellipse at 40% 45%, rgba(185, 69, 255, .4), rgba(127, 43, 206, .15) 44%, transparent 70%);
+  --player-aura-right: radial-gradient(ellipse at 68% 34%, rgba(239, 104, 255, .34), rgba(153, 64, 229, .12) 46%, transparent 72%);
+  --player-aura-wave: linear-gradient(155deg, rgba(202, 131, 255, .02) 15%, rgba(158, 67, 237, .26) 65%, rgba(209, 136, 255, .14));
+  --player-aura-edge: rgba(219, 163, 255, .22);
+  --player-text: #f9f3ff;
+  --player-muted: #c2b4dc;
+  --player-faint: #9383b3;
+  --player-control-fill: linear-gradient(145deg, rgba(177, 135, 241, .14), rgba(78, 47, 132, .14));
+  --player-control-edge: rgba(206, 174, 255, .17);
+  --player-control-hover: rgba(186, 124, 255, .16);
+  --player-control-shadow: inset 0 1px 0 rgba(243, 227, 255, .09), 0 4px 12px rgba(9, 4, 24, .18);
+  --player-orbit-fill: linear-gradient(145deg, rgba(226, 181, 255, .22), rgba(143, 55, 238, .35) 50%, rgba(86, 36, 162, .06));
+  --player-orbit-edge: rgba(222, 179, 255, .32);
+  --player-orbit-shadow: inset 0 0 16px rgba(182, 94, 255, .2), 0 0 16px rgba(145, 54, 232, .15);
+  --player-core-fill: radial-gradient(circle at 34% 20%, #d5a0ff 0%, #a343f2 39%, #8d29ec 70%, #7424c6 100%);
+  --player-core-edge: rgba(246, 218, 255, .84);
+  --player-core-shadow: inset 0 1px 7px rgba(255, 241, 255, .65), inset 0 -3px 10px rgba(204, 113, 255, .28), 0 0 0 1px rgba(180, 94, 250, .45), 0 0 22px rgba(181, 73, 255, .62), 0 6px 20px rgba(65, 14, 116, .42);
+  --player-core-shadow-hover: inset 0 1px 9px rgba(255, 241, 255, .8), 0 0 0 1px rgba(223, 160, 255, .5), 0 0 30px rgba(192, 91, 255, .7), 0 7px 22px rgba(65, 14, 116, .4);
+  --player-rail: rgba(129, 83, 185, .24);
+  --player-buffered: rgba(191, 153, 245, .13);
+  --player-progress-color: #c581ff;
+  --player-progress-fill: linear-gradient(90deg, #ad55fa, #dba5ff);
+  --player-progress-shadow: 0 0 9px rgba(189, 91, 255, .58);
+  --player-thumb: #f5dcff;
+  --player-thumb-shadow: 0 0 0 3px rgba(182, 93, 252, .12), 0 0 12px rgba(216, 148, 255, .85);
+  --player-waveform-played: #dba5ff;
+  --player-waveform-unplayed: #a88dce;
+  --player-waveform-low: #b263f7;
+  --player-waveform-high: #e0c1fa;
+  --player-status-fill: rgba(181, 122, 247, .13);
+  --player-status-edge: rgba(205, 167, 255, .15);
+
+  /* Semantic content and feedback: shared by all workspaces. */
+  --text-secondary: #d7d9e0;
+  --accent-muted: #b47af8;
+  --accent-text: #d8b4fe;
+  --on-accent: #ffffff;
+  --accent-foreground: var(--on-accent);
+  --border: rgba(255, 255, 255, 0.045);
+  --border-subtle: rgba(255, 255, 255, 0.025);
+  --hover-overlay: rgba(255, 255, 255, 0.035);
+  --hover-subtle: rgba(255, 255, 255, 0.018);
+  --scrim: rgba(0, 0, 0, 0.72);
+  --error: #fb7185;
+  --error-text: #ff9bb0;
+  --error-soft: rgba(255, 107, 138, 0.08);
+  --success: #55d6a7;
+  --success-text: #6ee7b7;
+  --success-soft: rgba(85, 214, 167, 0.1);
+  --warning: #fbbf24;
+  --warning-text: #fcd34d;
+  --warning-soft: rgba(251, 191, 36, 0.1);
+  --info: #a875f5;
+  --info-text: #c4a0fb;
+
+  /* Native scrollbars: one material for page and nested vertical/horizontal rails. */
+  --scrollbar-size: 10px;
+  --scrollbar-track: var(--canvas-deep);
+  --scrollbar-thumb: #8e65be;
+  --scrollbar-thumb-hover: #b48ae8;
+  --scrollbar-thumb-active: var(--accent-text);
+  --scrollbar-thumb-fill: linear-gradient(180deg, var(--accent-muted), var(--scrollbar-thumb));
+  --scrollbar-thumb-fill-horizontal: linear-gradient(90deg, var(--accent-muted), var(--scrollbar-thumb));
+  --scrollbar-colors: var(--scrollbar-thumb) var(--scrollbar-track);
+
+  /* Shared shape, type, touch target, and interaction timing. */
+  --radius-control: 1rem;
+  --radius-card: 1.625rem;
+  --radius-panel: 1.875rem;
+  --radius-pill: 999px;
+  --control-height: 3rem;
+  --font-ui: "Avenir Next", "Segoe UI", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --motion-fast: 160ms;
+  --motion-base: 190ms;
+  --motion-ease: ease;
+
+  /* Decorative material shared by existing marketing surfaces. */
+  --shadow-raised: 11px 11px 25px var(--shadow-dark), -8px -8px 20px var(--shadow-light);
+  --shadow-control-pressed: inset 5px 5px 11px rgba(0, 0, 0, 0.5), inset -4px -4px 9px rgba(255, 255, 255, 0.035);
+  --ink: #000000;
+  --shadow-artwork: inset 0 1px 0 rgba(255, 255, 255, 0.12), 10px 12px 28px rgba(0, 0, 0, 0.48);
+  --shadow-play: 8px 8px 20px rgba(0, 0, 0, 0.5), 0 8px 25px rgba(139, 92, 246, 0.25);
+  --shadow-dot: 0 0 14px #a855f7;
+  --shadow-nav-dot: 0 0 10px rgba(180, 122, 248, 0.75);
+  --shadow-orb: 0 0 26px 8px rgba(168, 85, 247, 0.35);
+  --shadow-orb-bright: 0 0 22px 7px rgba(217, 70, 239, 0.3);
+  --fill-artwork-shine: linear-gradient(125deg, transparent 35%, rgba(255, 255, 255, 0.09), transparent 58%);
+  --fill-mood: radial-gradient(circle at top left, rgba(168, 85, 247, 0.09), transparent 35%), rgba(255, 255, 255, 0.008);
+
+  /* Existing material definitions, extracted without changing their appearance. */
+  --fill-page: radial-gradient(circle at 82% 7%, rgba(139, 92, 246, 0.11), transparent 29rem),
+    radial-gradient(circle at 8% 42%, rgba(217, 70, 239, 0.055), transparent 26rem),
+    linear-gradient(145deg, #191c22 0%, var(--canvas) 45%, #14171c 100%);
+  --selection-fill: rgba(168, 85, 247, 0.4);
+  --focus-outline: 3px solid rgba(192, 132, 252, 0.76);
+  --fill-grain: radial-gradient(rgba(255, 255, 255, 0.075) 0.55px, transparent 0.55px);
+  --grain-mask: linear-gradient(to bottom, black, transparent 85%);
+  --border-raised: 1px solid rgba(255, 255, 255, 0.025);
+  --fill-raised: linear-gradient(145deg, rgba(34, 38, 47, 0.95), rgba(24, 27, 34, 0.98));
+  --shadow-raised-strong: 18px 20px 42px rgba(0, 0, 0, 0.58),
+    -11px -11px 30px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  --border-inset: 1px solid rgba(255, 255, 255, 0.018);
+  --shadow-inset: inset 5px 5px 12px rgba(0, 0, 0, 0.5),
+    inset -4px -4px 11px rgba(255, 255, 255, 0.035);
+  --focus-border: rgba(168, 85, 247, 0.44);
+  --shadow-input-focus: inset 5px 5px 12px rgba(0, 0, 0, 0.48),
+    inset -4px -4px 11px rgba(255, 255, 255, 0.035),
+    0 0 0 3px rgba(168, 85, 247, 0.11),
+    0 0 28px rgba(139, 92, 246, 0.08);
+  --error-border: rgba(255, 105, 135, 0.52);
+  --border-control: 1px solid rgba(255, 255, 255, 0.025);
+  --fill-control: linear-gradient(145deg, #232730, #191c22);
+  --text-control: #eceaf1;
+  --shadow-control: 7px 7px 16px rgba(0, 0, 0, 0.48),
+    -5px -5px 13px rgba(255, 255, 255, 0.042);
+  --shadow-control-hover: 10px 10px 21px rgba(0, 0, 0, 0.55),
+    -6px -6px 15px rgba(255, 255, 255, 0.052);
+  --accent-border: rgba(233, 213, 255, 0.14);
+  --fill-accent: linear-gradient(135deg, #8650ed 0%, #a855f7 52%, #d946ef 120%);
+  --shadow-accent: 9px 9px 21px rgba(0, 0, 0, 0.5),
+    -5px -5px 14px rgba(255, 255, 255, 0.045),
+    0 8px 30px rgba(139, 92, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  --shadow-accent-pressed: inset 5px 5px 13px rgba(67, 23, 110, 0.55),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.13),
+    0 3px 15px rgba(139, 92, 246, 0.16);
+  --fill-quiet-hover: rgba(255, 255, 255, 0.025);
+  --fill-text: linear-gradient(110deg, #f4f0ff 5%, #d8b4fe 47%, #e879f9 95%);
+  --fill-orb: radial-gradient(circle at 38% 32%, rgba(233, 213, 255, 0.86), rgba(168, 85, 247, 0.38) 20%, rgba(126, 34, 206, 0.08) 58%, transparent 72%);
+  --fill-artwork-nocturne: radial-gradient(circle at 70% 25%, rgba(216, 180, 254, 0.72), transparent 12%),
+    radial-gradient(circle at 58% 48%, rgba(147, 51, 234, 0.72), transparent 31%),
+    linear-gradient(145deg, #111827 4%, #30204c 48%, #0f1015 100%);
+  --fill-artwork-ember: radial-gradient(circle at 36% 35%, rgba(251, 146, 60, 0.88), transparent 16%),
+    radial-gradient(circle at 58% 55%, rgba(190, 24, 93, 0.62), transparent 35%),
+    linear-gradient(145deg, #2c1527, #14161b 72%);
+  --fill-artwork-tidal: radial-gradient(circle at 64% 35%, rgba(34, 211, 238, 0.67), transparent 19%),
+    radial-gradient(circle at 37% 61%, rgba(79, 70, 229, 0.7), transparent 37%),
+    linear-gradient(145deg, #0c2332, #171821 70%);
+  --fill-artwork-orbit: radial-gradient(circle at 50% 46%, transparent 0 19%, rgba(217, 70, 239, 0.72) 20% 23%, transparent 24%),
+    radial-gradient(circle at 50% 46%, rgba(139, 92, 246, 0.34), transparent 45%),
+    linear-gradient(145deg, #241834, #101217 75%);
+  --border-vinyl: 1px solid rgba(255, 255, 255, 0.1);
+  --shadow-vinyl: 0 0 0 17px rgba(255, 255, 255, 0.025),
+    0 0 0 34px rgba(255, 255, 255, 0.018),
+    0 0 0 51px rgba(255, 255, 255, 0.013);
+  --fill-wave: linear-gradient(to top, rgba(139, 92, 246, 0.38), #d8b4fe);
+  --fill-dashboard: radial-gradient(circle at 78% 8%, rgba(139, 92, 246, 0.075), transparent 31rem),
+    linear-gradient(145deg, #181b21, #14171c 72%);
+  --border-header: 1px solid rgba(255, 255, 255, 0.025);
+  --fill-header: rgba(23, 26, 32, 0.86);
+  --shadow-header: 0 9px 26px rgba(0, 0, 0, 0.15);
+  --fill-sidebar: linear-gradient(90deg, rgba(12, 14, 18, 0.2), transparent);
+  --nav-text: #8f95a1;
+  --fill-nav-hover: rgba(255, 255, 255, 0.025);
+  --nav-text-hover: #e5e2e9;
+  --shadow-nav-hover: 4px 5px 10px rgba(0, 0, 0, 0.2),
+    -3px -3px 8px rgba(255, 255, 255, 0.018);
+  --nav-active-border: rgba(168, 85, 247, 0.12);
+  --nav-text-active: #c795ff;
+  --shadow-nav-active: inset 5px 5px 11px rgba(0, 0, 0, 0.5),
+    inset -4px -4px 9px rgba(255, 255, 255, 0.032);
+  --shadow-workspace-pressed: inset 5px 5px 11px rgba(0, 0, 0, 0.48),
+    inset -4px -4px 9px rgba(255, 255, 255, 0.03);
+  --menu-text: #a0a5b0;
+  --fill-menu-hover: rgba(255, 255, 255, 0.035);
+  --menu-text-hover: #f0edf3;
+  --shadow-card-hover: 14px 15px 30px rgba(0, 0, 0, 0.52),
+    -8px -8px 20px rgba(255, 255, 255, 0.04);
+  --shadow-raised-mobile: 8px 9px 20px rgba(0, 0, 0, 0.5),
+      -5px -5px 14px rgba(255, 255, 255, 0.035);
+}
+
+@theme inline {
+  --font-sans: var(--font-ui);
+  --color-ink: var(--ink);
+  --color-canvas: var(--canvas);
+  --color-canvas-deep: var(--canvas-deep);
+  --color-surface: var(--surface);
+  --color-surface-high: var(--surface-high);
+  --color-foreground: var(--text);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+  --color-accent-muted: var(--accent-muted);
+  --color-accent-text: var(--accent-text);
+  --color-on-accent: var(--on-accent);
+  --color-error: var(--error);
+  --color-error-text: var(--error-text);
+  --color-success: var(--success);
+  --color-success-text: var(--success-text);
+  --color-warning: var(--warning);
+  --color-warning-text: var(--warning-text);
+  --color-info: var(--info);
+  --color-info-text: var(--info-text);
+  --color-divider: var(--border);
+}

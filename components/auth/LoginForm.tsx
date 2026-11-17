@@ -90,14 +90,14 @@ export function LoginForm() {
   }
 
   if (status === "authenticated") {
-    return <p className="text-center text-sm text-[#9da2ad]" role="status">Returning you home…</p>;
+    return <p className="text-center text-sm text-muted" role="status">Returning you home…</p>;
   }
 
   return (
     <div>
-      <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#a875f5]">Welcome back</p>
-      <h2 className="mt-3 text-4xl font-black tracking-[-0.05em] text-[#f3f0f6] sm:text-5xl">Login to your sound.</h2>
-      <p className="mt-4 text-sm leading-6 text-[#858a96]">Use the email and password connected to your BeatMarketplace account.</p>
+      <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-info">Welcome back</p>
+      <h2 className="mt-3 text-4xl font-black tracking-[-0.05em] text-foreground sm:text-5xl">Login to your sound.</h2>
+      <p className="mt-4 text-sm leading-6 text-muted">Use the email and password connected to your BeatMarketplace account.</p>
 
       <DynamicForm
         className="mt-9"
@@ -117,9 +117,9 @@ export function LoginForm() {
         onSubmit={handleSubmit}
       />
 
-      <p className="mt-8 text-center text-sm text-[#858a96]">
+      <p className="mt-8 text-center text-sm text-muted">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-bold text-[#c084fc] underline-offset-4 hover:underline">Create one</Link>
+        <Link href="/signup" className="font-bold text-[var(--focus)] underline-offset-4 hover:underline">Create one</Link>
       </p>
     </div>
   );

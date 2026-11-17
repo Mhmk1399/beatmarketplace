@@ -7,28 +7,39 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test tests/*.test.mjs",
+    "db:indexes": "tsx scripts/ensure-indexes.ts",
+    "benchmark:catalog": "node scripts/benchmark-catalog.mjs",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
     "check": "npm run lint && npm run typecheck"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1170.0",
+    "@aws-sdk/lib-storage": "^3.1170.0",
+    "@aws-sdk/s3-request-presigner": "^3.1170.0",
     "bcryptjs": "^2.4.3",
+    "busboy": "^1.6.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.9.4",
     "next": "16.3.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "three": "^0.187.0",
     "zod": "^4.5.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.1",
+    "@types/busboy": "^1.5.5",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.187.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.2",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

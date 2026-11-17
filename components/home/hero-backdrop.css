@@ -1,0 +1,16 @@
+/* These surfaces follow the full hero; particle colors come from the global theme. */
+.hero-backdrop { position: absolute; z-index: 0; inset: 0; overflow: hidden; pointer-events: none; background: var(--hero-backdrop-fill, var(--canvas-deep)); isolation: isolate; }
+.hero-backdrop-haze, .hero-backdrop-renderer, .hero-backdrop-vector, .hero-backdrop-shade { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.hero-backdrop-haze { background: var(--hero-backdrop-haze, var(--music-ambient)); }
+.hero-backdrop-vector { opacity: .9; transform: perspective(1200px) translate3d(calc(var(--hero-pointer-x, 0) * 12px), calc(var(--hero-scrub, 0) * -28px), 0) rotateY(calc(var(--hero-pointer-x, 0) * 3deg)) scaleY(calc(1 + var(--hero-scrub, 0) * .08)); transform-origin: center; transition: opacity 500ms ease; }
+.hero-backdrop[data-renderer="webgl"] .hero-backdrop-vector { opacity: 0; }
+.hero-backdrop-renderer { opacity: .9; }
+.hero-backdrop-canvas { display: block; width: 100%; height: 100%; }
+.hero-backdrop-shade { background: var(--hero-backdrop-shade, var(--music-cover-shade)); opacity: .7; }
+@media (max-width: 767px) {
+  .hero-backdrop-vector { width: 155%; left: -27.5%; }
+  .hero-backdrop-renderer { opacity: .95; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-backdrop-vector { transform: none; transition: none; }
+}

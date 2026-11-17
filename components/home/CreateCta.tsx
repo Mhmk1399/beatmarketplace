@@ -6,7 +6,7 @@ import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
 
 export function CreateCta({ className, label = "Start creating" }: { className?: string; label?: string }) {
   const { status, user } = useAuth();
-  const href = status === "authenticated" && user ? "/#producer" : "/signup";
+  const href = status === "authenticated" && user ? user.roles.includes("PRODUCER") ? "/studio/tracks" : "/dashboard" : "/signup";
 
   return (
     <NeumorphicLink href={href} variant="accent" size="lg" className={className}>

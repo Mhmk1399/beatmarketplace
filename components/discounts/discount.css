@@ -1,0 +1,32 @@
+/* Timed offers share the graphite/purple clay material and semantic theme. */
+.discount-price { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 3px; min-width: 0; font-variant-numeric: tabular-nums; }
+.discount-price del { color: var(--muted); font-size: .65rem; font-weight: 500; text-decoration-thickness: 1px; }
+.discount-price strong { color: var(--accent-text); font-size: .8rem; font-weight: 850; overflow-wrap: anywhere; }
+.discount-price-large { align-items: flex-start; gap: .35rem; }
+.discount-price-large del { font-size: .875rem; }
+.discount-price-large strong { font-size: clamp(1.4rem, 4vw, 1.8rem); color: var(--text); letter-spacing: -.035em; }
+.discount-artwork-badge { position: absolute; top: 2.9rem; left: .75rem; display: flex; align-items: center; gap: .4rem; padding: .45rem .65rem; border: 1px solid var(--accent-border); border-radius: var(--radius-pill); background: var(--fill-accent); box-shadow: var(--shadow-accent); color: var(--on-accent); font-size: .65rem; font-weight: 850; letter-spacing: .04em; }
+.discount-countdown { padding: 1rem; border: 1px solid var(--nav-active-border); border-radius: var(--radius-control); background: var(--canvas); box-shadow: var(--shadow-inset); }
+.discount-countdown-heading { display: flex; align-items: center; gap: .4rem; color: var(--accent-text); font-size: .65rem; font-weight: 750; }
+.discount-countdown-dot { width: 5px; height: 5px; flex-shrink: 0; border-radius: var(--radius-pill); background: var(--accent); box-shadow: var(--shadow-dot); }
+.discount-countdown-saving { margin-left: auto; font-weight: 850; }
+.discount-countdown-units { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: .5rem; margin-top: .75rem; }
+.discount-countdown-unit { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem; min-height: 3.5rem; border-radius: calc(var(--radius-control) * .7); border: 1px solid var(--border-subtle); background: var(--fill-control); }
+.discount-countdown-unit strong { color: var(--text); font-size: 1.35rem; font-weight: 850; line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.discount-countdown-unit > span { color: var(--muted); font-size: .5rem; text-transform: uppercase; letter-spacing: .08em; }
+.discount-countdown-compact { margin-top: 1rem; padding: .75rem; }
+.discount-countdown-compact .discount-countdown-units { gap: .35rem; margin-top: .6rem; }
+.discount-countdown-compact .discount-countdown-unit { min-height: 2.8rem; }
+.discount-countdown-compact .discount-countdown-unit strong { font-size: 1.1rem; }
+.discount-page-tag { display: inline-flex; min-height: 2.25rem; align-items: center; gap: .55rem; border: 1px solid var(--nav-active-border); border-radius: var(--radius-pill); padding: .5rem .85rem; color: var(--accent-text); background: var(--accent-soft); font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.discount-page-header { position: relative; isolation: isolate; }
+.discount-page-header::after { position: absolute; z-index: -1; content: ""; width: min(30rem,80vw); height: 16rem; top: -4rem; right: 0; pointer-events: none; background: var(--fill-orb); opacity: .25; }
+.discount-status { display: inline-flex; align-items: center; min-height: 1.7rem; padding: .25rem .6rem; border-radius: var(--radius-pill); color: var(--muted); background: var(--hover-overlay); font-size: .65rem; font-weight: 700; }
+.discount-status[data-status="ACTIVE"] { color: var(--success-text); background: var(--success-soft); }
+.discount-status[data-status="SCHEDULED"] { color: var(--accent-text); background: var(--accent-soft); }
+.discount-status[data-status="EXPIRED"] { color: var(--warning-text); background: var(--warning-soft); }
+.discount-editor-summary { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem; border-radius: var(--radius-control); border: 1px solid var(--nav-active-border); color: var(--accent-text); background: var(--accent-soft); }
+.discount-editor-summary strong { font-size: 1.5rem; letter-spacing: -.04em; }
+.discount-track-picker { max-height: 14rem; overflow-y: auto; overscroll-behavior: contain; }
+.discount-catalog-note { color: var(--muted); font-size: .75rem; line-height: 1.7; }
+@media (max-width:380px) { .discount-countdown-unit strong { font-size: 1.15rem; } .discount-countdown-compact .discount-countdown-unit strong { font-size: 1rem; } }

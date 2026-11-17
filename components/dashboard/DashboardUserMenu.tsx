@@ -63,30 +63,30 @@ export function DashboardUserMenu({ user, workspace }: { user: DashboardUser; wo
         aria-haspopup="menu"
         aria-label="Open user menu"
         onClick={() => setOpen((current) => !current)}
-        className="dashboard-user-button neo-raised flex min-h-12 max-w-[15rem] items-center gap-2.5 rounded-2xl px-2.5 text-left"
+        className="dashboard-user-button neo-raised flex min-h-12 max-w-[15rem] items-center gap-2.5 rounded-[var(--radius-control)] px-2.5 text-left"
       >
         <DashboardAvatar user={user} className="size-8" />
         <span className="hidden min-w-0 flex-1 sm:block">
-          <span className="block truncate text-xs font-bold text-[#e8e5ed]">{getUserName(user)}</span>
-          <span className="block truncate text-[10px] text-[#777d89]">{workspace.shortLabel}</span>
+          <span className="block truncate text-xs font-bold text-foreground">{getUserName(user)}</span>
+          <span className="block truncate text-[10px] text-faint">{workspace.shortLabel}</span>
         </span>
-        <ChevronDownIcon className={cn("hidden size-4 shrink-0 text-[#7f8592] transition-transform sm:block", open && "rotate-180")} />
+        <ChevronDownIcon className={cn("hidden size-4 shrink-0 text-faint transition-transform sm:block", open && "rotate-180")} />
       </button>
 
       {open && (
         <div role="menu" className="neo-raised-strong absolute right-0 top-[calc(100%+.7rem)] z-50 w-[18rem] max-w-[calc(100vw-2rem)] rounded-[22px] p-2">
           <div className="px-3 py-2.5">
-            <p className="truncate text-sm font-extrabold text-[#efedf2]">{getUserName(user)}</p>
-            <p className="mt-1 truncate text-xs text-[#7e8490]">{user.email}</p>
+            <p className="truncate text-sm font-extrabold text-foreground">{getUserName(user)}</p>
+            <p className="mt-1 truncate text-xs text-faint">{user.email}</p>
           </div>
-          <div className="my-1 h-px bg-white/[0.045]" />
+          <div className="my-1 h-px bg-divider" />
           <Link role="menuitem" href="/dashboard/profile" onClick={() => setOpen(false)} className="dashboard-menu-item">
             <UserIcon className="size-[18px]" /> Profile
           </Link>
           <Link role="menuitem" href={`${workspace.href}/settings`} onClick={() => setOpen(false)} className="dashboard-menu-item">
             <SettingsIcon className="size-[18px]" /> Settings
           </Link>
-          <button role="menuitem" type="button" onClick={handleLogout} disabled={loggingOut} className="dashboard-menu-item w-full text-[#f0a2b5]">
+          <button role="menuitem" type="button" onClick={handleLogout} disabled={loggingOut} className="dashboard-menu-item w-full text-error-text">
             <LogOutIcon className="size-[18px]" /> {loggingOut ? "Logging out…" : "Logout"}
           </button>
         </div>

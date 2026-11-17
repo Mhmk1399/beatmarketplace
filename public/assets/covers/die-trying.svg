@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" fill="none">
+  <title>Die Trying — eclipse artwork</title>
+  <defs>
+    <radialGradient id="sky"><stop stop-color="#4A2466"/><stop offset="1" stop-color="#13131B"/></radialGradient>
+    <linearGradient id="ring" x1="220" y1="150" x2="590" y2="670" gradientUnits="userSpaceOnUse"><stop stop-color="#F3DBFF"/><stop offset=".4" stop-color="#C58BFA"/><stop offset="1" stop-color="#8439C7"/></linearGradient>
+    <radialGradient id="planet" cx=".3" cy=".2"><stop stop-color="#30233E"/><stop offset="1" stop-color="#0E1015"/></radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="23"/></filter>
+    <pattern id="grain" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".6" fill="#FFF" opacity=".045"/></pattern>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h800v800H0z"/>
+  <circle cx="400" cy="355" r="210" stroke="#BD72FF" stroke-width="20" opacity=".48" filter="url(#glow)"/>
+  <circle cx="400" cy="355" r="202" fill="url(#planet)" stroke="url(#ring)" stroke-width="3"/>
+  <ellipse cx="400" cy="355" rx="294" ry="62" transform="rotate(-29 400 355)" stroke="url(#ring)" stroke-width="2"/>
+  <ellipse cx="400" cy="355" rx="306" ry="71" transform="rotate(-29 400 355)" stroke="#C4A0ED" opacity=".2"/>
+  <path d="M111 470c143-61 377-92 581-200" stroke="#E6CAFF" stroke-width="3" opacity=".7"/>
+  <circle cx="233" cy="165" r="2" fill="#EFE1FF"/><circle cx="642" cy="212" r="2" fill="#EFE1FF"/><circle cx="129" cy="329" r="1.5" fill="#EFE1FF"/><circle cx="674" cy="511" r="1.5" fill="#EFE1FF"/>
+  <path d="M52 52h34M52 52v34m696-34h-34m34 0v34M52 748h34m-34 0v-34m696 34h-34m34 0v-34" stroke="#D8B4FE" opacity=".4"/>
+  <text x="65" y="100" fill="#D7C8E8" font-family="Arial,sans-serif" font-size="13" letter-spacing="5">BEATMARKETPLACE / 001</text>
+  <text x="65" y="664" fill="#F3EDF9" font-family="Arial,sans-serif" font-size="64" font-weight="700" letter-spacing="-3">DIE TRYING</text>
+  <text x="68" y="701" fill="#AD96BE" font-family="Arial,sans-serif" font-size="13" letter-spacing="5">THE LISTENING ROOM</text>
+  <path fill="url(#grain)" d="M0 0h800v800H0z"/>
+</svg>

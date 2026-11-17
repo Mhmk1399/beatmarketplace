@@ -27,6 +27,10 @@ export type NavigationSection = {
 const navigationByWorkspace: Record<WorkspaceId, readonly NavigationSection[]> = {
   personal: [
     { items: [{ label: "Overview", href: "/dashboard", icon: "overview" }] },
+    { label: "Your music", items: [
+      { label: "Saved beats", href: "/dashboard/favorites", icon: "tracks" },
+      { label: "Purchases", href: "/dashboard/orders", icon: "contracts" },
+    ] },
     {
       label: "Account",
       items: [
@@ -40,8 +44,9 @@ const navigationByWorkspace: Record<WorkspaceId, readonly NavigationSection[]> =
     {
       label: "Catalog",
       items: [
-        { label: "Tracks", href: "/studio/tracks", icon: "tracks", description: "Track management will be implemented in a later milestone." },
-        { label: "Contracts", href: "/studio/contracts", icon: "contracts", description: "Contract management will be implemented in a later milestone." },
+        { label: "Tracks", href: "/studio/tracks", icon: "tracks", description: "Upload tracks and choose the 30-second preview buyers hear." },
+        { label: "Contracts", href: "/studio/contracts", icon: "contracts", description: "Set license prices in toman and define usage limits." },
+        { label: "Discounts", href: "/studio/discounts", icon: "genres", description: "Schedule a discount for a track and manage its start and end time." },
       ],
     },
     {
@@ -55,6 +60,7 @@ const navigationByWorkspace: Record<WorkspaceId, readonly NavigationSection[]> =
   ],
   admin: [
     { items: [{ label: "Overview", href: "/admin", icon: "overview" }] },
+    { label: "Homepage", items: [{ label: "Hero placements", href: "/admin/hero", icon: "store", description: "Select and schedule sponsored beats for the homepage hero." }] },
     {
       label: "Platform",
       items: [{ label: "Users", href: "/admin/users", icon: "users", description: "User administration is intentionally postponed." }],
@@ -62,9 +68,9 @@ const navigationByWorkspace: Record<WorkspaceId, readonly NavigationSection[]> =
     {
       label: "Catalog",
       items: [
-        { label: "Genres", href: "/admin/genres", icon: "genres", description: "Genre administration is intentionally postponed." },
-        { label: "Moods", href: "/admin/moods", icon: "moods", description: "Mood administration is intentionally postponed." },
-        { label: "Instruments", href: "/admin/instruments", icon: "instruments", description: "Instrument administration is intentionally postponed." },
+        { label: "Genres", href: "/admin/genres", icon: "genres", description: "Create, edit and manage marketplace genres." },
+        { label: "Moods", href: "/admin/moods", icon: "moods", description: "Create, edit and manage moods." },
+        { label: "Instruments", href: "/admin/instruments", icon: "instruments", description: "Create, edit and manage instruments." },
       ],
     },
     {

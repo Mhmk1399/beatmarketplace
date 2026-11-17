@@ -11,7 +11,7 @@ export function DashboardAvatar({ className, user }: { className?: string; user:
 
   return (
     <span
-      className={cn("dashboard-avatar neo-inset flex shrink-0 items-center justify-center rounded-full bg-cover bg-center text-xs font-black text-[#d8b4fe]", className)}
+      className={cn("dashboard-avatar neo-inset flex shrink-0 items-center justify-center rounded-full bg-cover bg-center text-xs font-black text-accent-text", className)}
       style={style}
       aria-hidden="true"
     >

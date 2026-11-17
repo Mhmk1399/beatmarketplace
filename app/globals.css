@@ -1,25 +1,5 @@
 @import "tailwindcss";
-
-:root {
-  color-scheme: dark;
-  --canvas: #171a20;
-  --canvas-deep: #111318;
-  --surface: #1d2027;
-  --surface-high: #232730;
-  --text: #f3f1f7;
-  --muted: #9a9fab;
-  --faint: #747985;
-  --accent: #9b5cf6;
-  --accent-bright: #d946ef;
-  --accent-soft: rgba(155, 92, 246, 0.18);
-  --shadow-dark: rgba(0, 0, 0, 0.52);
-  --shadow-light: rgba(255, 255, 255, 0.045);
-  --focus: #c084fc;
-}
-
-@theme inline {
-  --font-sans: "Avenir Next", "Segoe UI", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-}
+@import "./theme.css";
 
 * {
   box-sizing: border-box;
@@ -33,17 +13,76 @@ html {
 body {
   min-width: 320px;
   overflow-x: hidden;
-  background:
-    radial-gradient(circle at 82% 7%, rgba(139, 92, 246, 0.11), transparent 29rem),
-    radial-gradient(circle at 8% 42%, rgba(217, 70, 239, 0.055), transparent 26rem),
-    linear-gradient(145deg, #191c22 0%, var(--canvas) 45%, #14171c 100%);
+  background: var(--fill-page);
   color: var(--text);
-  font-family: var(--font-sans);
+  font-family: var(--font-ui);
+}
+
+/* Keep native wheel, touch, keyboard and thumb dragging on every scroll area.
+   High-contrast mode retains system scrollbars. */
+@media (forced-colors: none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-colors);
+  }
+
+  @supports selector(::-webkit-scrollbar) {
+    /* Non-auto standard values override the detailed WebKit scrollbar parts. */
+    * {
+      scrollbar-width: auto;
+      scrollbar-color: auto;
+    }
+
+    *::-webkit-scrollbar {
+      width: var(--scrollbar-size);
+      height: var(--scrollbar-size);
+    }
+
+    *::-webkit-scrollbar-track {
+      border-radius: var(--radius-pill);
+      background: var(--scrollbar-track);
+    }
+
+    *::-webkit-scrollbar-thumb {
+      min-width: 36px;
+      min-height: 36px;
+      border: 2px solid transparent;
+      border-radius: var(--radius-pill);
+      background-color: var(--scrollbar-thumb);
+      background-image: var(--scrollbar-thumb-fill);
+      background-clip: padding-box;
+      box-shadow: inset 0 1px 0 var(--music-rim-light);
+    }
+
+    *::-webkit-scrollbar-thumb:horizontal {
+      background-image: var(--scrollbar-thumb-fill-horizontal);
+    }
+
+    *::-webkit-scrollbar-thumb:hover {
+      background-color: var(--scrollbar-thumb-hover);
+      background-image: none;
+    }
+
+    *::-webkit-scrollbar-thumb:active {
+      background-color: var(--scrollbar-thumb-active);
+      background-image: none;
+    }
+
+    *::-webkit-scrollbar-corner {
+      background: var(--scrollbar-track);
+    }
+
+    *::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+  }
 }
 
 ::selection {
-  background: rgba(168, 85, 247, 0.4);
-  color: white;
+  background: var(--selection-fill);
+  color: var(--on-accent);
 }
 
 a,
@@ -53,7 +92,7 @@ input {
 }
 
 :focus-visible {
-  outline: 3px solid rgba(192, 132, 252, 0.76);
+  outline: var(--focus-outline);
   outline-offset: 3px;
 }
 
@@ -69,76 +108,59 @@ input {
   pointer-events: none;
   content: "";
   opacity: 0.24;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.075) 0.55px, transparent 0.55px);
+  background-image: var(--fill-grain);
   background-size: 5px 5px;
-  mask-image: linear-gradient(to bottom, black, transparent 85%);
+  mask-image: var(--grain-mask);
 }
 
 .neo-raised,
 .neo-raised-strong {
-  border: 1px solid rgba(255, 255, 255, 0.025);
-  background: linear-gradient(145deg, rgba(34, 38, 47, 0.95), rgba(24, 27, 34, 0.98));
-  box-shadow:
-    11px 11px 25px var(--shadow-dark),
-    -8px -8px 20px var(--shadow-light);
+  border: var(--border-raised);
+  background: var(--fill-raised);
+  box-shadow: var(--shadow-raised);
 }
 
 .neo-raised-strong {
-  box-shadow:
-    18px 20px 42px rgba(0, 0, 0, 0.58),
-    -11px -11px 30px rgba(255, 255, 255, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  box-shadow: var(--shadow-raised-strong);
 }
 
 .neo-inset,
 .neo-input-wrap {
-  border: 1px solid rgba(255, 255, 255, 0.018);
-  background: #171a20;
-  box-shadow:
-    inset 5px 5px 12px rgba(0, 0, 0, 0.5),
-    inset -4px -4px 11px rgba(255, 255, 255, 0.035);
+  border: var(--border-inset);
+  background: var(--canvas);
+  box-shadow: var(--shadow-inset);
 }
 
 .neo-input-wrap:focus-within {
-  border-color: rgba(168, 85, 247, 0.44);
-  box-shadow:
-    inset 5px 5px 12px rgba(0, 0, 0, 0.48),
-    inset -4px -4px 11px rgba(255, 255, 255, 0.035),
-    0 0 0 3px rgba(168, 85, 247, 0.11),
-    0 0 28px rgba(139, 92, 246, 0.08);
+  border-color: var(--focus-border);
+  box-shadow: var(--shadow-input-focus);
 }
 
 .neo-input-error {
-  border-color: rgba(255, 105, 135, 0.52);
+  border-color: var(--error-border);
 }
 
 .neo-button,
 .neo-icon-button {
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.025);
-  background: linear-gradient(145deg, #232730, #191c22);
-  color: #eceaf1;
-  box-shadow:
-    7px 7px 16px rgba(0, 0, 0, 0.48),
-    -5px -5px 13px rgba(255, 255, 255, 0.042);
-  transition: transform 190ms ease, box-shadow 190ms ease, color 190ms ease, background 190ms ease, opacity 190ms ease;
+  border: var(--border-control);
+  background: var(--fill-control);
+  color: var(--text-control);
+  box-shadow: var(--shadow-control);
+  transition: transform var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease), color var(--motion-base) var(--motion-ease), background var(--motion-base) var(--motion-ease), opacity var(--motion-base) var(--motion-ease);
 }
 
 .neo-button:hover:not(:disabled),
 .neo-icon-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  color: white;
-  box-shadow:
-    10px 10px 21px rgba(0, 0, 0, 0.55),
-    -6px -6px 15px rgba(255, 255, 255, 0.052);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-control-hover);
 }
 
 .neo-button:active:not(:disabled),
 .neo-icon-button:active:not(:disabled) {
   transform: translateY(0) scale(0.985);
-  box-shadow:
-    inset 5px 5px 11px rgba(0, 0, 0, 0.5),
-    inset -4px -4px 9px rgba(255, 255, 255, 0.035);
+  box-shadow: var(--shadow-control-pressed);
 }
 
 .neo-button:disabled,
@@ -148,21 +170,14 @@ input {
 }
 
 .neo-button-accent {
-  border-color: rgba(233, 213, 255, 0.14);
-  background: linear-gradient(135deg, #8650ed 0%, #a855f7 52%, #d946ef 120%);
-  color: white;
-  box-shadow:
-    9px 9px 21px rgba(0, 0, 0, 0.5),
-    -5px -5px 14px rgba(255, 255, 255, 0.045),
-    0 8px 30px rgba(139, 92, 246, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  border-color: var(--accent-border);
+  background: var(--fill-accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-accent);
 }
 
 .neo-button-accent:active:not(:disabled) {
-  box-shadow:
-    inset 5px 5px 13px rgba(67, 23, 110, 0.55),
-    inset -4px -4px 10px rgba(255, 255, 255, 0.13),
-    0 3px 15px rgba(139, 92, 246, 0.16);
+  box-shadow: var(--shadow-accent-pressed);
 }
 
 .neo-button-quiet {
@@ -173,66 +188,51 @@ input {
 }
 
 .neo-button-quiet:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--fill-quiet-hover);
   box-shadow: none;
 }
 
 .text-gradient {
-  background: linear-gradient(110deg, #f4f0ff 5%, #d8b4fe 47%, #e879f9 95%);
+  background: var(--fill-text);
   background-clip: text;
   color: transparent;
 }
 
 .accent-orb {
   filter: blur(1px);
-  background: radial-gradient(circle at 38% 32%, rgba(233, 213, 255, 0.86), rgba(168, 85, 247, 0.38) 20%, rgba(126, 34, 206, 0.08) 58%, transparent 72%);
+  background: var(--fill-orb);
 }
 
 .artwork-nocturne {
-  background:
-    radial-gradient(circle at 70% 25%, rgba(216, 180, 254, 0.72), transparent 12%),
-    radial-gradient(circle at 58% 48%, rgba(147, 51, 234, 0.72), transparent 31%),
-    linear-gradient(145deg, #111827 4%, #30204c 48%, #0f1015 100%);
+  background: var(--fill-artwork-nocturne);
 }
 
 .artwork-ember {
-  background:
-    radial-gradient(circle at 36% 35%, rgba(251, 146, 60, 0.88), transparent 16%),
-    radial-gradient(circle at 58% 55%, rgba(190, 24, 93, 0.62), transparent 35%),
-    linear-gradient(145deg, #2c1527, #14161b 72%);
+  background: var(--fill-artwork-ember);
 }
 
 .artwork-tidal {
-  background:
-    radial-gradient(circle at 64% 35%, rgba(34, 211, 238, 0.67), transparent 19%),
-    radial-gradient(circle at 37% 61%, rgba(79, 70, 229, 0.7), transparent 37%),
-    linear-gradient(145deg, #0c2332, #171821 70%);
+  background: var(--fill-artwork-tidal);
 }
 
 .artwork-orbit {
-  background:
-    radial-gradient(circle at 50% 46%, transparent 0 19%, rgba(217, 70, 239, 0.72) 20% 23%, transparent 24%),
-    radial-gradient(circle at 50% 46%, rgba(139, 92, 246, 0.34), transparent 45%),
-    linear-gradient(145deg, #241834, #101217 75%);
+  background: var(--fill-artwork-orbit);
 }
 
 .vinyl-lines::after {
   position: absolute;
   inset: 8%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
+  border: var(--border-vinyl);
+  border-radius: var(--radius-pill);
   content: "";
-  box-shadow:
-    0 0 0 17px rgba(255, 255, 255, 0.025),
-    0 0 0 34px rgba(255, 255, 255, 0.018),
-    0 0 0 51px rgba(255, 255, 255, 0.013);
+  box-shadow: var(--shadow-vinyl);
 }
 
 .wave-bar {
   width: 3px;
   min-height: 5px;
-  border-radius: 999px;
-  background: linear-gradient(to top, rgba(139, 92, 246, 0.38), #d8b4fe);
+  border-radius: var(--radius-pill);
+  background: var(--fill-wave);
   opacity: 0.9;
 }
 
@@ -245,57 +245,46 @@ input {
 }
 
 .dashboard-canvas {
-  background:
-    radial-gradient(circle at 78% 8%, rgba(139, 92, 246, 0.075), transparent 31rem),
-    linear-gradient(145deg, #181b21, #14171c 72%);
+  background: var(--fill-dashboard);
 }
 
 .dashboard-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.025);
-  background: rgba(23, 26, 32, 0.86);
-  box-shadow: 0 9px 26px rgba(0, 0, 0, 0.15);
+  border-bottom: var(--border-header);
+  background: var(--fill-header);
+  box-shadow: var(--shadow-header);
   backdrop-filter: blur(16px);
 }
 
 .dashboard-sidebar-shell {
-  background: linear-gradient(90deg, rgba(12, 14, 18, 0.2), transparent);
-}
-
-.dashboard-sidebar-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(168, 85, 247, 0.22) transparent;
+  background: var(--fill-sidebar);
 }
 
 .dashboard-nav-item {
   border: 1px solid transparent;
-  color: #8f95a1;
-  transition: color 170ms ease, transform 170ms ease, background 170ms ease, box-shadow 170ms ease;
+  color: var(--nav-text);
+  transition: color var(--motion-base) var(--motion-ease), transform var(--motion-base) var(--motion-ease), background var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease);
 }
 
 .dashboard-nav-item:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.025);
-  color: #e5e2e9;
-  box-shadow:
-    4px 5px 10px rgba(0, 0, 0, 0.2),
-    -3px -3px 8px rgba(255, 255, 255, 0.018);
+  background: var(--fill-nav-hover);
+  color: var(--nav-text-hover);
+  box-shadow: var(--shadow-nav-hover);
 }
 
 .dashboard-nav-item-active,
 .dashboard-nav-item-active:hover {
   transform: none;
-  border-color: rgba(168, 85, 247, 0.12);
-  background: #171a20;
-  color: #c795ff;
-  box-shadow:
-    inset 5px 5px 11px rgba(0, 0, 0, 0.5),
-    inset -4px -4px 9px rgba(255, 255, 255, 0.032);
+  border-color: var(--nav-active-border);
+  background: var(--canvas);
+  color: var(--nav-text-active);
+  box-shadow: var(--shadow-nav-active);
 }
 
 .dashboard-workspace-button,
 .dashboard-user-button {
   cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition: transform var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease);
 }
 
 .dashboard-workspace-button:hover,
@@ -306,9 +295,7 @@ input {
 .dashboard-workspace-button:active,
 .dashboard-user-button:active {
   transform: translateY(0);
-  box-shadow:
-    inset 5px 5px 11px rgba(0, 0, 0, 0.48),
-    inset -4px -4px 9px rgba(255, 255, 255, 0.03);
+  box-shadow: var(--shadow-workspace-pressed);
 }
 
 .dashboard-menu-item {
@@ -316,30 +303,30 @@ input {
   min-height: 2.75rem;
   align-items: center;
   gap: 0.75rem;
-  border-radius: 0.9rem;
+  border-radius: var(--radius-control);
   padding: 0 0.75rem;
-  color: #a0a5b0;
+  color: var(--menu-text);
   font-size: 0.8125rem;
   font-weight: 700;
-  transition: color 160ms ease, background 160ms ease;
+  transition: color var(--motion-base) var(--motion-ease), background var(--motion-base) var(--motion-ease);
 }
 
 .dashboard-menu-item:hover {
-  background: rgba(255, 255, 255, 0.035);
-  color: #f0edf3;
+  background: var(--fill-menu-hover);
+  color: var(--menu-text-hover);
 }
 
 .dashboard-avatar {
-  background-color: #171a20;
+  background-color: var(--canvas);
 }
 
 .dashboard-mobile-drawer {
-  animation: dashboard-drawer-in 190ms ease-out;
+  animation: dashboard-drawer-in var(--motion-base) ease-out;
 }
 
 .dashboard-quick-link,
 .dashboard-domain-card {
-  transition: transform 180ms ease, box-shadow 180ms ease, color 180ms ease;
+  transition: transform var(--motion-base) var(--motion-ease), box-shadow var(--motion-base) var(--motion-ease), color var(--motion-base) var(--motion-ease);
 }
 
 .dashboard-quick-link:hover {
@@ -348,9 +335,7 @@ input {
 
 .dashboard-domain-card:hover {
   transform: translateY(-3px);
-  box-shadow:
-    14px 15px 30px rgba(0, 0, 0, 0.52),
-    -8px -8px 20px rgba(255, 255, 255, 0.04);
+  box-shadow: var(--shadow-card-hover);
 }
 
 @keyframes dashboard-drawer-in {
@@ -400,9 +385,7 @@ input {
 @media (max-width: 640px) {
   .neo-raised,
   .neo-raised-strong {
-    box-shadow:
-      8px 9px 20px rgba(0, 0, 0, 0.5),
-      -5px -5px 14px rgba(255, 255, 255, 0.035);
+    box-shadow: var(--shadow-raised-mobile);
   }
 }
 
@@ -420,3 +403,38 @@ input {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Shared browser controls inherit the same material and readable option colors. */
+.neo-input-wrap select option { background: var(--surface); color: var(--text); }
+.neo-input-wrap:has(:disabled) { opacity: 0.6; }
+.artwork-shine { background: var(--fill-artwork-shine); }
+.mood-surface { background: var(--fill-mood); }
+
+/* Shared music material. Component geometry stays in its own stylesheet. */
+.music-glass {
+  border: 1px solid var(--music-glass-border);
+  background: var(--music-glass);
+  box-shadow: var(--music-shadow);
+}
+.music-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  color: var(--music-label);
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+.music-status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-pill);
+  background: var(--music-signal);
+  box-shadow: var(--music-live-shadow);
+}
+/* Keep real-time backdrop blur on floating navigation/player chrome. Static
+   music panels use the glass material itself to avoid a GPU layer per license. */

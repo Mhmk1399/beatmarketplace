@@ -28,10 +28,10 @@ export function DashboardSidebar({
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full min-h-0 flex-col px-4 py-5">
-      <BrandMark href="/dashboard" className="px-1" />
+    <div className="flex h-full min-h-0 flex-col px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5">
+      <BrandMark href="/dashboard" className="min-h-11 px-1" onClick={onNavigate} />
       <div className="mt-7">
-        <WorkspaceSwitcher activeWorkspace={activeWorkspace} workspaces={workspaces} />
+        <WorkspaceSwitcher activeWorkspace={activeWorkspace} workspaces={workspaces} onNavigate={onNavigate} />
       </div>
 
       <nav aria-label={`${activeWorkspace.label} navigation`} className="dashboard-sidebar-scroll mt-7 min-h-0 flex-1 space-y-6 overflow-y-auto pr-1">
@@ -40,15 +40,15 @@ export function DashboardSidebar({
         ))}
       </nav>
 
-      <div className="mt-5 border-t border-white/[0.045] pt-4">
-        <Link href={`${activeWorkspace.href}/settings`} onClick={onNavigate} className="mb-3 flex min-h-10 items-center gap-3 rounded-xl px-3 text-xs font-semibold text-[#858b97] hover:bg-white/[0.025] hover:text-[#dad7de]">
+      <div className="mt-5 border-t border-divider pt-4">
+        <Link href={`${activeWorkspace.href}/settings`} onClick={onNavigate} className="mb-3 flex min-h-11 items-center gap-3 rounded-xl px-3 text-xs font-semibold text-muted hover:bg-[var(--border-subtle)] hover:text-secondary">
           <SettingsIcon className="size-[17px]" /> Account settings
         </Link>
         <div className="neo-inset flex min-w-0 items-center gap-3 rounded-[18px] p-3">
           <DashboardAvatar user={user} className="size-10" />
           <span className="min-w-0">
-            <span className="block truncate text-sm font-bold text-[#e4e1e8]">{getUserName(user)}</span>
-            <span className="mt-0.5 block truncate text-[11px] text-[#777d89]">{user.email}</span>
+            <span className="block truncate text-sm font-bold text-foreground">{getUserName(user)}</span>
+            <span className="mt-0.5 block truncate text-[11px] text-faint">{user.email}</span>
           </span>
         </div>
       </div>

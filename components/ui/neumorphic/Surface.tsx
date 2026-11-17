@@ -7,5 +7,5 @@ type SurfaceProps = ComponentPropsWithoutRef<"div"> & {
 };
 
 export function NeumorphicSurface({ className, depth = "soft", ...props }: SurfaceProps) {
-  return <div className={cn(depth === "strong" ? "neo-raised-strong" : depth === "inset" ? "neo-inset" : "neo-raised", className)} {...props} />;
+  return <div className={cn("min-w-0", depth === "strong" ? "neo-raised-strong" : depth === "inset" ? "neo-inset" : "neo-raised", className)} {...props} />;
 }

@@ -45,6 +45,8 @@ export type TrackFields = {
     preview?: ObjectStorageAsset;
     master?: ObjectStorageAsset;
     stems: ObjectStorageAsset[];
+    previewStartSeconds: number;
+    previewDurationSeconds: number;
   };
   metadata: TrackMetadata;
   visibility: TrackVisibility;
@@ -104,6 +106,8 @@ const trackSchema = new Schema<TrackFields>(
       preview: { type: objectStorageAssetSchema, required: false },
       master: { type: objectStorageAssetSchema, required: false, select: false },
       stems: { type: [objectStorageAssetSchema], default: [], select: false },
+      previewStartSeconds: { type: Number, required: true, default: 0, min: 0 },
+      previewDurationSeconds: { type: Number, required: true, default: 30, enum: [30] },
     },
     metadata: { type: trackMetadataSchema, required: true },
     visibility: { type: String, enum: ["PUBLIC", "PRIVATE"], default: "PRIVATE", index: true },
@@ -127,7 +131,7 @@ const trackSchema = new Schema<TrackFields>(
       ],
     },
   },
-  { timestamps: true, toJSON: { transform: transformMongoDocument } },
+  { timestamps: true, optimisticConcurrency: true, toJSON: { transform: transformMongoDocument } },
 );
 
 trackSchema.pre("validate", function validatePublishableTrack() {
@@ -143,6 +147,13 @@ trackSchema.pre("validate", function validatePublishableTrack() {
     if (!this.metadata.genreId) this.invalidate("metadata.genreId", "A published track requires a genre.");
     if (!this.artwork) this.invalidate("artwork", "A published track requires artwork.");
     if (!this.audio.preview) this.invalidate("audio.preview", "A published track requires preview audio.");
+    if (!this.audio.master) this.invalidate("audio.master", "A published track requires a private master file.");
+    if (this.audio.preview?.durationSeconds !== 30 || this.audio.previewDurationSeconds !== 30) {
+      this.invalidate("audio.preview", "A published track requires an exact 30-second preview.");
+    }
+    if (!this.metadata.durationSeconds || this.audio.previewStartSeconds + 30 > this.metadata.durationSeconds + 0.001) {
+      this.invalidate("audio.previewStartSeconds", "The 30-second preview must fit inside the master file.");
+    }
     if (this.releaseDate && this.releaseDate > new Date()) {
       this.invalidate("releaseDate", "Use SCHEDULED status for a future release date.");
     }
@@ -163,6 +174,11 @@ trackSchema.index({ "metadata.genreId": 1, status: 1 });
 trackSchema.index({ "metadata.moodIds": 1, status: 1 });
 trackSchema.index({ "metadata.instrumentIds": 1, status: 1 });
 trackSchema.index({ title: "text", description: "text", "metadata.tags": "text" });
+trackSchema.index({ visibility: 1, status: 1, createdAt: -1, _id: -1 });
+trackSchema.index({ visibility: 1, status: 1, "metadata.genreId": 1, createdAt: -1, _id: -1 });
+trackSchema.index({ producerId: 1, createdAt: -1, _id: -1 });
+trackSchema.index({ "audio.preview.key": 1 }, { sparse: true });
+trackSchema.index({ "artwork.key": 1 }, { sparse: true });
 
 const TrackModel = (mongoose.models.Track as Model<TrackFields> | undefined) ?? mongoose.model<TrackFields>("Track", trackSchema);
 

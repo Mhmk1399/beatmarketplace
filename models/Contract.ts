@@ -74,7 +74,7 @@ const contractSchema = new Schema<ContractFields>(
     offerable: { type: Boolean, default: false, index: true },
     price: { type: Schema.Types.Decimal128, required: true },
     minimumOfferPrice: { type: Schema.Types.Decimal128, default: null },
-    currency: { type: String, required: true, uppercase: true, trim: true, minlength: 3, maxlength: 3, default: "USD" },
+    currency: { type: String, required: true, uppercase: true, trim: true, enum: ["IRT"], default: "IRT" },
     filesToDeliver: {
       type: [deliverableSchema],
       required: true,
@@ -118,7 +118,7 @@ const contractSchema = new Schema<ContractFields>(
     effectiveFrom: { type: Date, default: Date.now, required: true },
     expiresAt: { type: Date, default: null },
   },
-  { timestamps: true, toJSON: { transform: transformContract } },
+  { timestamps: true, optimisticConcurrency: true, toJSON: { transform: transformContract } },
 );
 
 contractSchema.pre("validate", function validateContractRules() {
@@ -157,6 +157,7 @@ contractSchema.pre("validate", function validateContractRules() {
 
 contractSchema.index({ producerId: 1, isActive: 1, createdAt: -1 });
 contractSchema.index({ trackIds: 1, isActive: 1 });
+contractSchema.index({ trackIds: 1, isActive: 1, price: 1, _id: 1 });
 
 const ContractModel =
   (mongoose.models.Contract as Model<ContractFields> | undefined) ?? mongoose.model<ContractFields>("Contract", contractSchema);

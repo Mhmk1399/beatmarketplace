@@ -1,37 +1,73 @@
-import { CreateCta } from "@/components/home/CreateCta";
-import { PlayerMockup } from "@/components/home/PlayerMockup";
+import { FeaturedBeats } from "@/components/home/FeaturedBeats";
+import {
+  ArrowRightIcon,
+  DiscIcon,
+  PlayIcon,
+  ShieldIcon,
+  TagIcon,
+} from "@/components/ui/icons";
 import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
+import { demoTracks } from "@/lib/audio/demo-tracks";
 
 export function Hero() {
   return (
-    <section className="px-5 pb-20 pt-14 sm:pb-28 sm:pt-20 lg:pt-24">
-      <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.02fr_.98fr] lg:gap-8">
-        <div className="relative z-10 max-w-3xl">
-          <div className="neo-inset inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold uppercase tracking-[0.17em] text-[#b79acb]">
-            <span className="size-1.5 rounded-full bg-[#c084fc] shadow-[0_0_14px_#a855f7]" />
-            Independent sound, made visible
+    <section
+      className="hero-showcase music-home-hero"
+      aria-labelledby="home-title"
+    >
+      <div className="hero-showcase-content music-home-container">
+        <div className="hero-showcase-grid">
+          <div className="hero-showcase-copy">
+            <p className="hero-showcase-kicker">
+              <span className="music-status-dot" aria-hidden="true" /> An
+              independent sound space
+            </p>
+            <h1 id="home-title">
+              Find your next
+              <br />
+              <span className="text-gradient">signature sound.</span>
+            </h1>
+            <p className="hero-showcase-intro">
+              Original beats from independent producers. Find the feeling, hear
+              the potential, and make your next release your own.
+            </p>
+            <div className="hero-showcase-actions">
+              <NeumorphicLink href="/marketplace" variant="accent" size="lg">
+                Explore beats <ArrowRightIcon className="size-4" />
+              </NeumorphicLink>
+              <NeumorphicLink href="/#listening-room" variant="quiet" size="lg">
+                <PlayIcon className="size-5" /> Just listen
+              </NeumorphicLink>
+            </div>
           </div>
-          <h1 className="mt-8 text-[clamp(3.25rem,8vw,7.4rem)] font-black leading-[0.88] tracking-[-0.068em] text-[#f3f1f7]">
-            Find the sound
-            <span className="text-gradient block">your release needs.</span>
-          </h1>
-          <p className="mt-7 max-w-xl text-base leading-7 text-[#a2a7b2] sm:text-lg sm:leading-8">
-            Discover original tracks from independent producers, hear the feeling instantly, and find the right foundation for what you make next.
-          </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <NeumorphicLink href="/#sounds" size="lg">
-              Preview the sound
-            </NeumorphicLink>
-            <CreateCta />
+          <FeaturedBeats demos={demoTracks} />
+        </div>
+        <div
+          className="hero-showcase-promises"
+          aria-label="Marketplace features"
+        >
+          <div>
+            <DiscIcon />
+            <span>
+              <strong>30 sec</strong>
+              <small>Hear your preview</small>
+            </span>
           </div>
-          <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#717681]">
-            <span>Original music</span>
-            <span>Independent producers</span>
-            <span>Clear terms</span>
+          <div>
+            <ShieldIcon />
+            <span>
+              <strong>Your release</strong>
+              <small>Producer-defined licenses</small>
+            </span>
+          </div>
+          <div>
+            <TagIcon />
+            <span>
+              <strong>Toman</strong>
+              <small>Clear license pricing</small>
+            </span>
           </div>
         </div>
-
-        <PlayerMockup />
       </div>
     </section>
   );

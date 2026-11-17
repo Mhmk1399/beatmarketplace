@@ -70,8 +70,8 @@ type DynamicFormProps<T extends { [K in keyof T]: DynamicFormValue }> = {
 };
 
 function FieldMessage({ descriptionId, error, hint }: { descriptionId?: string; error?: string; hint?: string }) {
-  if (error) return <p id={descriptionId} className="text-sm text-[#ff8fa9]" role="alert">{error}</p>;
-  if (hint) return <p id={descriptionId} className="text-xs leading-5 text-[#8e93a0]">{hint}</p>;
+  if (error) return <p id={descriptionId} className="text-sm text-error-text" role="alert">{error}</p>;
+  if (hint) return <p id={descriptionId} className="text-xs leading-5 text-muted">{hint}</p>;
   return null;
 }
 
@@ -119,7 +119,7 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
           if (field.type === "checkbox") {
             return (
               <div key={name} className={fieldClass}>
-                <label htmlFor={inputId} className="neo-inset flex min-h-13 cursor-pointer items-start gap-3 rounded-2xl px-4 py-3 text-sm text-[#d7d9e0]">
+                <label htmlFor={inputId} className="neo-inset flex min-h-13 cursor-pointer items-start gap-3 rounded-[var(--radius-control)] px-4 py-3 text-sm text-secondary">
                   <input
                     id={inputId}
                     name={name}
@@ -130,9 +130,9 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
                     aria-invalid={Boolean(error)}
                     aria-describedby={descriptionId}
                     onChange={(event) => onValueChange(field.name, event.currentTarget.checked as T[typeof field.name])}
-                    className="mt-0.5 size-4 accent-[#9b5cf6]"
+                    className="mt-0.5 size-4 accent-accent"
                   />
-                  <span><span className="font-semibold">{field.label}</span>{field.hint && <span className="mt-1 block text-xs leading-5 text-[#858b97]">{field.hint}</span>}</span>
+                  <span><span className="font-semibold">{field.label}</span>{field.hint && <span id={error ? undefined : descriptionId} className="mt-1 block text-xs leading-5 text-muted">{field.hint}</span>}</span>
                 </label>
                 {error && <div className="mt-2"><FieldMessage descriptionId={descriptionId} error={error} /></div>}
               </div>
@@ -142,8 +142,8 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
           if (field.type === "textarea") {
             return (
               <div key={name} className={cn("space-y-2", fieldClass)}>
-                <label htmlFor={inputId} className="block text-sm font-semibold text-[#d7d9e0]">{field.label}</label>
-                <div className={cn("neo-input-wrap rounded-2xl", error && "neo-input-error")}>
+                <label htmlFor={inputId} className="block text-sm font-semibold text-secondary">{field.label}</label>
+                <div className={cn("neo-input-wrap rounded-[var(--radius-control)]", error && "neo-input-error")}>
                   <textarea
                     id={inputId}
                     name={name}
@@ -157,7 +157,7 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
                     aria-invalid={Boolean(error)}
                     aria-describedby={descriptionId}
                     onChange={(event) => onValueChange(field.name, event.currentTarget.value as T[typeof field.name])}
-                    className="min-h-28 w-full resize-y rounded-2xl bg-transparent px-4 py-3 text-[15px] leading-6 text-[#f2f0f7] outline-none placeholder:text-[#747985]"
+                    className="min-h-28 w-full resize-y rounded-[var(--radius-control)] bg-transparent px-4 py-3 text-[15px] leading-6 text-foreground outline-none placeholder:text-faint"
                   />
                 </div>
                 <FieldMessage descriptionId={descriptionId} error={error} hint={field.hint} />
@@ -168,8 +168,8 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
           if (field.type === "select") {
             return (
               <div key={name} className={cn("space-y-2", fieldClass)}>
-                <label htmlFor={inputId} className="block text-sm font-semibold text-[#d7d9e0]">{field.label}</label>
-                <div className={cn("neo-input-wrap rounded-2xl", error && "neo-input-error")}>
+                <label htmlFor={inputId} className="block text-sm font-semibold text-secondary">{field.label}</label>
+                <div className={cn("neo-input-wrap rounded-[var(--radius-control)]", error && "neo-input-error")}>
                   <select
                     id={inputId}
                     name={name}
@@ -179,7 +179,7 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
                     aria-invalid={Boolean(error)}
                     aria-describedby={descriptionId}
                     onChange={(event) => onValueChange(field.name, event.currentTarget.value as T[typeof field.name])}
-                    className="min-h-12 w-full rounded-2xl bg-transparent px-4 text-[15px] text-[#f2f0f7] outline-none"
+                    className="min-h-[var(--control-height)] w-full rounded-[var(--radius-control)] bg-transparent px-4 text-[15px] text-foreground outline-none"
                   >
                     {field.placeholder && <option value="">{field.placeholder}</option>}
                     {field.options.map((option) => <option key={option.value} value={option.value} disabled={option.disabled}>{option.label}</option>)}
@@ -213,7 +213,7 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
                 maxLength={field.maxLength}
                 onChange={(event) => onValueChange(field.name, event.currentTarget.value as T[typeof field.name])}
                 trailing={field.type === "password" && field.revealable ? (
-                  <button type="button" className="flex size-9 items-center justify-center rounded-xl text-[#8d929e] transition-colors hover:text-[#d8b4fe]" onClick={() => togglePassword(name)} aria-label={passwordVisible ? `Hide ${field.label.toLowerCase()}` : `Show ${field.label.toLowerCase()}`}>
+                  <button type="button" className="flex size-11 items-center justify-center rounded-xl text-muted transition-colors hover:text-accent-text" onClick={() => togglePassword(name)} aria-label={passwordVisible ? `Hide ${field.label.toLowerCase()}` : `Show ${field.label.toLowerCase()}`}>
                     {passwordVisible ? <EyeOffIcon className="size-5" /> : <EyeIcon className="size-5" />}
                   </button>
                 ) : undefined}
@@ -223,12 +223,12 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
         })}
       </fieldset>
 
-      {formError && <p className="rounded-2xl bg-[#ff6b8a]/8 px-4 py-3 text-sm leading-6 text-[#ff9bb0]" role="alert">{formError}</p>}
+      {formError && <p className="rounded-[var(--radius-control)] bg-[var(--error-soft)] px-4 py-3 text-sm leading-6 text-error-text" role="alert">{formError}</p>}
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
         {actions}
         <NeumorphicButton type="submit" variant="accent" size="lg" className={cn("w-full", !fullWidthSubmit && "sm:w-auto")} disabled={isSubmitting || disabled}>
-          {isSubmitting && <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" />}
+          {isSubmitting && <span className="size-4 animate-spin rounded-full border-2 border-on-accent/30 border-t-on-accent" aria-hidden="true" />}
           {isSubmitting ? submittingLabel : submitLabel}
         </NeumorphicButton>
       </div>

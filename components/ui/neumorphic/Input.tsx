@@ -21,17 +21,17 @@ export const NeumorphicInput = forwardRef<HTMLInputElement, NeumorphicInputProps
 
   return (
     <div className="space-y-2">
-      <label htmlFor={inputId} className="block text-sm font-semibold text-[#d7d9e0]">
+      <label htmlFor={inputId} className="block text-sm font-semibold text-secondary">
         {label}
       </label>
-      <div className={cn("neo-input-wrap relative rounded-2xl", error && "neo-input-error")}>
+      <div className={cn("neo-input-wrap relative rounded-[var(--radius-control)]", error && "neo-input-error")}>
         <input
           ref={ref}
           id={inputId}
           aria-invalid={Boolean(error)}
           aria-describedby={descriptionId}
           className={cn(
-            "neo-input min-h-12 w-full rounded-2xl bg-transparent px-4 text-[15px] text-[#f2f0f7] outline-none placeholder:text-[#747985]",
+            "neo-input min-h-[var(--control-height)] w-full rounded-[var(--radius-control)] bg-transparent px-4 text-[15px] text-foreground outline-none placeholder:text-faint",
             Boolean(trailing) && "pr-13",
             className,
           )}
@@ -40,11 +40,11 @@ export const NeumorphicInput = forwardRef<HTMLInputElement, NeumorphicInputProps
         {trailing && <div className="absolute inset-y-0 right-2 flex items-center">{trailing}</div>}
       </div>
       {error ? (
-        <p id={descriptionId} className="text-sm text-[#ff8fa9]" role="alert">
+        <p id={descriptionId} className="text-sm text-error-text" role="alert">
           {error}
         </p>
       ) : hint ? (
-        <p id={descriptionId} className="text-xs leading-5 text-[#8e93a0]">
+        <p id={descriptionId} className="text-xs leading-5 text-muted">
           {hint}
         </p>
       ) : null}

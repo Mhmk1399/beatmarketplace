@@ -16,7 +16,7 @@ export function NavigationSection({
 }) {
   return (
     <section aria-label={section.label}>
-      {section.label && <p className="mb-2 px-3 text-[10px] font-extrabold uppercase tracking-[0.19em] text-[#666c79]">{section.label}</p>}
+      {section.label && <p className="mb-2 px-3 text-[10px] font-extrabold uppercase tracking-[0.19em] text-faint">{section.label}</p>}
       <div className="space-y-1.5">
         {section.items.map((item) => <NavigationItem key={item.href} item={item} onNavigate={onNavigate} pathname={pathname} workspaceRoot={workspaceRoot} />)}
       </div>
