@@ -156,6 +156,7 @@ contractSchema.pre("validate", function validateContractRules() {
 });
 
 contractSchema.index({ producerId: 1, isActive: 1, createdAt: -1 });
+contractSchema.index({ producerId: 1, createdAt: -1, _id: -1 });
 contractSchema.index({ trackIds: 1, isActive: 1 });
 contractSchema.index({ trackIds: 1, isActive: 1, price: 1, _id: 1 });
 

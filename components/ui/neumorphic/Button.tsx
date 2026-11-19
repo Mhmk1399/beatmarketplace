@@ -1,5 +1,5 @@
 import Link, { type LinkProps } from "next/link";
-import type { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from "react";
+import type { ComponentPropsWithRef, MouseEventHandler, ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
@@ -17,7 +17,7 @@ export function neumorphicButtonClass(variant: Variant = "default", size: Size =
   );
 }
 
-type NeoButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type NeoButtonProps = ComponentPropsWithRef<"button"> & {
   variant?: Variant;
   size?: Size;
 };

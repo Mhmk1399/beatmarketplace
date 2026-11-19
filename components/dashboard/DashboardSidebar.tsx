@@ -1,13 +1,13 @@
 "use client";
 
-import Link from "next/link";
+
 import { usePathname } from "next/navigation";
 
 import { DashboardAvatar, getUserName } from "@/components/dashboard/DashboardAvatar";
 import { NavigationSection } from "@/components/dashboard/NavigationSection";
 import { WorkspaceSwitcher } from "@/components/dashboard/WorkspaceSwitcher";
 import { BrandMark } from "@/components/public/BrandMark";
-import { SettingsIcon } from "@/components/ui/icons";
+
 import type { NavigationSection as NavigationSectionDefinition } from "@/lib/dashboard/navigation";
 import type { DashboardUser } from "@/lib/dashboard/session";
 import type { WorkspaceDefinition } from "@/lib/dashboard/workspaces";
@@ -30,20 +30,18 @@ export function DashboardSidebar({
   return (
     <div className="flex h-full min-h-0 flex-col px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5">
       <BrandMark href="/dashboard" className="min-h-11 px-1" onClick={onNavigate} />
-      <div className="mt-7">
+      <div className="mt-5">
         <WorkspaceSwitcher activeWorkspace={activeWorkspace} workspaces={workspaces} onNavigate={onNavigate} />
       </div>
 
-      <nav aria-label={`${activeWorkspace.label} navigation`} className="dashboard-sidebar-scroll mt-7 min-h-0 flex-1 space-y-6 overflow-y-auto pr-1">
+      <nav aria-label={`${activeWorkspace.label} navigation`} className="dashboard-sidebar-scroll mt-5 min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
         {navigation.map((section, index) => (
           <NavigationSection key={section.label ?? `primary-${index}`} section={section} pathname={pathname} workspaceRoot={activeWorkspace.href} onNavigate={onNavigate} />
         ))}
       </nav>
 
       <div className="mt-5 border-t border-divider pt-4">
-        <Link href={`${activeWorkspace.href}/settings`} onClick={onNavigate} className="mb-3 flex min-h-11 items-center gap-3 rounded-xl px-3 text-xs font-semibold text-muted hover:bg-[var(--border-subtle)] hover:text-secondary">
-          <SettingsIcon className="size-[17px]" /> Account settings
-        </Link>
+
         <div className="neo-inset flex min-w-0 items-center gap-3 rounded-[18px] p-3">
           <DashboardAvatar user={user} className="size-10" />
           <span className="min-w-0">

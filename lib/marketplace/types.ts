@@ -32,12 +32,18 @@ export type StudioLicense = MarketplaceLicense & {
 };
 
 export type MarketplaceTrack = {
+  moodIds?: string[];
+  instrumentIds?: string[];
+  moods?: { id: string; name: string; slug: string }[];
+  instruments?: { id: string; name: string; slug: string }[];
+  version?: number;
   id: string;
   title: string;
   slug: string;
   description: string;
   producerId: string;
   producerName: string;
+  producerAvatarUrl?: string | null;
   artworkUrl: string | null;
   previewUrl: string | null;
   previewStartSeconds: number;
@@ -55,4 +61,16 @@ export type MarketplaceTrack = {
 };
 
 export type TaxonomyKind = "genres" | "moods" | "instruments";
-export type TaxonomyItem = { id: string; name: string; slug: string; isActive: boolean };
+export type TaxonomyItem = {
+  id: string;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  description?: string;
+  sortOrder?: number;
+  version?: number;
+  thumbnailUrl?: string | null;
+  bannerUrl?: string | null;
+  family?: string;
+  color?: string | null;
+};

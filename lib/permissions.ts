@@ -28,5 +28,5 @@ export function requireResourceOwner(user: AuthorizedUser, ownerId: string) {
 }
 
 export function userCanBecomeProducer(user: AuthorizedUser) {
-  return userHasRole(user, "USER");
+  return userHasRole(user, "USER") || userHasRole(user, "ADMIN");
 }

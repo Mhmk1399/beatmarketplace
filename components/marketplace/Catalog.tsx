@@ -1,4 +1,7 @@
-﻿"use client";
+"use client";
+import { DynamicSelect } from "@/components/ui/dynamic/DynamicSelect";
+import { MUSICAL_KEY_FILTER_OPTIONS } from "@/lib/music/keys";
+
 
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowRightIcon, ChevronDownIcon, DiscIcon, MusicNoteIcon } from "@/components/ui/icons";
@@ -8,12 +11,13 @@ import { useMarketplace } from "@/components/marketplace/MarketplaceProvider";
 import { discountNow, synchronizeDiscountClock, useDiscountWindowSignature } from "@/components/discounts/clock";
 import { discountIsActive } from "@/lib/marketplace/discounts";
 import type { MarketplaceTrack, TaxonomyItem } from "@/lib/marketplace/types";
+import { genreAliases, genreName } from "@/lib/marketplace/genres";
 
 const control = "neo-inset min-h-12 w-full rounded-[var(--radius-control)] px-4 text-sm text-[var(--text)]";
-const initialFilters = { q: "", genreId: "", minBpm: "", maxBpm: "", key: "", sort: "newest" };
+const initialFilters = { q: "", genreId: "", genre: "", minBpm: "", maxBpm: "", key: "", sort: "newest" };
 const pageSize = 24;
 
-export function Catalog({ compact = false, saved = false, discounted = false }: { compact?: boolean; saved?: boolean; discounted?: boolean }) {
+export function Catalog({ compact = false, saved = false, discounted = false, initialGenre = "" }: { compact?: boolean; saved?: boolean; discounted?: boolean; initialGenre?: string }) {
   const { favoriteIds } = useMarketplace();
   const favoritesVersion = saved ? Array.from(favoriteIds).sort().join(",") : "";
   const [tracks, setTracks] = useState<MarketplaceTrack[]>([]);
@@ -28,7 +32,7 @@ export function Catalog({ compact = false, saved = false, discounted = false }: 
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [cursorHistory, setCursorHistory] = useState([""]);
   const [retry, setRetry] = useState(0);
-  const [filters, setFilters] = useState(initialFilters);
+  const [filters, setFilters] = useState(() => ({ ...initialFilters, genre: initialGenre }));
   const cursorMode = !saved && filters.sort === "newest";
   const cursor = cursorHistory[page - 1] ?? "";
   const activeWindows = useDiscountWindowSignature(tracks.map((track) => track.discount));
@@ -68,7 +72,7 @@ export function Catalog({ compact = false, saved = false, discounted = false }: 
 
   function filter(name: keyof typeof filters, value: string) {
     setLoading(true); setPage(1); setCursorHistory([""]); setNextCursor(null);
-    setFilters((current) => ({ ...current, [name]: value }));
+    setFilters((current) => ({ ...current, ...(name === "genreId" ? { genre: "" } : {}), [name]: value }));
   }
   function search(event: FormEvent) { event.preventDefault(); filter("q", query); }
   function refresh() { setLoading(true); setPage(1); setCursorHistory([""]); setRetry((value) => value + 1); }
@@ -77,7 +81,9 @@ export function Catalog({ compact = false, saved = false, discounted = false }: 
     setLoading(true); setPage((value) => value + 1);
   }
 
-  const filtered = Boolean(filters.q || filters.genreId || filters.key || filters.minBpm || filters.maxBpm);
+  const filtered = Boolean(filters.q || filters.genreId || filters.genre || filters.key || filters.minBpm || filters.maxBpm);
+  const genreSlugs = genreAliases(filters.genre);
+  const selectedGenre = genres.find((genre) => genreSlugs.includes(genre.slug));
   function clearFilters() {
     setLoading(true); setPage(1); setCursorHistory([""]); setNextCursor(null); setQuery(""); setFilters(initialFilters);
   }
@@ -97,16 +103,16 @@ export function Catalog({ compact = false, saved = false, discounted = false }: 
           <NeumorphicButton type="submit" variant="accent" className="whitespace-nowrap">Find my sound <ArrowRightIcon className="size-4" /></NeumorphicButton>
         </form>
         {genres.length > 0 && <div className="music-genre-rail" aria-label="Browse by genre">
-          <button type="button" className="music-genre-chip" aria-pressed={!filters.genreId} onClick={() => filter("genreId", "")}>All sounds</button>
-          {genres.slice(0, 6).map((genre) => <button type="button" key={genre.id} className="music-genre-chip" aria-pressed={filters.genreId === genre.id} onClick={() => filter("genreId", genre.id)}>{genre.name}</button>)}
+          <button type="button" className="music-genre-chip" aria-pressed={!filters.genreId && !filters.genre} onClick={() => filter("genreId", "")}>All sounds</button>
+          {genres.slice(0, 6).map((genre) => <button type="button" key={genre.id} className="music-genre-chip" aria-pressed={filters.genreId === genre.id || genreSlugs.includes(genre.slug)} onClick={() => filter("genreId", genre.id)}>{genre.name}</button>)}
         </div>}
         <div className="music-filter-heading"><span className="music-eyebrow">Fine-tune your search</span><button type="button" aria-expanded={showFilters} aria-controls="beat-filters" className="music-filter-toggle" onClick={() => setShowFilters((value) => !value)}>{showFilters ? "Hide filters" : "Show filters"}<ChevronDownIcon className="size-4" /></button>{filtered && <button type="button" className="music-clear-filters" onClick={clearFilters}>Clear all</button>}</div>
         <div id="beat-filters" className="music-filter-grid" data-expanded={showFilters}>
-          <label>Genre<select className={control} value={filters.genreId} onChange={(event) => filter("genreId", event.target.value)}><option value="">All genres</option>{genres.map((genre) => <option key={genre.id} value={genre.id}>{genre.name}</option>)}</select></label>
+          <label>Genre<DynamicSelect aria-label="Genre" className={control} value={filters.genreId || selectedGenre?.id || (filters.genre ? `slug:${filters.genre}` : "")} onChange={(event) => filter("genreId", event.target.value)}><option value="">All genres</option>{filters.genre && !selectedGenre && <option value={`slug:${filters.genre}`}>{genreName(filters.genre)}</option>}{genres.map((genre) => <option key={genre.id} value={genre.id}>{genre.name}</option>)}</DynamicSelect></label>
           <label>Minimum BPM<input className={control} type="number" min={20} max={400} placeholder="20" value={filters.minBpm} onChange={(event) => filter("minBpm", event.target.value)} /></label>
           <label>Maximum BPM<input className={control} type="number" min={20} max={400} placeholder="400" value={filters.maxBpm} onChange={(event) => filter("maxBpm", event.target.value)} /></label>
-          <label>Musical key<input className={control} maxLength={20} placeholder="e.g. C minor" value={filters.key} onChange={(event) => filter("key", event.target.value)} /></label>
-          <label className="music-sort-filter">Sort by<select className={control} value={filters.sort} onChange={(event) => filter("sort", event.target.value)}><option value="newest">Newest first</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option></select></label>
+          <label>Musical key<DynamicSelect className={control} options={MUSICAL_KEY_FILTER_OPTIONS} value={filters.key} onChange={(event) => filter("key", event.target.value)} /></label>
+          <label className="music-sort-filter">Sort by<DynamicSelect className={control} value={filters.sort} onChange={(event) => filter("sort", event.target.value)}><option value="newest">Newest first</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option></DynamicSelect></label>
         </div>
         {discounted && <p className="discount-catalog-note mt-4">Only active producer offers. Each price returns to its original amount when the timer ends.</p>}
       </section>}

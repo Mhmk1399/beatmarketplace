@@ -1,6 +1,9 @@
 "use client";
 
-import { useId, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from "react";
+import { DynamicSelect } from "@/components/ui/dynamic/DynamicSelect";
+import { DynamicDateTimePicker } from "@/components/ui/dynamic/DynamicDateTimePicker";
+
+import { useEffect, useId, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from "react";
 
 import { EyeIcon, EyeOffIcon } from "@/components/ui/icons";
 import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
@@ -21,7 +24,7 @@ type SharedField<T> = {
 };
 
 type TextField<T> = SharedField<T> & {
-  type?: "text" | "email" | "password" | "tel" | "url" | "number" | "date";
+  type?: "text" | "email" | "password" | "tel" | "url" | "number" | "date" | "time" | "datetime-local";
   autoComplete?: string;
   autoFocus?: boolean;
   inputMode?: InputHTMLAttributes<HTMLInputElement>["inputMode"];
@@ -67,6 +70,7 @@ type DynamicFormProps<T extends { [K in keyof T]: DynamicFormValue }> = {
   actions?: ReactNode;
   className?: string;
   id?: string;
+  children?: ReactNode;
 };
 
 function FieldMessage({ descriptionId, error, hint }: { descriptionId?: string; error?: string; hint?: string }) {
@@ -77,6 +81,7 @@ function FieldMessage({ descriptionId, error, hint }: { descriptionId?: string; 
 
 export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
   actions,
+  children,
   className,
   columns = 1,
   disabled = false,
@@ -94,6 +99,7 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
 }: DynamicFormProps<T>) {
   const generatedId = useId();
   const formId = id ?? `dynamic-form-${generatedId}`;
+  useEffect(() => { const name = Object.keys(errors)[0]; if (name) document.getElementById(`${formId}-${name}`)?.focus(); }, [errors, formId]);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(() => new Set());
 
   function togglePassword(name: string) {
@@ -170,7 +176,7 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
               <div key={name} className={cn("space-y-2", fieldClass)}>
                 <label htmlFor={inputId} className="block text-sm font-semibold text-secondary">{field.label}</label>
                 <div className={cn("neo-input-wrap rounded-[var(--radius-control)]", error && "neo-input-error")}>
-                  <select
+                  <DynamicSelect
                     id={inputId}
                     name={name}
                     value={String(values[field.name])}
@@ -183,11 +189,20 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
                   >
                     {field.placeholder && <option value="">{field.placeholder}</option>}
                     {field.options.map((option) => <option key={option.value} value={option.value} disabled={option.disabled}>{option.label}</option>)}
-                  </select>
+                  </DynamicSelect>
                 </div>
                 <FieldMessage descriptionId={descriptionId} error={error} hint={field.hint} />
               </div>
             );
+          }
+
+          if (field.type === "date" || field.type === "time" || field.type === "datetime-local") {
+            return <div key={name} className={fieldClass}><DynamicDateTimePicker
+              id={inputId} name={name} label={field.label} mode={field.type === "datetime-local" ? "datetime" : field.type}
+              value={String(values[field.name])} onValueChange={value => onValueChange(field.name, value as T[typeof field.name])}
+              placeholder={field.placeholder} required={field.required} disabled={field.disabled} autoFocus={field.autoFocus}
+              min={field.min === undefined ? undefined : String(field.min)} max={field.max === undefined ? undefined : String(field.max)} error={error} hint={field.hint}
+            /></div>;
           }
 
           const passwordVisible = field.type === "password" && visiblePasswords.has(name);
@@ -221,6 +236,7 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
             </div>
           );
         })}
+        {children && <div className={cn("min-w-0 space-y-5", columns === 2 && "sm:col-span-2")}>{children}</div>}
       </fieldset>
 
       {formError && <p className="rounded-[var(--radius-control)] bg-[var(--error-soft)] px-4 py-3 text-sm leading-6 text-error-text" role="alert">{formError}</p>}

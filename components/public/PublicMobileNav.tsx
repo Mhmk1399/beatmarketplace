@@ -4,9 +4,9 @@ import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useEffect, useId, useRef, type MouseEvent } from "react";
 
-import type { CurrentUser } from "@/components/auth/AuthProvider";
+import { useAuth, type CurrentUser } from "@/components/auth/AuthProvider";
 import { BrandMark } from "@/components/public/BrandMark";
-import { CloseIcon, DiscIcon, StoreIcon, TagIcon } from "@/components/ui/icons";
+import { CartIcon, CloseIcon, DiscIcon, StoreIcon, TagIcon, UsersIcon } from "@/components/ui/icons";
 import { NeumorphicButton, NeumorphicLink } from "@/components/ui/neumorphic/Button";
 
 type MobileNavProps = {
@@ -15,13 +15,12 @@ type MobileNavProps = {
   cartCount: number;
   user: CurrentUser | null;
   status: "loading" | "authenticated" | "anonymous";
-  isLoggingOut: boolean;
   onClose: () => void;
-  onLogout: () => Promise<void>;
 };
 
 /** A native modal lives above sticky headers and the persistent audio dock. */
-export function PublicMobileNav({ id, pathname, cartCount, user, status, isLoggingOut, onClose, onLogout }: MobileNavProps) {
+export function PublicMobileNav({ id, pathname, cartCount, user, status, onClose }: MobileNavProps) {
+  const { requestLogout, isLoggingOut } = useAuth();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
@@ -85,8 +84,10 @@ export function PublicMobileNav({ id, pathname, cartCount, user, status, isLoggi
           <Link href="/" className="music-mobile-menu-link" aria-current={pathname === "/" ? "page" : undefined} onClick={onClose}><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg><span>Home</span></Link>
           <Link href="/marketplace" className="music-mobile-menu-link" aria-current={pathname === "/marketplace" || pathname.startsWith("/tracks/") ? "page" : undefined} onClick={onClose}><DiscIcon /><span>Explore beats</span></Link>
           <Link href="/discounts" className="music-mobile-menu-link" aria-current={pathname === "/discounts" ? "page" : undefined} onClick={onClose}><TagIcon /><span>Live offers</span></Link>
-          <Link href="/#producer" className="music-mobile-menu-link" onClick={onClose}><StoreIcon /><span>For producers</span></Link>
-          <Link href="/cart" className="music-mobile-menu-link" aria-current={pathname === "/cart" ? "page" : undefined} onClick={onClose}><StoreIcon /><span>Cart</span><span className="music-cart-count">{cartCount}</span></Link>
+          <Link href="/producers" className="music-mobile-menu-link" aria-current={pathname.startsWith("/producers") ? "page" : undefined} onClick={onClose}><StoreIcon /><span>Producers</span></Link>
+          <Link href="/about" className="music-mobile-menu-link" aria-current={pathname === "/about" ? "page" : undefined} onClick={onClose}><UsersIcon /><span>About us</span></Link>
+          <Link href="/contact" className="music-mobile-menu-link" aria-current={pathname === "/contact" ? "page" : undefined} onClick={onClose}><UsersIcon /><span>Contact us</span></Link>
+          <Link href="/cart" className="music-mobile-menu-link" aria-current={pathname === "/cart" ? "page" : undefined} onClick={onClose}><CartIcon /><span>Cart</span><span className="music-cart-count">{cartCount}</span></Link>
         </nav>
         <section className="music-mobile-menu-account" aria-label="Your account">
           {status === "loading" ? <p role="status" className="text-sm text-muted">Loading your account…</p> : user ? <>
@@ -94,7 +95,7 @@ export function PublicMobileNav({ id, pathname, cartCount, user, status, isLoggi
             <NeumorphicLink href="/dashboard" variant="accent" className="w-full" onClick={onClose}>Your dashboard</NeumorphicLink>
             {user.roles.includes("PRODUCER") && <Link href="/studio" className="music-mobile-menu-link" onClick={onClose}><StoreIcon /><span>Producer Studio</span></Link>}
             {user.roles.includes("ADMIN") && <Link href="/admin" className="music-mobile-menu-link" onClick={onClose}><StoreIcon /><span>Admin panel</span></Link>}
-            <NeumorphicButton className="w-full" variant="quiet" disabled={isLoggingOut} onClick={() => { onClose(); void onLogout(); }}>{isLoggingOut ? "Signing out…" : "Logout"}</NeumorphicButton>
+            <NeumorphicButton className="w-full" variant="quiet" disabled={isLoggingOut} onClick={() => { onClose(); requestLogout(); }}>{isLoggingOut ? "Signing out…" : "Logout"}</NeumorphicButton>
           </> : <>
             <p className="text-sm leading-6 text-muted">Keep your favorites and find your next sound.</p>
             <NeumorphicLink href="/signup" variant="accent" className="w-full" onClick={onClose}>Create account</NeumorphicLink>

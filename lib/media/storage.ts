@@ -1,5 +1,5 @@
 import { createWriteStream } from "node:fs";
-import { mkdtemp, open, rm } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { Readable } from "node:stream";
@@ -8,6 +8,7 @@ import type { ObjectStorageAsset } from "@/models/schemas/shared";
 import { assetReference, byteLimit, copyStoredMaster, putMediaFile, removeStoredAssets, storedAssetStream } from "./adapter";
 import { mediaDriver, s3Configuration } from "./config";
 import { isSpooledFile, type MediaUpload } from "./types";
+import { prepareStoredImage } from "./images";
 import { createWavPreviewFile } from "./wav-file";
 import { MAX_MASTER_BYTES, MediaValidationError } from "./wav";
 
@@ -55,23 +56,16 @@ export async function storeTrackMedia(input: { master?: MediaUpload; artwork?: M
     }
     const previewPath = path.join(directory, "preview.wav");
     const { durationSeconds } = await createWavPreviewFile(sourcePath, previewPath, input.previewStartSeconds);
-    let artwork: { path: string; mimeType: string; extension: string } | undefined;
+    let artwork: Awaited<ReturnType<typeof prepareStoredImage>> | undefined;
     if (input.artwork) {
       const imagePath = await materializeUpload(input.artwork, path.join(directory, "artwork"));
-      const imageFile = await open(/* turbopackIgnore: true */ imagePath, "r");
-      const header = Buffer.alloc(24);
-      let read = 0;
-      try { read = (await imageFile.read(header, 0, 24, 0)).bytesRead; } finally { await imageFile.close(); }
-      if (read >= 24 && header.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) artwork = { path: imagePath, extension: "png", mimeType: "image/png" };
-      else if (read >= 4 && header[0] === 255 && header[1] === 216 && header[2] === 255) artwork = { path: imagePath, extension: "jpg", mimeType: "image/jpeg" };
-      else if (read >= 16 && header.toString("ascii", 0, 4) === "RIFF" && header.toString("ascii", 8, 12) === "WEBP") artwork = { path: imagePath, extension: "webp", mimeType: "image/webp" };
-      else throw new MediaValidationError("Artwork must be a PNG, JPEG, or WebP image.");
+      artwork = await prepareStoredImage({ path: imagePath, name: input.artwork.name, size: input.artwork.size, type: input.artwork.type }, "artwork");
     }
     const preview = await putMediaFile(previewPath, "preview.wav", "preview.wav", "audio/wav", 30);
     written.push(preview);
     const result: { master?: ObjectStorageAsset; preview: ObjectStorageAsset; artwork?: ObjectStorageAsset; durationSeconds: number } = { preview, durationSeconds };
     if (input.master) { result.master = await putMediaFile(sourcePath, "master.wav", input.master.name, "audio/wav", durationSeconds); written.push(result.master); }
-    if (artwork && input.artwork) { result.artwork = await putMediaFile(artwork.path, `artwork.${artwork.extension}`, input.artwork.name, artwork.mimeType); written.push(result.artwork); }
+    if (artwork && input.artwork) { result.artwork = await putMediaFile(artwork.path, "artwork.webp", `${path.parse(input.artwork.name).name}.webp`, "image/webp"); result.artwork.width = artwork.width; result.artwork.height = artwork.height; written.push(result.artwork); }
     return result;
   } catch (error) { await removeStoredAssets(written).catch(() => undefined); throw error; }
   finally {

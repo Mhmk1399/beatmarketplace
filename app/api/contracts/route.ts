@@ -9,6 +9,7 @@ import ContractModel from "@/models/Contract";
 import TrackModel from "@/models/Track";
 import TrackDiscountModel from "@/models/TrackDiscount";
 import { activeDiscountFilter, serializeDiscount } from "@/lib/marketplace/discount-server";
+import { cursorFilter, escapeRegex, resourcePage } from "@/lib/workspace/server";
 
 const publicPageSchema = z.object({
   page: z.coerce.number().int().min(1).max(1000).default(1),
@@ -21,6 +22,7 @@ export async function GET(request: Request) {
     if (query.get("mine") === "1") {
       const authentication = await requireMarketplaceRole(request, "PRODUCER");
       if (!authentication.ok) return authentication.response;
+      if (query.has("limit")) { const values = z.object({ limit: z.coerce.number().int().min(1).max(50), q: z.string().trim().max(160).default(""), cursor: z.string().max(256).optional() }).parse(Object.fromEntries(query)); const records = await ContractModel.find({ producerId: authentication.user._id, ...(values.q ? { title: { $regex: escapeRegex(values.q), $options: "i" } } : {}), ...cursorFilter(values.cursor) }).sort({ createdAt: -1, _id: -1 }).limit(values.limit + 1); const result = resourcePage(records, values.limit); return NextResponse.json({ items: result.page.map(serializeStudioLicense), hasMore: result.hasMore, nextCursor: result.nextCursor }, { headers: { "Cache-Control": "private, no-store" } }); }
       const contracts = await ContractModel.find({ producerId: authentication.user._id }).sort({ createdAt: -1 }).limit(500);
       return NextResponse.json({ contracts: contracts.map(serializeStudioLicense) }, { headers: { "Cache-Control": "no-store" } });
     }

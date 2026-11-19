@@ -1,6 +1,6 @@
 # BeatMarketplace: Current Platform State
 
-Reviewed 2026-11-17. This document replaces the earlier shell-only snapshot.
+Reviewed 2026-11-18. This document replaces the earlier shell-only snapshot.
 
 ## Working product flows
 
@@ -12,9 +12,13 @@ Reviewed 2026-11-17. This document replaces the earlier shell-only snapshot.
 - Producer schedules a per-track percentage discount -> public live-offers page and countdown -> server-repriced cart -> immutable discounted order.
 - Admin selects an eligible beat -> records a scheduled sponsored booking and manual payment status -> homepage carousel displays current paid/complimentary placements.
 
-The homepage includes a live catalog, a real listening room using the five supplied MP3 demos, a carousel currently showing the five local demos and a full-background Three.js ribbon scene. Pointer movement, touch and page scrolling control the background independently of audio. The global player shows a real audio spectrum in its compact dock and expanded sheet. Operational actions live in the marketplace and authenticated workspaces. No fake sales or populated marketplace records are introduced.
+The homepage includes a live catalog, a real listening room using the five supplied MP3 demos, a carousel currently showing the five local demos and a full-background Three.js ribbon scene. Pointer movement, touch and page scrolling control the background independently of audio. The global player shows a real audio spectrum in its compact dock and expanded sheet. Both use the shared graphite clay materials and controls; the play-button halo reacts to the shared audio analyser and stops when inactive or under reduced motion. Operational actions live in the marketplace and authenticated workspaces. No fake sales or populated marketplace records are introduced.
 
 ## Main routes
+
+`DynamicFileInput` now supplies music/artwork/profile uploads throughout the workspaces, with native selection, drag/drop, local image previews, single-file/type/size validation and shared clay controls. `useFileUpload` measures multipart bytes through XHR, then displays an indeterminate preparation stage until the existing API finishes persistence and SWR invalidation. Failed attempts retain their file; avatars support retry. The beat editor shares one combined progress bar and preserves its local WAV audition/crop selection. Object URLs are released, progress updates are coalesced, animations honor reduced motion, and both document and modal content widths are checked on phones. Real configured-bucket QA exercised avatar persistence/retry and a throttled WAV upload with intermediate percentages and the selected 30-second preview.
+
+Workspace tables use a document-lifetime SWR memory cache scoped by account, roles and canonical query URL. Revisits and cached pages/searches avoid another list query; Refresh and successful writes invalidate affected entries and fetch mounted tables immediately. Inactive pages stay invalidated until revisited. Failed writes preserve cached data, and SWR discards older in-flight responses after mutations. Related beat/license/offer/placement data is invalidated together. Cross-tab write notifications and authentication synchronization keep the same account's tabs aligned and retire previous account caches. No private table data is persisted to browser storage. See the shared UI documentation for `useWorkspaceData` and custom editor integration.
 
 | Route | Behavior |
 | --- | --- |
@@ -33,7 +37,9 @@ The homepage includes a live catalog, a real listening room using the five suppl
 | `/admin/genres`, `/admin/moods`, `/admin/instruments` | Taxonomy administration |
 | `/admin/hero` | Sponsored booking schedule, ordering and manual fee/payment records |
 
-Profile/settings pages and admin user management remain explicit placeholders.
+The three workspaces now use database-backed overviews, responsive shared CRUD tables, forms and modals. `/admin/users` manages roles and account status; `/admin/beats` manages uploads; `/admin/contact` supports message creation, status editing and confirmed deletion. `/admin/settings` stores public contact details and `/admin/system` verifies MongoDB and S3 read/write/delete access. Producer and customer profiles, private avatar upload, password rotation, storefront editing, private collections and role-scoped orders/downloads are implemented. Financial summaries exclude sandbox purchases, and the original platform owner's admin access is protected. Lists are bounded and paginated; license editors search for tracks instead of downloading the full catalog.
+
+`DynamicSelect` supplies the site-wide clay listbox, keyboard navigation and native form values; `DynamicMultiSelect` supplies bounded mood/instrument selection. Mobile text inputs use 16px text. `GlobalLoadingProvider`, `startGlobalLoading()` and `useGlobalLoading()` expose a centered frequency loader with a blurred backdrop. Request failures release the loader and preserve form values; unavailable account data shows Retry rather than an empty editor. Shared table rows become labeled cards on narrow screens, with image identities and view/edit/delete actions.
 
 ## API surface
 
@@ -48,6 +54,9 @@ Profile/settings pages and admin user management remain explicit placeholders.
 - `GET /api/payments/status`, `GET /api/payments/zarinpal/callback`.
 - `GET /api/hero` for the current public sponsored deck and server time.
 - `GET/POST /api/admin/hero`, `PATCH/DELETE /api/admin/hero/[id]` for admin-only booking management; deletion deactivates the booking.
+- `GET/PATCH /api/account`, `PATCH /api/account/password`, `GET/PATCH /api/account/producer`, `POST /api/account/avatar` and authorized avatar delivery.
+- Admin-only `/api/admin/users`, `/api/admin/tracks`, `/api/admin/contact` and their item routes; contact settings at `/api/admin/settings` and diagnostics at `/api/admin/system`.
+- Role-scoped `GET /api/workspace/overview` and `/api/workspace/orders`; owner-only collection CRUD at `/api/collections` and `/api/collections/[id]`.
 
 Public list queries are bounded and validated. `mine=1` uses current database roles; Studio mutations enforce ownership. Track DTOs allowlist fields and exclude storage internals, private masters and collaborator records. Disabled producers are excluded from public discovery/media/favorites.
 
@@ -61,7 +70,15 @@ The full-viewport hero begins behind the overlaid navbar. One background canvas 
 
 Public navigation uses a hamburger below 1100px, with cart access in the header and account/navigation links in a modal drawer. The drawer occupies the browser's top layer above the audio dock, contains keyboard focus and closes on links, history/hash changes or a desktop resize. Workspace drawers portal above the player and close on workspace changes and the 1024px desktop breakpoint. Closing either menu restores body scrolling and focus.
 
+The fourth homepage section, `GenreExplorer`, shows eight style shortcuts in two rows: four columns on desktop, three on tablet and two on phones. Its bounded native carousel loops in both directions, advances one column automatically, supports touch/keyboard navigation and pauses during interaction. Motion stops for hover, focus, touch, hidden/offscreen states, open dialogs, reduced motion and data saver. Eight original SVG assets live in `public/assets/genres`. Materials remain global `--genre-*` theme aliases. Genre links open `/marketplace?genre=...`, retain their selection in catalog controls and filter the public API by active genre slugs (including common aliases). Unknown or inactive slugs return no beats. Cards show editorial descriptions instead of invented inventory totals.
+
+The public `/about` page contains three independent server-rendered sections: `AboutHero`, `AboutWhatWeDo` and `AboutCommunity`. Their headphone, exploded vinyl and producer studio illustrations are original generated WebP assets in `public/assets/about`; generation prompts and asset provenance are recorded in `docs/assets/about-images.json`. Responsive layouts keep the reference section order, use shared clay controls and global `--about-*` material aliases, and draw decorative dotted ribbons in static SVG without an additional WebGL scene. Navigation and footer expose the page. Community highlights describe existing product capabilities instead of fabricated audience totals.
+
+The public `/contact` page follows the responsive headphone, social and message-form layout. Public contact details are stored through Admin Settings in MongoDB and remain blank until official accounts are supplied; `lib/contact/settings.ts` is the fallback when no settings record is available. The original generated studio background is stored in `public/assets/contact/studio.webp`, with its prompt in `docs/assets/contact-images.json`; the headphone artwork is shared with About. `POST /api/contact` stores validated plain-text messages in MongoDB, returns a receipt only after persistence and uses UUID primary keys for safe retries. Requests have a 16 KiB streamed body limit, same-origin checks, a honeypot and an atomic MongoDB quota of five new submissions per email per UTC hour. Quota documents store hashed bucket keys and have a TTL cleanup index. `/admin/contact` and admin-only list/status APIs provide cursor pagination and version-checked NEW/READ/CLOSED status updates. No email notification is sent automatically. Deployment indexes include both new models through `npm run db:indexes`.
+
 ## Audio guarantee
+
+`/marketplace` now uses `MarketplaceBrowser`: a compact vector ribbon header, desktop genre shelves with four playable beat cards per row, and mobile genre shortcuts plus a native looping discovery rail. Grid/list results, tempo bounds, exact musical key, mood, price ordering, favorites, license links and producer-selected previews remain functional. Filter state is bounded and shareable in the URL; searches debounce and abort obsolete requests. One bounded 32-track request supplies the shelves, rather than a request for every genre. Newest browsing uses cursor pagination; price ordering retains bounded offset pages. Taxonomy recovery is included in retry. Unavailable/empty unfiltered catalogs show explicitly labeled, non-sale listening demos; no inventory or popularity totals are invented. The live track API applies mood filtering to the indexed `metadata.moodIds` field alongside publication/visibility checks. Materials alias global `--market-*` tokens.
 
 A single global `AudioPlayerProvider` owns playback across routes. The bottom dock supplies transport, seek, volume/mute, shuffle/repeat and queue controls; mobile has a compact dock and a complete expanded player. The five public test songs play at full length with custom SVG covers. Marketplace tracks remain capped to their independently generated 30-second preview. See [audio architecture](docs/AUDIO_PLAYER.md).
 
@@ -82,11 +99,11 @@ This establishes the implemented gateway protocol, not live merchant acceptance.
 ## Verification
 
 - `npm run check`: ESLint, route generation, strict TypeScript.
-- `npm test`: focused audio/validation/media/checkout/callback/download tests without real gateway requests.
+- Test suites and one-off generation/benchmark scripts were removed; database index deployment tooling is retained.
 - Optimized production build.
-- Separate API integration against temporary MongoDB and synthetic audio: authentication/roles, taxonomy, ownership, upload/publication, exact preview samples, protected master, HTTP range behavior, IRT licenses, favorites and unconfigured payment safety.
+- Integration against configured MongoDB and S3 with disposable fixtures: roles, profile persistence/conflicts, session rotation, upload/publication, exact 30-second previews, private masters/avatars, licenses, favorites/collections, messages, buyer-only sandbox downloads and exclusion of test amounts from financial summaries. Diagnostic objects are deleted after readback; fixtures are cleaned up after QA.
 - Browser inspection and interactions on the isolated production server, including mobile layouts, player, saved beats, cart persistence and producer editor.
 
 ## Remaining product scope
 
-BeatStars parity is not complete. See [research and feature map](docs/BEATSTARS_RESEARCH.md) and [README](README.md) for the remaining feature list and setup. The next major work includes exclusive reservations, MP3/stems, seller payout accounting, collaboration, playlists/follows, messaging, coupons/bundles, subscriptions, moderation and advanced analytics. Production object-store acceptance, distributed quotas/processing jobs and measured deployment capacity require infrastructure configuration and load testing.
+BeatStars parity is not complete. See [research and feature map](docs/BEATSTARS_RESEARCH.md) and [README](README.md) for the remaining feature list and setup. The next major work includes exclusive reservations, MP3/stems, seller payout accounting, collaboration, follows, messaging, coupons/bundles, subscriptions and advanced analytics. Distributed quotas/processing jobs and measured deployment capacity require load testing beyond the completed configured-bucket functional checks.

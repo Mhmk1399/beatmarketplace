@@ -6,6 +6,7 @@ import { useAudioAnalyser, useAudioTransport } from "@/components/audio/AudioPla
 import { cn } from "@/lib/cn";
 import type { AudioAnalyser, AudioPlayerContextValue } from "@/lib/audio/types";
 import { clamp, formatAudioTime } from "@/lib/audio/utils";
+import demoPlayerWaveforms from "@/lib/audio/demo-player-waveforms.json";
 
 type TimelineProps = {
   player: AudioPlayerContextValue;
@@ -18,6 +19,8 @@ type SpectrumSnapshot = { trackId: string; levels: Float32Array };
 // One bounded frame per mounted player's analyser, retained when its canvas moves
 // between dock and sheet. Effects are the only writers; server renders stay empty.
 const frozenFrames = new WeakMap<AudioAnalyser["getAnalyser"], SpectrumSnapshot>();
+// Cached samples from the local demo files: no extra media element or MP3 download.
+const demoEnvelopes: Record<string, number[]> = demoPlayerWaveforms;
 
 /** A live frequency spectrum attached to the seek rail, rather than invented song samples. */
 function TimelineWaveform({ progress, large }: { progress: number; large: boolean }) {
@@ -31,7 +34,7 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
   // Timeline updates recolor the existing columns without rebuilding the canvas or FFT loop.
   useEffect(() => {
     progressRef.current = progress;
-    if (!playing) redrawRef.current?.();
+    redrawRef.current?.();
   }, [playing, progress]);
 
   useEffect(() => {
@@ -40,10 +43,19 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
     const context = canvas.getContext("2d", { alpha: true });
     if (!context) return;
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let reducedMotion = motion.matches;
     const device = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
     const lowPower = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768 || Boolean(device.connection?.saveData) || (device.deviceMemory ?? 8) <= 4 || navigator.hardwareConcurrency <= 4;
     if (frozenFrames.get(getAnalyser)?.trackId !== trackId) frozenFrames.delete(getAnalyser);
     const interval = 1000 / (lowPower ? 24 : 30);
+    const envelope = demoEnvelopes[trackId];
+    const profileAt = (index: number, count: number) => {
+      if (!envelope?.length) return 0;
+      const position = index / Math.max(1, count - 1) * (envelope.length - 1);
+      const lower = Math.floor(position);
+      const value = envelope[lower] * (1 - (position - lower)) + envelope[Math.min(envelope.length - 1, lower + 1)] * (position - lower);
+      return Math.pow(value, 1.5);
+    };
     let visible = false;
     let width = 0;
     let height = 0;
@@ -56,7 +68,7 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
     let unplayedColor = "";
 
     function draw(sample: boolean) {
-      if (!canvas || !context || !width || !height || !levels.length || !playedGradient) return;
+      if (!canvas || !context || !canvas.isConnected || !width || !height || !levels.length || !playedGradient) return;
       const analyser = sample ? getAnalyser() : null;
       const analyserState = analyser ? "connected" : "idle";
       if (canvas.dataset.analyser !== analyserState) canvas.dataset.analyser = analyserState;
@@ -69,7 +81,8 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
           const lower = Math.floor(bin);
           const upper = Math.min(frequencies.length - 1, lower + 1);
           const fraction = bin - lower;
-          const energy = Math.pow((frequencies[lower] * (1 - fraction) + frequencies[upper] * fraction) / 255, .85);
+          const frequencyEnergy = Math.pow((frequencies[lower] * (1 - fraction) + frequencies[upper] * fraction) / 255, .85);
+          const energy = envelope ? profileAt(index, levels.length) * (.68 + frequencyEnergy * .32) : frequencyEnergy;
           levels[index] = energy > levels[index] ? levels[index] + (energy - levels[index]) * .72 : Math.max(energy, levels[index] * .76);
         }
         const snapshot = frozenFrames.get(getAnalyser);
@@ -80,16 +93,16 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
       context.clearRect(0, 0, width, height);
       context.beginPath();
       const spacing = width / levels.length;
-      const available = Math.max(2, baseline - 3);
+      const available = Math.max(2, Math.min(baseline, height - baseline) - 3);
       for (let index = 0; index < levels.length; index++) {
         const x = spacing * (index + .5);
-        const amplitude = 1.2 + levels[index] * available;
-        context.moveTo(x, baseline - .5);
-        context.lineTo(x, baseline - amplitude);
+        const amplitude = .75 + levels[index] * available;
+        context.moveTo(x, baseline - amplitude);
+        context.lineTo(x, baseline + amplitude);
       }
-      context.lineWidth = Math.max(1.4, Math.min(large ? 2.4 : 2, spacing * .37));
+      context.lineWidth = Math.max(1.1, Math.min(large ? 2 : 1.6, spacing * .48));
       context.lineCap = "round";
-      context.globalAlpha = playing ? .64 : .42;
+      context.globalAlpha = playing ? .62 : .46;
       context.strokeStyle = unplayedColor;
       context.stroke();
 
@@ -102,9 +115,9 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
         context.beginPath();
         for (let index = 0; index < levels.length; index++) {
           const x = spacing * (index + .5);
-          const amplitude = 1.2 + levels[index] * available;
-          context.moveTo(x, baseline - .5);
-          context.lineTo(x, baseline - amplitude);
+          const amplitude = .75 + levels[index] * available;
+          context.moveTo(x, baseline - amplitude);
+          context.lineTo(x, baseline + amplitude);
         }
         context.globalAlpha = playing ? 1 : .8;
         context.strokeStyle = playedGradient;
@@ -114,7 +127,8 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
       context.globalAlpha = 1;
     }
 
-    function canAnimate() { return playing && visible && !document.hidden && !motion.matches; }
+    function canAnimate() { return Boolean(canvas?.isConnected) && playing && visible && !document.hidden && !reducedMotion; }
+    function preference() { reducedMotion = motion.matches; synchronize(); }
     function animate(now: number) {
       frame = 0;
       if (!canAnimate()) return;
@@ -134,42 +148,47 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
       }
     }
     function resize() {
-      if (!canvas || !context) return;
+      if (!canvas || !context || !canvas.isConnected) return;
       const bounds = canvas.getBoundingClientRect();
+      if (bounds.width <= 0 || bounds.height <= 0) return;
       width = bounds.width;
       height = bounds.height;
       const ratio = Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.5);
       canvas.width = Math.round(width * ratio);
       canvas.height = Math.round(height * ratio);
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
-      const bands = Math.max(24, Math.min(lowPower ? 56 : 180, Math.floor(width / (large ? 5 : 5.5))));
+      const bands = Math.max(32, Math.min(lowPower ? 112 : 220, Math.floor(width / (large ? 4 : 2.8))));
       const snapshot = frozenFrames.get(getAnalyser);
       const saved = snapshot?.trackId === trackId ? snapshot.levels : null;
       levels = new Float32Array(bands);
       if (saved?.length) {
         for (let index = 0; index < bands; index++) levels[index] = saved[Math.min(saved.length - 1, Math.floor(index / bands * saved.length))];
-      }
+      } else if (envelope) for (let index = 0; index < bands; index++) levels[index] = profileAt(index, bands);
       canvas.dataset.bands = String(bands);
       const theme = getComputedStyle(canvas);
       const line = Number.parseFloat(theme.getPropertyValue("--audio-rail-position"));
       baseline = height * (Number.isFinite(line) ? clamp(line, 30, 85) / 100 : .5);
       const color = (name: string, fallback: string) => theme.getPropertyValue(name).trim() || theme.getPropertyValue(fallback).trim();
+      const low = color("--player-waveform-low", "--accent");
+      const middle = color("--player-waveform-played", "--accent-text");
+      const high = color("--player-waveform-high", "--accent-text");
+      if (!low || !middle || !high) return;
       unplayedColor = color("--player-waveform-unplayed", "--accent-text");
       playedGradient = context.createLinearGradient(0, baseline, width, 0);
-      playedGradient.addColorStop(0, color("--player-waveform-low", "--accent"));
-      playedGradient.addColorStop(.55, color("--player-waveform-played", "--accent-text"));
-      playedGradient.addColorStop(1, color("--player-waveform-high", "--accent-text"));
+      playedGradient.addColorStop(0, low);
+      playedGradient.addColorStop(.55, middle);
+      playedGradient.addColorStop(1, high);
       draw(canAnimate());
     }
 
-    redrawRef.current = () => draw(false);
+    redrawRef.current = () => { if (!canAnimate()) draw(false); };
     const resizeObserver = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
     resizeObserver?.observe(canvas);
     const intersection = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; synchronize(); }, { threshold: .01 }) : null;
     if (intersection) intersection.observe(canvas);
     else visible = true;
     document.addEventListener("visibilitychange", synchronize);
-    motion.addEventListener("change", synchronize);
+    motion.addEventListener("change", preference);
     window.addEventListener("resize", resize, { passive: true });
     resize();
     synchronize();
@@ -179,7 +198,7 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
       resizeObserver?.disconnect();
       intersection?.disconnect();
       document.removeEventListener("visibilitychange", synchronize);
-      motion.removeEventListener("change", synchronize);
+      motion.removeEventListener("change", preference);
       window.removeEventListener("resize", resize);
     };
   }, [getAnalyser, large, playing, trackId]);

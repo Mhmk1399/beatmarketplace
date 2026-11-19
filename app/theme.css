@@ -6,6 +6,13 @@
   color-scheme: dark;
   --canvas: #171a20;
   --canvas-deep: #111318;
+  /* Lost beat / 404 illustration surfaces retain the shared graphite and violet palette. */
+  --not-found-canvas: var(--canvas-deep);
+  --not-found-card-fill: linear-gradient(150deg, color-mix(in srgb, var(--surface) 84%, var(--accent) 16%), color-mix(in srgb, var(--canvas-deep) 94%, var(--accent) 6%));
+  --not-found-button-fill: var(--music-dark-glass);
+  --not-found-art-shade: linear-gradient(180deg, transparent 42%, color-mix(in srgb, var(--canvas-deep) 26%, transparent) 63%, var(--not-found-canvas));
+  --not-found-divider: linear-gradient(90deg, transparent, var(--focus-border));
+  --not-found-icon-glow: 0 0 8px var(--accent);
   --surface: #1d2027;
   --surface-high: #232730;
   --text: #f3f1f7;
@@ -29,6 +36,9 @@
   --music-artwork-shadow: 0 18px 38px rgba(0, 0, 0, .4), 0 0 0 1px rgba(255, 255, 255, .065);
   --music-ambient: radial-gradient(ellipse at 75% 15%, rgba(155, 92, 246, .2), transparent 58%), radial-gradient(ellipse at 10% 95%, rgba(217, 70, 239, .075), transparent 45%);
   --music-cover-shade: linear-gradient(180deg, rgba(7, 8, 13, .12), transparent 35%, rgba(7, 8, 13, .76));
+  --detail-cover-caption-fill: linear-gradient(180deg, color-mix(in srgb, var(--canvas-deep) 12%, transparent), color-mix(in srgb, var(--canvas-deep) 58%, transparent) 55%, color-mix(in srgb, var(--canvas-deep) 80%, transparent));
+  --detail-cover-caption-text: color-mix(in srgb, var(--text) 90%, transparent);
+  --detail-cover-caption-shadow: 0 1px 10px color-mix(in srgb, var(--canvas-deep) 70%, transparent), 0 0 1px color-mix(in srgb, var(--text) 30%, transparent);
   --music-scrim: var(--music-cover-shade);
   --music-grid: rgba(221, 202, 255, .045);
   --music-card-fill: linear-gradient(155deg, rgba(38, 41, 51, .94), rgba(24, 26, 34, .98));
@@ -69,45 +79,172 @@
   --hero-dot: var(--faint);
   --hero-dot-active: var(--accent);
   --hero-loading-fill: var(--surface-high);
-  --hero-slide-duration: 560ms;
-  --hero-slide-ease: cubic-bezier(.22, 1, .36, 1);
+  --hero-slide-duration: 540ms;
+  --hero-slide-ease: cubic-bezier(.16, 1, .3, 1);
+  --hero-slide-resize-duration: 340ms;
+  --hero-slide-resize-ease: cubic-bezier(.22, 1, .36, 1);
 
-  /* Luminous player material: shared by the dock, orbit button and waveform seek. */
-  --player-fill: linear-gradient(112deg, rgba(47, 29, 80, .96), rgba(20, 17, 43, .97) 44%, rgba(43, 22, 75, .96));
-  --player-border: rgba(191, 132, 255, .58);
-  --player-rim: linear-gradient(95deg, rgba(225, 192, 255, .85), rgba(159, 99, 242, .12) 34%, rgba(203, 145, 255, .55) 73%, rgba(246, 168, 255, .78));
-  --player-shadow: 0 18px 48px rgba(0, 0, 0, .4), 0 0 26px rgba(151, 66, 241, .2), inset 0 0 0 1px rgba(223, 190, 255, .1), inset 0 1px 18px rgba(196, 132, 255, .1);
-  --player-aura-left: radial-gradient(ellipse at 40% 45%, rgba(185, 69, 255, .4), rgba(127, 43, 206, .15) 44%, transparent 70%);
-  --player-aura-right: radial-gradient(ellipse at 68% 34%, rgba(239, 104, 255, .34), rgba(153, 64, 229, .12) 46%, transparent 72%);
-  --player-aura-wave: linear-gradient(155deg, rgba(202, 131, 255, .02) 15%, rgba(158, 67, 237, .26) 65%, rgba(209, 136, 255, .14));
-  --player-aura-edge: rgba(219, 163, 255, .22);
-  --player-text: #f9f3ff;
-  --player-muted: #c2b4dc;
-  --player-faint: #9383b3;
-  --player-control-fill: linear-gradient(145deg, rgba(177, 135, 241, .14), rgba(78, 47, 132, .14));
-  --player-control-edge: rgba(206, 174, 255, .17);
-  --player-control-hover: rgba(186, 124, 255, .16);
-  --player-control-shadow: inset 0 1px 0 rgba(243, 227, 255, .09), 0 4px 12px rgba(9, 4, 24, .18);
-  --player-orbit-fill: linear-gradient(145deg, rgba(226, 181, 255, .22), rgba(143, 55, 238, .35) 50%, rgba(86, 36, 162, .06));
-  --player-orbit-edge: rgba(222, 179, 255, .32);
-  --player-orbit-shadow: inset 0 0 16px rgba(182, 94, 255, .2), 0 0 16px rgba(145, 54, 232, .15);
-  --player-core-fill: radial-gradient(circle at 34% 20%, #d5a0ff 0%, #a343f2 39%, #8d29ec 70%, #7424c6 100%);
-  --player-core-edge: rgba(246, 218, 255, .84);
-  --player-core-shadow: inset 0 1px 7px rgba(255, 241, 255, .65), inset 0 -3px 10px rgba(204, 113, 255, .28), 0 0 0 1px rgba(180, 94, 250, .45), 0 0 22px rgba(181, 73, 255, .62), 0 6px 20px rgba(65, 14, 116, .42);
-  --player-core-shadow-hover: inset 0 1px 9px rgba(255, 241, 255, .8), 0 0 0 1px rgba(223, 160, 255, .5), 0 0 30px rgba(192, 91, 255, .7), 0 7px 22px rgba(65, 14, 116, .4);
-  --player-rail: rgba(129, 83, 185, .24);
-  --player-buffered: rgba(191, 153, 245, .13);
-  --player-progress-color: #c581ff;
-  --player-progress-fill: linear-gradient(90deg, #ad55fa, #dba5ff);
-  --player-progress-shadow: 0 0 9px rgba(189, 91, 255, .58);
-  --player-thumb: #f5dcff;
-  --player-thumb-shadow: 0 0 0 3px rgba(182, 93, 252, .12), 0 0 12px rgba(216, 148, 255, .85);
-  --player-waveform-played: #dba5ff;
-  --player-waveform-unplayed: #a88dce;
-  --player-waveform-low: #b263f7;
-  --player-waveform-high: #e0c1fa;
-  --player-status-fill: rgba(181, 122, 247, .13);
-  --player-status-edge: rgba(205, 167, 255, .15);
+  /* Editorial beat list: the same graphite glass with a subtle violet edge. */
+  --trending-fill: linear-gradient(135deg, color-mix(in srgb, var(--canvas-deep) 88%, var(--accent) 12%), var(--canvas-deep) 48%, color-mix(in srgb, var(--surface) 92%, var(--accent) 8%));
+  --trending-edge: var(--music-glass-border);
+  --trending-shadow: var(--music-shadow);
+  --trending-haze: radial-gradient(ellipse at 25% 110%, var(--accent-soft), transparent 46%);
+  --trending-list-fill: linear-gradient(145deg, color-mix(in srgb, var(--surface-high) 58%, var(--canvas-deep)), color-mix(in srgb, var(--canvas-deep) 92%, var(--accent) 8%));
+  --trending-list-edge: var(--music-glass-border);
+  --trending-list-shadow: var(--music-shadow), inset 0 0 28px var(--music-soft-light);
+  --trending-divider: var(--music-soft-light);
+
+  /* Homepage creative flow and final invitation share the existing clay palette. */
+  /* Fresh studio discovery and producer invitation use the same global materials. */
+  /* Search, purchase guidance and footer use the same graphite clay surfaces. */
+  --discovery-search-fill: var(--music-glass-strong);
+  --discovery-search-edge: var(--music-glass-border);
+  --discovery-questions-fill: var(--trending-fill);
+  --discovery-question-fill: var(--music-dark-glass);
+  --discovery-footer-fill: var(--music-glass);
+  --discovery-banner-shade: linear-gradient(90deg, var(--canvas) 5%, color-mix(in srgb, var(--canvas) 85%, transparent) 46%, color-mix(in srgb, var(--canvas) 20%, transparent));
+  --discovery-banner-shade-mobile: linear-gradient(180deg, color-mix(in srgb, var(--canvas) 8%, transparent) 10%, color-mix(in srgb, var(--canvas) 65%, transparent) 45%, var(--canvas) 100%);
+
+  --studio-market-fill: var(--canvas-deep);
+  --studio-market-shade: linear-gradient(90deg, var(--canvas-deep), transparent 55%), linear-gradient(180deg, transparent 76%, var(--canvas-deep));
+  --studio-mobile-market-shade: linear-gradient(180deg, var(--canvas-deep), transparent 25%, transparent 70%, var(--canvas-deep));
+  --studio-mobile-art-mask: linear-gradient(180deg, transparent, var(--ink) 18%, var(--ink) 90%, transparent);
+  --studio-kicker-rule: linear-gradient(90deg, var(--focus-border), transparent);
+  --studio-dark-glass: var(--music-dark-glass);
+  --studio-offers-fill: linear-gradient(135deg, var(--accent-soft), var(--music-dark-glass));
+  --studio-dot-shadow: 0 0 10px var(--accent), 0 0 3px var(--accent-text);
+  --studio-status-fill: linear-gradient(135deg, color-mix(in srgb, var(--surface) 76%, var(--accent) 24%), color-mix(in srgb, var(--canvas-deep) 82%, transparent));
+  --studio-status-edge: color-mix(in srgb, var(--focus-border) 65%, var(--music-glass-border));
+  --studio-status-shadow: var(--music-shadow), 0 0 28px var(--accent-soft), inset 0 1px 0 var(--music-soft-light);
+  --studio-workspace-fill: var(--text);
+  --studio-workspace-text: var(--canvas-deep);
+  --studio-panel-fill: var(--trending-fill);
+  --studio-panel-edge: var(--music-glass-border);
+  --studio-panel-shadow: var(--music-shadow);
+  --studio-producer-haze: radial-gradient(ellipse at 48% 100%, var(--accent-soft), transparent 55%);
+  --studio-feature-fill: var(--music-dark-glass);
+  --studio-flow-fill: var(--music-glass);
+  --studio-flow-edge: var(--music-glass-border);
+  --studio-icon-fill: var(--fill-control);
+  --studio-highlight-fill: linear-gradient(135deg, var(--accent-soft), var(--music-glass-strong));
+  --studio-highlight-shadow: var(--music-shadow), 0 0 18px var(--accent-soft), inset 0 0 12px var(--accent-soft);
+  --studio-preview-fill: var(--music-dark-glass);
+
+  --release-fill: var(--trending-fill);
+  --release-edge: var(--music-glass-border);
+  --release-shadow: var(--music-shadow);
+  --release-card-fill: linear-gradient(145deg, color-mix(in srgb, var(--surface) 88%, var(--accent) 12%), color-mix(in srgb, var(--canvas-deep) 93%, var(--accent) 7%));
+  --release-card-edge: color-mix(in srgb, var(--focus-border) 55%, var(--music-glass-border));
+  --release-card-shadow: var(--music-shadow), inset 0 1px 0 var(--music-soft-light);
+  --release-icon-fill: linear-gradient(145deg, var(--accent-soft), var(--music-dark-glass));
+  --release-studio-shade: linear-gradient(90deg, var(--canvas-deep), transparent 55%), linear-gradient(180deg, transparent 48%, color-mix(in srgb, var(--canvas-deep) 66%, transparent) 78%, var(--canvas-deep));
+  --release-mobile-studio-shade: linear-gradient(180deg, var(--canvas-deep), transparent 20%, transparent 70%, var(--canvas-deep));
+  --release-mobile-art-mask: linear-gradient(180deg, transparent, var(--ink) 16%, var(--ink) 83%, transparent);
+  --release-connector: linear-gradient(90deg, var(--accent), var(--accent-text), var(--accent));
+  --release-connector-shadow: 0 0 9px var(--accent), 0 0 3px var(--accent-text);
+  --release-wave-mask: linear-gradient(90deg, transparent, var(--ink) 17%, var(--ink) 85%, transparent);
+  --release-cta-haze: radial-gradient(ellipse at 95% 100%, var(--accent-soft), transparent 55%);
+  --release-ribbon-edge: color-mix(in srgb, var(--accent-text) 35%, transparent);
+  --release-ribbon-fill: linear-gradient(180deg, transparent 76%, var(--accent-soft));
+  --release-ribbon-shadow: 0 -8px 32px var(--accent-soft), inset 0 12px 28px var(--accent-soft), 0 -18px 0 var(--music-soft-light), 0 -30px 0 var(--music-soft-light);
+  --release-secondary-fill: var(--music-dark-glass);
+  --release-cover-edge: var(--focus-border);
+  --release-cover-shadow: var(--music-artwork-shadow);
+  --release-front-shadow: var(--music-artwork-shadow), 0 0 20px var(--accent-soft), inset 0 0 0 1px var(--accent-soft);
+  --release-cover-shade: var(--music-cover-shade);
+
+  /* Genre artwork cards reuse the same glass and graphite materials. */
+  --genre-fill: var(--trending-fill);
+  --genre-edge: var(--music-glass-border);
+  --genre-shadow: var(--music-shadow);
+  --genre-card-fill: radial-gradient(ellipse at 70% 0%, var(--accent-soft), transparent 66%), var(--music-glass-strong);
+  --genre-card-edge: var(--music-glass-border);
+  --genre-card-shadow: var(--music-artwork-shadow);
+  --genre-card-scrim: linear-gradient(180deg, transparent 35%, color-mix(in srgb, var(--canvas-deep) 72%, transparent) 74%, var(--canvas-deep));
+
+  /* Marketplace shelves and compact beat cards share the global clay materials. */
+  --market-row-fill: var(--fill-raised);
+  --market-row-edge: var(--music-glass-border);
+  --market-row-shadow: var(--music-shadow);
+  --market-card-fill: var(--canvas-deep);
+  --market-card-edge: var(--music-glass-border);
+  --market-card-caption-fill: linear-gradient(180deg, transparent 0%, rgba(12, 13, 20, .22) 24%, rgba(12, 13, 20, .78) 60%, rgba(12, 13, 20, .96) 100%);
+  --market-card-caption-muted: rgba(255, 255, 255, .8);
+  --market-card-caption-shadow: 0 1px 8px rgba(0, 0, 0, .55);
+  --market-search-fill: var(--fill-control);
+  --market-wave-color: var(--accent-text);
+  --market-art-shade: linear-gradient(180deg, transparent 36%, color-mix(in srgb, var(--canvas-deep) 46%, transparent));
+
+  /* About page: graphite clay and restrained violet illumination. */
+  --about-fill: var(--fill-page);
+  --about-divider: var(--music-glass-border);
+  --about-badge-fill: var(--surface);
+  --about-card-fill: var(--fill-raised);
+  --about-card-edge: var(--music-glass-border);
+  --about-haze: var(--music-ambient);
+  --about-wave-color: var(--accent-text);
+  --about-orbit-edge: var(--focus-border);
+  --about-orbit-fill: radial-gradient(ellipse at center, transparent 56%, var(--accent-soft) 91%, transparent);
+  --about-orbit-shadow: 0 0 18px var(--accent-soft), inset 0 0 14px var(--accent-soft);
+  --about-community-fill: radial-gradient(ellipse at 75% 100%, var(--accent-soft), transparent 63%);
+
+  /* Contact surfaces reuse the public graphite clay and violet illumination. */
+  --contact-fill: var(--fill-page);
+  --contact-card-fill: var(--fill-raised);
+  --contact-card-edge: var(--music-glass-border);
+  --contact-card-shadow: var(--shadow-raised);
+  --contact-icon-fill: var(--accent-soft);
+  --contact-icon-shadow: var(--shadow-inset);
+  --contact-wave: var(--accent);
+  --contact-haze: var(--music-ambient);
+  --contact-orbit-edge: var(--accent-text);
+  --contact-orbit-shadow: drop-shadow(0 0 5px var(--accent)) drop-shadow(0 0 16px var(--accent-soft));
+  --contact-form-edge: var(--focus-border);
+  --contact-form-shadow: var(--music-shadow), 0 0 28px var(--accent-soft);
+  --contact-art-shade: linear-gradient(90deg, var(--canvas-deep), transparent 90%), linear-gradient(180deg, var(--canvas-deep), transparent 65%);
+
+  /* Player materials use the same graphite clay and accent controls as the hero. */
+  --player-fill: radial-gradient(ellipse at 25% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%), linear-gradient(135deg, color-mix(in srgb, var(--surface-high) 82%, transparent), color-mix(in srgb, var(--canvas-deep) 76%, transparent));
+  --player-border: color-mix(in srgb, var(--accent-text) 15%, transparent);
+  --player-rim: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-text) 30%, transparent), transparent);
+  --player-shadow: var(--shadow-raised-strong), inset 0 1px 0 var(--music-soft-light);
+  --player-blur: 22px;
+  --player-sheet-blur: 28px;
+  --player-sheet-fill: radial-gradient(ellipse at 100% 90%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 65%), linear-gradient(145deg, color-mix(in srgb, var(--surface-high) 88%, transparent), color-mix(in srgb, var(--canvas-deep) 80%, transparent));
+  --player-sheet-shadow: var(--music-shadow), 0 0 50px var(--accent-soft), inset 0 1px 0 var(--music-soft-light);
+  --player-stage-glow: radial-gradient(ellipse at 50% 50%, var(--accent-soft), transparent 68%);
+  --player-artwork-edge: color-mix(in srgb, var(--accent-text) 40%, transparent);
+  --player-details-fill: color-mix(in srgb, var(--canvas-deep) 32%, transparent);
+  --player-text: var(--text);
+  --player-muted: var(--muted);
+  --player-faint: var(--faint);
+  --player-control-fill: var(--fill-control);
+  --player-control-edge: var(--border);
+  --player-control-hover: var(--hover-overlay);
+  --player-control-shadow: var(--shadow-control);
+  --player-orbit-fill: var(--accent-soft);
+  --player-orbit-edge: var(--focus-border);
+  --player-orbit-shadow: var(--shadow-control);
+  --player-core-fill: var(--fill-accent);
+  --player-core-edge: var(--accent-border);
+  --player-core-shadow: var(--shadow-accent);
+  --player-core-shadow-hover: var(--shadow-control-hover);
+  --player-rail: var(--surface-high);
+  --player-buffered: var(--accent-soft);
+  --player-progress-color: var(--accent);
+  --player-progress-fill: var(--fill-accent);
+  --player-progress-shadow: none;
+  --player-thumb: var(--accent-text);
+  --player-thumb-shadow: var(--shadow-control);
+  --player-waveform-played: var(--accent-text);
+  --player-waveform-unplayed: var(--text-secondary);
+  --player-waveform-low: var(--accent-bright);
+  --player-waveform-high: var(--accent-text);
+  --player-waveform-rail: color-mix(in srgb, var(--text-secondary) 14%, transparent);
+  --player-seek-thumb: var(--on-accent);
+  --player-seek-thumb-shadow: 0 0 0 3px var(--accent-soft), 0 0 8px 3px var(--accent), 0 0 16px 5px var(--accent-soft);
+  --player-status-fill: var(--surface);
+  --player-status-edge: var(--border);
 
   /* Semantic content and feedback: shared by all workspaces. */
   --text-secondary: #d7d9e0;

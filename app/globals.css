@@ -11,7 +11,8 @@ html {
 }
 
 body {
-  min-width: 320px;
+  /* Include narrow mobile viewports when custom scrollbars reserve space. */
+  min-width: min(320px, 100%);
   overflow-x: hidden;
   background: var(--fill-page);
   color: var(--text);

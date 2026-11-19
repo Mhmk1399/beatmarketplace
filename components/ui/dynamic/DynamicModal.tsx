@@ -18,6 +18,7 @@ type DynamicModalProps = {
   size?: "sm" | "md" | "lg" | "xl";
   closeOnBackdrop?: boolean;
   presentation?: "dialog" | "sheet";
+  className?: string;
 };
 
 const sizeClasses = {
@@ -27,7 +28,7 @@ const sizeClasses = {
   xl: "max-w-5xl",
 };
 
-export function DynamicModal({ children, closeOnBackdrop = true, description, footer, onClose, open, presentation = "dialog", size = "md", title }: DynamicModalProps) {
+export function DynamicModal({ children, className, closeOnBackdrop = true, description, footer, onClose, open, presentation = "dialog", size = "md", title }: DynamicModalProps) {
   const titleId = useId();
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
@@ -41,10 +42,11 @@ export function DynamicModal({ children, closeOnBackdrop = true, description, fo
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    const focusable = panelRef.current?.querySelector<HTMLElement>("[data-autofocus], button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])");
+    const focusable = Array.from(panelRef.current?.querySelectorAll<HTMLElement>("[data-autofocus], button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])") ?? []).find(element => element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1);
     focusable?.focus({ preventScroll: true });
 
     function handleKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented) return;
       if (event.key === "Escape") {
         event.preventDefault();
         requestClose();
@@ -52,7 +54,7 @@ export function DynamicModal({ children, closeOnBackdrop = true, description, fo
       }
       if (event.key !== "Tab" || !panelRef.current) return;
 
-      const controls = Array.from(panelRef.current.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"));
+      const controls = Array.from(panelRef.current.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])")).filter(element => element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1);
       const first = controls[0];
       const last = controls.at(-1);
       if (event.shiftKey && document.activeElement === first) {
@@ -84,7 +86,7 @@ export function DynamicModal({ children, closeOnBackdrop = true, description, fo
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
         style={sheet ? { transform: "translate3d(0, calc(100% + 32px), 0)" } : undefined}
-        className={cn("neo-raised-strong relative z-10 flex max-h-[min(90dvh,54rem)] w-full flex-col overflow-hidden rounded-t-[var(--radius-panel)] sm:rounded-[var(--radius-panel)]", sizeClasses[size], sheet && styles.sheet)}
+        className={cn("neo-raised-strong relative z-10 flex max-h-[min(90dvh,54rem)] w-full flex-col overflow-hidden rounded-t-[var(--radius-panel)] sm:rounded-[var(--radius-panel)]", sizeClasses[size], sheet && styles.sheet, className)}
       >
         <div className={sheet ? styles.dragRegion : undefined} {...dragHandlers}>
         {sheet && <button type="button" data-sheet-handle className={styles.handle} onClick={requestClose} aria-label="Close player panel" title="Drag down or tap to close"><span aria-hidden="true" /></button>}

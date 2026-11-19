@@ -1,0 +1,39 @@
+{
+  "mode": "Built-in image_gen tool",
+  "reference": "User-provided homepage sections 5 and 6 reference",
+  "prompts": {
+    "marketplace": "Use case: product-mockup.\nAsset type: very wide 3:1 photographic background for a music marketplace homepage section.\nInput image 1: user's reference, specifically the TOP marketplace section; match its studio scene, lighting, subject placement and materials, not the interface.\nPrimary request: recreate that violet music studio as a standalone banner image with usable negative space.\nComposition: leftmost 38% is empty nearly black graphite #111318 for real page heading and buttons. A softly glowing large circular violet rim arcs from upper middle into the studio. On the right 60%: black desktop with a pair of premium black/purple over-ear headphones in the foreground at about x78%, earcup facing camera with a small abstract white audio-bar mark. Behind them at right is an open black laptop with believable purple multitrack audio waveforms on screen (no readable text); lower right a cropped drum machine with violet lit pads. A studio monitor speaker with purple cone sits just left of the laptop. Warm amber hanging desk lamp at x60% near the upper edge, a trailing green plant to its left, black vertical acoustic treatment in the background. Small glowing purple audio waveform light on the wall between speaker and laptop. Match the top reference's headphone size, laptop angle and studio desk perspective.\nStyle: premium realistic cinematic product photography/3D render, detailed leather, matte plastic, glossy violet reflections, warm lamp as the only warm accent, purple #9b5cf6 / #c084fc studio light. Lower edge and left edge fade naturally into quiet dark graphite.\nConstraints: artwork only. No website UI, no buttons, no floating cards, no page heading, no metrics, no watermarks, no visible brand names. Keep large dark negative space on the left and a quieter darker area near x40%-60% for the real HTML empty-state card.",
+    "producer": "Use case: photorealistic-natural.\nAsset type: transparent cutout portrait for the centre of a music producer homepage banner.\nInput image 1: user's reference, specifically the young headphone-wearing producer in the LOWER panel. Match his pose, curly hairstyle, mood and violet lighting, without copying a real person's identity.\nPrimary request: anonymous adult young male independent music producer with thick short curly dark hair and a black hoodie, wearing premium large black over-ear headphones with violet rims and a small abstract white audio-bar mark on the visible earcup. Three-quarter side profile facing the upper left, chin slightly raised, eyes closed as if deeply listening. Frame head, shoulders, chest and upper waist, lower right arm cropped naturally. No laptop, no musical instrument.\nComposition: vertical 4:5 cutout, full hair and headphones kept safely inside the top and side edges. Body angled slightly left; visible earcup on the right. The lower hoodie softly dissolves into a restrained wisp of purple studio mist with alpha.\nLighting: dramatic soft violet and lavender rim light behind the curls and along shoulders, gentle purple facial highlights, deep rich black cloth, photographic pores and natural anatomy. Match the reference's luxurious purple studio mood, dark graphite materials, and calm listening pose.\nConstraints: genuinely transparent background / alpha channel, no rectangular studio background, no backdrop, no card border, no UI, no text, no play button, no watermark. Keep transparent negative space around the subject and wispy base."
+  },
+  "assets": [
+    {
+      "path": "public/assets/home-studio/marketplace-studio.webp",
+      "width": 1600,
+      "height": 533
+    },
+    {
+      "path": "public/assets/home-studio/marketplace-studio-medium.webp",
+      "width": 1000,
+      "height": 333
+    },
+    {
+      "path": "public/assets/home-studio/marketplace-studio-mobile.webp",
+      "width": 850,
+      "height": 424
+    },
+    {
+      "path": "public/assets/home-studio/producer-listening.webp",
+      "width": 700,
+      "height": 875,
+      "transparency": "Original alpha channel preserved"
+    },
+    {
+      "path": "public/assets/home-studio/producer-listening-small.webp",
+      "width": 400,
+      "height": 500,
+      "transparency": "Original alpha channel preserved"
+    }
+  ],
+  "optimization": "Sharp WebP quality 86, alphaQuality 95. Mobile marketplace crop preserves the right-hand studio scene. Original generated PNG files remain in Codex generated_images.",
+  "notes": "All copy, cards, badges, actions, states and playback controls are HTML/SVG. The marketplace reads at most four newest public tracks through the existing cursor API. Empty, loading, failure and populated states are distinct. Producer feature tiles describe actual preview, file and license capabilities. The compact player uses the existing Die Trying demo with an explicit 30-second cap and the same global audio element."
+}

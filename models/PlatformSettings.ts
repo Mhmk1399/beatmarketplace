@@ -1,0 +1,5 @@
+import mongoose, { type Model, Schema } from "mongoose";
+type Fields = { _id: string; ownerUserId: mongoose.Types.ObjectId; contactEmail: string; contactPhone: string; instagram: string; youtube: string; tiktok: string; x: string; soundcloud: string; version: number };
+const schema = new Schema<Fields>({ _id: { type: String, required: true }, ownerUserId: { type: Schema.Types.ObjectId, ref: "User", required: true, immutable: true }, contactEmail: { type: String, default: "", maxlength: 254 }, contactPhone: { type: String, default: "", maxlength: 30 }, instagram: { type: String, default: "", maxlength: 2048 }, youtube: { type: String, default: "", maxlength: 2048 }, tiktok: { type: String, default: "", maxlength: 2048 }, x: { type: String, default: "", maxlength: 2048 }, soundcloud: { type: String, default: "", maxlength: 2048 }, version: { type: Number, default: 0, min: 0 } }, { timestamps: true, versionKey: false });
+const PlatformSettingsModel = (mongoose.models.PlatformSettings as Model<Fields> | undefined) ?? mongoose.model<Fields>("PlatformSettings", schema);
+export default PlatformSettingsModel;

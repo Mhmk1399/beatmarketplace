@@ -61,9 +61,11 @@ Owns identity, authentication state, roles, account status, verification state, 
 
 ### ProducerProfile
 
-Adds producer-only business identity: stage name, storefront name, producer biography, and the genres the producer works in. It has a one-to-one relationship with `User`.
+Adds producer-only public studio identity with a one-to-one relationship to `User`: stage/store names, tagline, biography, public studio location, website/social links, genre references, an optional private-storage banner, banner focal point, page layout, and up to six ordered featured beat references. Featured selections must belong to the producer and be published/public; public rendering rechecks publication and ownership. Updates use optimistic concurrency. Public avatar images come from the producer user's profile, while private account fields remain excluded.
 
 ### Genre
+
+The music category model stores `name`, unique `slug`, `description`, optional `thumbnail` and `banner` object-storage assets, `isActive` and `sortOrder`. Admin manages these at `/admin/genres`; beats continue to reference `metadata.genreId`. Image metadata includes the storage key, provider, size and dimensions; public DTOs expose versioned application URLs instead of raw storage objects. Missing artwork on older genres uses a storefront fallback.
 
 Represents genres and subgenres. `parentGenreId` provides hierarchy without a separate category model—for example, `Hip Hop → Trap`.
 
@@ -99,6 +101,8 @@ Owns a sponsored homepage booking, separate from a track's licenses, discounts a
 Track, contract, and genre/mood/instrument CRUD APIs now exist. See CURRENT_PLATFORM_STATE.md for current routes.
 
 ## Additional models and future work
+
+`TrackMetric` holds a separate counter document per beat (`views`, `uniqueVisitors`, `lastViewedAt`). `TrackVisitor` stores only a beat-specific HMAC and the last counted timestamp for each anonymous browser. Its unique `_id` supports exact lifetime browser deduplication and a 30-minute view window without keeping a per-view event log. A MongoDB transaction commits both documents together; analytics never changes the track's edit version. Owner-scoped reports query counters by the current page's track IDs rather than scanning visitors.
 
 Implemented additions (2026-11-17): Favorite links a user and track with a compound unique index. Order owns buyer-scoped checkout idempotency, immutable track/contract/master snapshots, integer IRT amount, gateway authority/reference and conditional payment state. Order snapshots currently serve as purchased licenses and download entitlements; separate entities may become useful as fulfillment grows.
 

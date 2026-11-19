@@ -1,0 +1,3 @@
+import type { UserRole, UserStatus } from "@/lib/types";
+export type WorkspaceUser = { id: string; email: string; firstName: string; lastName: string; phoneNumber: string; roles: UserRole[]; status: UserStatus; displayName: string; username: string; bio: string; website: string; city: string; countryCode: string; avatarUrl: string | null; version: number; createdAt: string; isEmailVerified: boolean; preferences: { emailNotifications: boolean; showActivity: boolean }; socialLinks: Record<string, string> };
+export type ResourcePage<T> = { items: T[]; nextCursor: string | null; hasMore: boolean; total?: number };

@@ -7,9 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test tests/*.test.mjs",
     "db:indexes": "tsx scripts/ensure-indexes.ts",
-    "benchmark:catalog": "node scripts/benchmark-catalog.mjs",
+    "db:seed": "tsx scripts/seed-catalog.ts",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
     "check": "npm run lint && npm run typecheck"
   },
@@ -24,6 +23,8 @@
     "next": "16.3.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "sharp": "^0.35.3",
+    "swr": "^2.5.1",
     "three": "^0.187.0",
     "zod": "^4.5.2"
   },

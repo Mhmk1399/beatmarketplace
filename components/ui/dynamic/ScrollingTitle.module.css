@@ -1,0 +1,8 @@
+.root { display: block; position: relative; min-width: 0; max-width: 100%; }
+.viewport { display: block; overflow: hidden; max-width: 100%; white-space: nowrap; overflow-wrap: normal; text-wrap: nowrap; padding-block: .08em; margin-block: -.08em; }
+.content { display: inline-block; width: max-content; max-width: none; padding-inline-end: .05em; white-space: nowrap; vertical-align: top; }
+.root[data-overflow="true"] .viewport { mask-image: linear-gradient(90deg, transparent, #000 1.5%, #000 97%, transparent); }
+.root[data-overflow="true"] .content { will-change: transform; }
+@media (forced-colors: active) {
+  .root[data-overflow="true"] .viewport { mask-image: none; }
+}

@@ -1,0 +1,11 @@
+{
+  "asset": "public/assets/images/trending-headphones.webp",
+  "generation": "Built-in image_gen tool",
+  "prompt": "Use case: product-mockup. Asset type: transparent cutout decorative product image for the lower-left corner of a dark clay/neumorphic music marketplace feature panel. Primary request: one premium over-ear studio headphone, no brand, realistic high-end 3D product render. Subject: a single pair of chunky black graphite headphones with thick oval leather ear cushions and a broad curved padded headband, three-quarter front view, gently leaning right, both ear cups visible, visually weighty and elegant. The full headphone must fit within the image with a small clean transparent margin; the headband curves across the upper half and the nearer large earcup sits at lower left. Lighting: subtle luminous violet/purple rim lighting along the outer headband and cup edges, muted purple reflections, soft studio highlights, deep charcoal shadows. Palette: black graphite #15151f, dark slate #20212b, restrained violet #9950dd and lavender reflections. High material detail, matte polymer and soft leather, clean silhouette. Scene/backdrop: genuinely transparent background, alpha channel, no floor, no baked rectangular background, no environmental scenery. Constraints: headphones only, no cables, no stand, no people or hands, no text, no logos, no watermark, no UI or typography, no other objects. This image will be composited at the lower-left edge of a feature panel, partially cropped at the bottom by CSS.",
+  "output": {
+    "width": 640,
+    "height": 616,
+    "transparent": true
+  },
+  "optimization": "Resized to 640px wide and encoded as WebP; generated alpha preserved."
+}

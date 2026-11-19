@@ -1,0 +1,14 @@
+"use client";
+
+import { formatPersianDate } from "@/lib/date-time";
+import { ResourceManager, type ResourceConfig } from "./ResourceManager";
+import { TableIdentity } from "@/components/ui/dynamic/DynamicTable";
+import type { WorkspaceUser } from "@/lib/workspace/types";
+const config: ResourceConfig<WorkspaceUser> = {
+  title: "Users", description: "Manage customer, producer and administrator accounts. Orders remain available when an account is deactivated.", endpoint: "/api/admin/users", label: user => `${user.firstName} ${user.lastName}`, canCreate: true, canEdit: true, canDelete: true, createLabel: "Create user", deleteLabel: "Deactivate", deleteDescription: "This disables sign-in and public producer listings. The account and its orders are retained. You can reactivate it from Edit.",
+  columns: [{ id: "user", header: "User", cell: user => <TableIdentity image={user.avatarUrl} title={`${user.firstName} ${user.lastName}`} subtitle={user.email} /> }, { id: "roles", header: "Access", cell: user => <span className="workspace-status">{user.roles.join(" · ")}</span> }, { id: "status", header: "Status", accessor: "status" }, { id: "joined", header: "Joined", cell: user => formatPersianDate(user.createdAt) }],
+  fields: user => [{ name: "firstName", label: "First name", required: true, maxLength: 80, colSpan: 1 }, { name: "lastName", label: "Last name", required: true, maxLength: 80, colSpan: 1 }, { name: "email", label: "Email", type: "email", required: true, maxLength: 254 }, { name: "phoneNumber", label: "Phone number", type: "tel", hint: "Optional, with country code: +989121234567." }, { name: "password", label: user ? "New password" : "Password", type: "password", revealable: true, required: !user, minLength: 8, maxLength: 128, autoComplete: "new-password", hint: user ? "Leave empty to keep the current password." : "Use at least 8 characters." }, { name: "producer", label: "Producer access", type: "checkbox" }, { name: "admin", label: "Administrator access", type: "checkbox" }, { name: "status", label: "Account status", type: "select", options: [{ value: "ACTIVE", label: "Active" }, { value: "SUSPENDED", label: "Suspended" }, { value: "DEACTIVATED", label: "Deactivated" }] }],
+  values: user => ({ firstName: user?.firstName ?? "", lastName: user?.lastName ?? "", email: user?.email ?? "", phoneNumber: user?.phoneNumber ?? "", password: "", producer: user?.roles.includes("PRODUCER") ?? false, admin: user?.roles.includes("ADMIN") ?? false, status: user?.status ?? "ACTIVE" }),
+  payload: (values, user) => ({ firstName: values.firstName, lastName: values.lastName, email: values.email, phoneNumber: values.phoneNumber, password: values.password, roles: ["USER", ...(values.producer ? ["PRODUCER"] : []), ...(values.admin ? ["ADMIN"] : [])], status: values.status, ...(user ? { expectedVersion: user.version } : {}) }),
+};
+export function UsersWorkspace() { return <ResourceManager config={config} />; }

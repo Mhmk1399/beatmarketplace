@@ -1,0 +1,18 @@
+.footer { padding: 12px 20px 28px; }
+.panel { width: 100%; max-width: 1280px; margin-inline: auto; padding: 32px; border: 1px solid var(--music-glass-border); border-radius: var(--radius-panel); background: var(--discovery-footer-fill); box-shadow: var(--music-shadow); }
+.grid { display: grid; grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr)); gap: 32px; }
+.brand { min-width: 0; max-width: 320px; }
+.brand > p { margin-top: 18px; max-width: 285px; color: var(--muted); font-size: .8rem; line-height: 1.85; }
+.brand .browse { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 14px; color: var(--accent-text); font-size: .75rem; font-weight: 750; }
+.browse > svg { width: 17px; height: 17px; }
+.grid nav { min-width: 0; }
+.grid h2 { margin-bottom: 10px; color: var(--text); font-size: .78rem; font-weight: 800; }
+.grid nav > a { display: flex; align-items: center; min-height: 44px; width: fit-content; max-width: 100%; padding-block: 8px; border-radius: 8px; color: var(--muted); font-size: .75rem; line-height: 1.5; }
+.grid nav > a:hover { color: var(--accent-text); }
+.bottom { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--music-glass-border); color: var(--faint); font-size: .65rem; line-height: 1.7; }
+.bottom p { display: flex; align-items: center; gap: 8px; }
+.bottom svg { width: 17px; height: 17px; flex-shrink: 0; color: var(--accent-text); }
+:global(body:has(.audio-dock)) .footer { padding-bottom: 170px; }
+@media (max-width: 899px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; } .brand { grid-column: 1 / -1; max-width: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; align-items: center; } .brand > p { margin-top: 0; grid-column: 2; grid-row: 1 / 3; } .brand .browse { margin-top: 0; } }
+@media (max-width: 599px) { .footer { padding: 4px 16px 24px; } .panel { padding: 24px 20px; } .grid { gap: 25px 16px; } .brand { display: block; } .brand > p { margin-top: 14px; max-width: none; font-size: .78rem; } .brand .browse { margin-top: 10px; } .grid h2 { font-size: .7rem; line-height: 1.6; } .grid nav > a { font-size: .7rem; } .bottom { margin-top: 18px; padding-top: 18px; gap: 12px; } .bottom p { align-items: flex-start; } }
+@media (max-width: 359px) { .panel { padding-inline: 16px; } .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 16px; } .grid nav:last-child { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; } .grid nav:last-child h2 { grid-column: 1 / -1; margin-bottom: 0; } }

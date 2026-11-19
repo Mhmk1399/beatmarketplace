@@ -7,6 +7,9 @@ import { ToastProvider } from "@/components/ui/toast/ToastProvider";
 import { MarketplaceProvider } from "@/components/marketplace/MarketplaceProvider";
 import { AudioPlayerProvider } from "@/components/audio/AudioPlayerProvider";
 import { PlayerDock } from "@/components/audio/PlayerDock";
+import { GlobalLoadingProvider } from "@/components/ui/dynamic/GlobalLoading";
+import { TableCacheProvider } from "@/components/ui/dynamic/TableCacheProvider";
+import "@/components/ui/dynamic/dynamic.css";
 
 import "./globals.css";
 import "@/components/audio/player.css";
@@ -14,8 +17,11 @@ import "@/components/home/music-home.css";
 import "@/components/home/hero-backdrop.css";
 import "@/components/home/hero-featured.css";
 import "@/components/home/listening-room.css";
+import "@/components/home/trending-beats.css";
+import "@/components/home/genre-explorer.css";
 import "@/components/discounts/discount.css";
 import "@/components/marketplace/catalog.css";
+import "@/components/marketplace/marketplace-browser.css";
 import "@/components/marketplace/track-detail.css";
 
 export const metadata: Metadata = {
@@ -23,18 +29,28 @@ export const metadata: Metadata = {
     default: "BeatMarketplace — Find your next sound",
     template: "%s — BeatMarketplace",
   },
-  description: "Discover original tracks, connect with producers, and build the sound behind your next release.",
+  description:
+    "Discover original tracks, connect with producers, and build the sound behind your next release.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased" data-scroll-behavior="smooth">
+    <html
+      lang="en"
+      className="h-full antialiased"
+      data-scroll-behavior="smooth"
+    >
       <body className="min-h-full font-sans">
         <ToastProvider>
           <AuthProvider>
+            <TableCacheProvider>
             <AudioPlayerProvider>
-              <MarketplaceProvider>{children}<PlayerDock /></MarketplaceProvider>
+              <GlobalLoadingProvider><MarketplaceProvider>
+                {children}
+                <PlayerDock />
+              </MarketplaceProvider></GlobalLoadingProvider>
             </AudioPlayerProvider>
+            </TableCacheProvider>
           </AuthProvider>
         </ToastProvider>
       </body>

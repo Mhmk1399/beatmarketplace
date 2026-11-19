@@ -11,7 +11,7 @@ export function PlayerSkipIcon({ forward = false, ...props }: Props & { forward?
 export function PlayerVolumeIcon({ muted = false, ...props }: Props & { muted?: boolean }) { return <svg {...base} {...props}><path d="m11 4-5 4H3v8h3l5 4Z" />{muted ? <path d="m16 9 5 6m0-6-5 6" /> : <><path d="M15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14" /></>}</svg>; }
 export function PlayerShuffleIcon(props: Props) { return <svg {...base} {...props}><path d="M3 6h3c5 0 7 12 12 12h3M17 14l4 4-4 4M3 18h3c5 0 7-12 12-12h3M17 2l4 4-4 4" /></svg>; }
 export function PlayerRepeatIcon({ one = false, ...props }: Props & { one?: boolean }) { return <svg {...base} {...props}><path d="m16 2 4 4-4 4M20 6H7a4 4 0 0 0-4 4M8 22l-4-4 4-4M4 18h13a4 4 0 0 0 4-4" />{one && <path d="m10 11 2-1v5" />}</svg>; }
-export function PlayerQueueIcon(props: Props) { return <svg {...base} {...props}><path d="M3 5h17M3 10h11M3 15h7M17 13v7M13.5 16.5h7" /></svg>; }
+export function PlayerQueueIcon({ add = true, ...props }: Props & { add?: boolean }) { return <svg {...base} {...props}>{add ? <path d="M3 5h17M3 10h11M3 15h7M17 13v7M13.5 16.5h7" /> : <><path d="M9 6h12M9 12h12M9 18h12" /><circle cx="4" cy="6" r="1" /><circle cx="4" cy="12" r="1" /><circle cx="4" cy="18" r="1" /></>}</svg>; }
 export function PlayerExpandIcon(props: Props) { return <svg {...base} {...props}><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" /></svg>; }
 export function PlayerCollapseIcon(props: Props) { return <svg {...base} {...props}><path d="M5 12h14" /></svg>; }
 export function PlayerCloseIcon(props: Props) { return <svg {...base} {...props}><path d="m6 6 12 12M18 6 6 18" /></svg>; }

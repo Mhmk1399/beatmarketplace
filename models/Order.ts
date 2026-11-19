@@ -21,5 +21,8 @@ const schema = new Schema<OrderFields>({
 }, { timestamps: true });
 schema.index({ buyerId: 1, createdAt: -1 });
 schema.index({ buyerId: 1, idempotencyKey: 1 }, { unique: true });
+schema.index({ createdAt: -1, _id: -1 });
+schema.index({ "items.producerId": 1, createdAt: -1, _id: -1 });
+schema.index({ status: 1, gatewayMode: 1, paidAt: -1 });
 const OrderModel = (mongoose.models.Order as Model<OrderFields> | undefined) ?? mongoose.model<OrderFields>("Order", schema);
 export default OrderModel;

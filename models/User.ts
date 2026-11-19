@@ -38,6 +38,8 @@ export type UserFields = {
   status: UserStatus;
   profile: UserProfile;
   lastLoginAt: Date | null;
+  sessionVersion: number;
+  preferences: { emailNotifications: boolean; showActivity: boolean };
   createdAt: Date;
   updatedAt: Date;
 };
@@ -133,6 +135,8 @@ const userSchema = new Schema<UserFields>(
       required: true,
     },
     lastLoginAt: { type: Date, default: null },
+    sessionVersion: { type: Number, default: 0, min: 0, select: false },
+    preferences: { emailNotifications: { type: Boolean, default: false }, showActivity: { type: Boolean, default: false } },
   },
   {
     timestamps: true,
@@ -149,6 +153,8 @@ const userSchema = new Schema<UserFields>(
 );
 
 userSchema.index({ "profile.username": 1 }, { unique: true, sparse: true });
+userSchema.index({ createdAt: -1, _id: -1 });
+userSchema.index({ roles: 1, status: 1, createdAt: -1, _id: -1 });
 
 const UserModel = (mongoose.models.User as Model<UserFields> | undefined) ?? mongoose.model<UserFields>("User", userSchema);
 

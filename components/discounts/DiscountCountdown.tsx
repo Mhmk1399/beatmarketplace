@@ -1,5 +1,7 @@
 "use client";
 
+import { formatPersianDateTime } from "@/lib/date-time";
+
 import { useDiscountSecond } from "@/components/discounts/clock";
 import type { TrackDiscount } from "@/lib/marketplace/types";
 import { discountIsActive } from "@/lib/marketplace/discounts";
@@ -17,7 +19,7 @@ export function DiscountCountdown({ discount, compact = false }: { discount: Tra
   ];
   return <div className={`discount-countdown${compact ? " discount-countdown-compact" : ""}`}>
     <div className="discount-countdown-heading"><span className="discount-countdown-dot" aria-hidden="true" /><span>Offer ends in</span><span className="discount-countdown-saving">−{discount.percentage}%</span></div>
-    <span className="sr-only">Offer ends <time dateTime={discount.endsAt}>{new Date(discount.endsAt).toLocaleString()}</time>.</span>
+    <span className="sr-only">Offer ends <time dateTime={discount.endsAt}>{formatPersianDateTime(discount.endsAt)}</time>.</span>
     <div className="discount-countdown-units" aria-hidden="true">{units.map((unit) => <span key={unit.label} className="discount-countdown-unit"><strong>{String(unit.value).padStart(2, "0")}</strong><span>{unit.label}</span></span>)}</div>
   </div>;
 }

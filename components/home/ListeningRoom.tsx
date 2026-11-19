@@ -98,7 +98,7 @@ export function ListeningRoom() {
             <h2 id="listening-room-title">Press play. Stay a while.</h2>
           </div>
           <p>
-            A space for your next favorite sound.
+            Full-length listening demos, not for sale.
             <br />
             Keep the music going as you explore.
           </p>

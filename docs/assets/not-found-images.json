@@ -1,0 +1,28 @@
+{
+  "generation": "Built-in image_gen tool",
+  "reference": "User-provided 404 page reference",
+  "prompt": "Use case: stylized-concept.\nAsset type: full-bleed photographic 3D background artwork for a real music marketplace 404 page, landscape 16:10 composition.\nInput image 1 is the user's visual composition/style reference. Recreate its studio scene very faithfully, using the same subject placement, objects, rich violet lighting, materials and camera angle. This is artwork only, not a UI screenshot.\nScene: dark graphite professional music studio, low camera looking across a textured black studio desk. Upper left acoustic foam panels and vertical sound-treatment strips with a violet LED light, a black nearfield studio monitor with a purple speaker ring on the left; a cropped black MPC drum pad with glowing lavender pads in the lower left, a softly out-of-focus piano keyboard in the extreme lower left foreground. Right side: a warm desk lamp with a black shade, dark plant foliage, and a rugged black flight case with metal corners, all as in the reference.\nMain subject: a large detailed glossy black vinyl record standing slightly tilted on the desk in the upper center, a missing chipped wedge on its upper-right rim, fine concentric grooves and a purple center label with a small abstract white six-bar audio symbol (no branding). Premium over-ear matte black and metallic purple studio headphones wrap around and rest in front of the vinyl. A headphone cable curves from the right earcup across the desk toward the lower right and ends in a metallic gold jack.\nBehind the vinyl, large correctly spelled digits \"404\", deep translucent violet with crisp luminous lavender outlines, soft neon edge glow, cinematic depth. The digits occupy the upper central half and the vinyl overlaps them in front. Keep the entire digits and headphones within the central 58% of the frame, with safe top margin.\nCritical page composition: all large central subjects and digits finish above 49% of the total image height. The lower center, x 25%-75% and y 51%-96%, must be a dark quiet desktop area with subtle purple reflections and no objects, so real HTML heading, buttons and navigation can be overlaid there. Peripheral foreground instruments may occupy only the extreme corners. Maintain the reference's strong purple ambience and graphite clay music aesthetic.\nPalette: almost-black graphite #111318 and #171a20, violet #9b5cf6, restrained magenta #d946ef, pale lavender rims. Photorealistic high-end detailed product render, realistic leather cushions, vinyl grooves, soft studio reflections, controlled bloom, sharp central subject, subtle depth of field.\nText: only the three digits \"404\" in the background. Absolutely no other text, no Page Not Found lettering, no buttons, no cards, no navigation bar, no UI, no watermark or border.",
+  "assets": [
+    {
+      "path": "public/assets/not-found/studio.webp",
+      "width": 1586,
+      "height": 992
+    },
+    {
+      "path": "public/assets/not-found/studio-medium.webp",
+      "width": 1100,
+      "height": 688
+    },
+    {
+      "path": "public/assets/not-found/studio-mobile.webp",
+      "width": 960,
+      "height": 968
+    },
+    {
+      "path": "public/assets/not-found/studio-mobile-small.webp",
+      "width": 480,
+      "height": 484
+    }
+  ],
+  "optimization": "Sharp WebP encoding at quality 84. Mobile assets crop the central 984×992 region at left 301, preserving the full 404 digits, vinyl and headphones. Original generated artwork retained in Codex generated_images."
+}

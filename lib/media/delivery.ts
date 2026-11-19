@@ -4,8 +4,9 @@ import { Readable } from "node:stream";
 import { GetObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { ObjectStorageAsset } from "@/models/schemas/shared";
-import { isLocalAsset, mediaS3Client, objectKey, resolveLocalPath, validateMediaKey } from "./adapter";
-import { MediaValidationError } from "./wav";
+import { byteLimit, isLocalAsset, mediaS3Client, objectKey, resolveLocalPath, validateMediaKey } from "./adapter";
+import { s3DeliveryMode } from "./config";
+import { MAX_MASTER_BYTES, MediaValidationError } from "./wav";
 
 /** One RFC 7233 byte range; multi-range responses are deliberately not supported. */
 export function parseMediaRange(header: string | null, size: number) {
@@ -28,6 +29,31 @@ export async function serveStoredAsset(request: Request, asset: ObjectStorageAss
   if (options.downloadName) headers.set("Content-Disposition", `attachment; filename="track.wav"; filename*=UTF-8''${encodeURIComponent(options.downloadName)}.wav`);
   if (!isLocalAsset(asset)) {
     if (!["S3", "R2"].includes(asset.provider)) throw new MediaValidationError("Unsupported media storage provider.", 503);
+    if (s3DeliveryMode() === "proxy" && request.method !== "HEAD") {
+      const client = mediaS3Client();
+      const size = Number.isSafeInteger(asset.sizeBytes) && asset.sizeBytes > 0 ? asset.sizeBytes : (await client.send(new HeadObjectCommand({ Bucket: asset.bucket, Key: objectKey(asset) }), { abortSignal: request.signal })).ContentLength;
+      if (!size || size > MAX_MASTER_BYTES + 44) throw new MediaValidationError("Stored file exceeds the supported size.", 413);
+      let range: { start: number; end: number } | null;
+      try { range = parseMediaRange(request.headers.get("range"), size); } catch {
+        headers.set("Content-Range", `bytes */${size}`); return new Response(null, { status: 416, headers });
+      }
+      const expected = range ? range.end - range.start + 1 : size;
+      const object = await client.send(new GetObjectCommand({ Bucket: asset.bucket, Key: objectKey(asset), ...(range ? { Range: `bytes=${range.start}-${range.end}` } : {}) }), { abortSignal: request.signal });
+      const source = object.Body as Readable | undefined;
+      if (!source) throw new MediaValidationError("Media could not be found.", 404);
+      if (object.ContentLength !== undefined && object.ContentLength !== expected) { source.destroy(); throw new MediaValidationError("The stored media range is unavailable.", 503); }
+      const limited = byteLimit(expected);
+      const abort = () => limited.destroy();
+      source.once("error", (error: Error) => limited.destroy(error));
+      limited.once("close", () => { source.destroy(); request.signal.removeEventListener("abort", abort); });
+      request.signal.addEventListener("abort", abort, { once: true });
+      source.pipe(limited);
+      if (request.signal.aborted) abort();
+      headers.set("Content-Length", String(expected));
+      if (range) headers.set("Content-Range", `bytes ${range.start}-${range.end}/${size}`);
+      // Explicit compatibility mode: stream with backpressure rather than buffering files.
+      return new Response(Readable.toWeb(limited) as ReadableStream<Uint8Array>, { status: range ? 206 : 200, headers });
+    }
     if (request.method === "HEAD") {
       const metadata = await mediaS3Client().send(new HeadObjectCommand({ Bucket: asset.bucket, Key: objectKey(asset) }));
       const size = metadata.ContentLength ?? asset.sizeBytes;

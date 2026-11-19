@@ -5,6 +5,8 @@ import { useCallback, useId, useState, type ReactNode } from "react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardMobileNav } from "@/components/dashboard/DashboardMobileNav";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+import { DashboardBottomNav } from "@/components/dashboard/DashboardBottomNav";
+import "./workspace.css";
 import type { NavigationSection } from "@/lib/dashboard/navigation";
 import type { DashboardUser } from "@/lib/dashboard/session";
 import type { WorkspaceDefinition } from "@/lib/dashboard/workspaces";
@@ -28,7 +30,7 @@ export function DashboardFrame({
   const openNavigation = useCallback(() => setNavigationOpen(true), []);
 
   return (
-    <div className="dashboard-canvas page-shell min-h-dvh lg:grid lg:grid-cols-[18.5rem_minmax(0,1fr)]">
+    <div className="dashboard-canvas page-shell min-h-dvh lg:grid lg:grid-cols-[15.5rem_minmax(0,1fr)]">
       <aside className="dashboard-sidebar-shell hidden h-dvh p-4 lg:sticky lg:top-0 lg:block">
         <div className="neo-raised h-full overflow-hidden rounded-[28px]">
           <DashboardSidebar activeWorkspace={workspace} navigation={navigation} user={user} workspaces={workspaces} />
@@ -43,6 +45,7 @@ export function DashboardFrame({
       </div>
 
       <DashboardMobileNav activeWorkspace={workspace} id={navigationId} navigation={navigation} onClose={closeNavigation} open={navigationOpen} user={user} workspaces={workspaces} />
+      <DashboardBottomNav workspace={workspace.id} onMore={openNavigation} />
     </div>
   );
 }

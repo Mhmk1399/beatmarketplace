@@ -1,0 +1,37 @@
+{
+  "mode": "Built-in image_gen tool",
+  "reference": "User-provided combined section 7 and section 8 screenshot",
+  "prompts": {
+    "studio": "Use case: product-mockup.\nAsset type: panoramic photographic 3D studio backdrop for section 7 of a music marketplace website.\nInput image 1: the user's two-section website reference. Use ONLY the upper panel's studio scene as a visual reference, not its UI.\nPrimary request: recreate the upper-right studio headphones and drum-machine scene faithfully as a standalone background artwork, without any page text or cards.\nComposition: very wide landscape 3:1 banner, low camera facing a black studio desktop. Entire left 48% is quiet near-black graphite negative space for real HTML heading. On the right: premium black over-ear headphones with metallic violet edge lighting, tilted earcup facing camera with a small abstract white audio-bar symbol; a coiled cable extends toward the middle left. Behind and to the right is a black MPC drum sampler with lavender illuminated pads, black knobs, and a studio monitor speaker in the far upper right. Black acoustic foam and vertical violet studio light strips in the background. Subjects occupy right 52%, upper 82%; bottom 15% fades naturally into dark charcoal for real HTML cards overlaid below.\nStyle: realistic high-end product render, detailed leather cushions, matte black plastic, restrained purple reflection, soft rim lights, natural shadows, sophisticated graphite clay music aesthetic exactly like the reference. Palette #111318, #171a20, subtle #9b5cf6 violet and #c084fc lavender, no red or cyan lighting.\nConstraints: artwork only; no heading, no numerals, no step cards, no UI, no borders, no floating text, no watermarks, no brand names. Preserve the reference's calm wide composition and recognizable large headphones.",
+    "portrait": "Use case: stylized-concept.\nAsset type: portrait cover photograph for the foreground tilted music card in section 8 of a music marketplace website.\nInput image 1: the user's two-section reference. Use the foreground portrait tile in the lower panel as the visual reference.\nPrimary request: a cinematic photographic portrait of an anonymous adult male music producer, three-quarter side profile facing left, head lowered, wearing a black baseball cap, black hoodie and large black over-ear studio headphones. Face is mostly in shadow, cap brim shades the eyes, no resemblance to a specific celebrity.\nComposition: vertical 4:5 cover, waist/upper torso cropped near the bottom, subject fills the lower 78% with a small safe margin around the cap; purple gradient studio backdrop with brighter soft violet light behind upper left of head and deep dark graphite at bottom. Match the silhouette, purple lighting and mood of the lower reference card. Leave bottom-right 22% dark and calm for a REAL play button to be added in HTML.\nStyle: detailed natural cloth and headphone materials, premium music editorial photography, subtle purple highlights, rich graphite black, violet #9b5cf6 / lavender #c084fc, no other bright colors.\nConstraints: only the portrait cover image, no physical card border or tilt, no text, no waveform logo, no play symbol, no UI controls, no watermark. The website will supply all borders, perspective and live play controls."
+  },
+  "assets": [
+    {
+      "path": "public/assets/home-release/creative-flow-studio.webp",
+      "width": 1600,
+      "height": 533
+    },
+    {
+      "path": "public/assets/home-release/creative-flow-studio-medium.webp",
+      "width": 1000,
+      "height": 333
+    },
+    {
+      "path": "public/assets/home-release/creative-flow-studio-mobile.webp",
+      "width": 800,
+      "height": 494
+    },
+    {
+      "path": "public/assets/home-release/release-producer.webp",
+      "width": 600,
+      "height": 750
+    },
+    {
+      "path": "public/assets/home-release/release-producer-small.webp",
+      "width": 320,
+      "height": 400
+    }
+  ],
+  "optimization": "Sharp WebP quality 86. Studio mobile variant crops the right studio area from the original generated artwork. Generated originals remain in Codex generated_images.",
+  "notes": "Both sections use real HTML copy and shared clay controls. The foreground card's play button uses the existing Die Trying listening demo and the single global audio player. Small rear tiles reuse the existing lo-fi and Coco vector cover artwork. The waveform motif is decorative until the demo plays, when the shared analyser supplies a live spectrum."
+}

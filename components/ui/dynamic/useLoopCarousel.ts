@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type 
 const modulo = (value: number, count: number) => (value % count + count) % count;
 
 /** Three bounded copies keep native touch momentum and smooth scrolling across a seam. */
-export function useLoopCarousel(count: number) {
+export function useLoopCarousel(count: number, maxVisible = 2) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const metrics = useRef({ stride: 0, visible: 1 });
   const publishRef = useRef<() => void>(() => {});
@@ -66,7 +66,7 @@ export function useLoopCarousel(count: number) {
       if (!stride) return;
       const oldStride = metrics.current.stride;
       const first = oldStride ? modulo(Math.round(viewport!.scrollLeft / oldStride) - count, count) : 0;
-      const visible = Math.max(1, Math.min(count, 2, Math.round((viewport!.clientWidth + gap) / stride)));
+      const visible = Math.max(1, Math.min(count, maxVisible, Math.round((viewport!.clientWidth + gap) / stride)));
       metrics.current = { stride, visible };
       viewport!.scrollTo({ left: (count + first) * stride, behavior: "instant" });
       publish();
@@ -77,25 +77,30 @@ export function useLoopCarousel(count: number) {
     viewport.addEventListener("scrollend", normalize);
     configure();
     return () => { observer.disconnect(); cancelAnimationFrame(frame); clearTimeout(settle); viewport.removeEventListener("scroll", scroll); viewport.removeEventListener("scrollend", normalize); publishRef.current = () => {}; };
-  }, [count]);
+  }, [count, maxVisible]);
 
   function scrollPhysical(index: number) {
     const viewport = viewportRef.current;
     if (!viewport || !metrics.current.stride) return;
     viewport.scrollTo({ left: index * metrics.current.stride, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
   }
-  function move(direction: number) {
+  function move(direction: number, step = metrics.current.visible) {
     const viewport = viewportRef.current;
     const { stride, visible } = metrics.current;
     if (!viewport || !stride || count < 2) return;
     // Rebase even rapid repeated clicks before a target could reach a physical end.
     let progress = viewport.scrollLeft / stride;
-    if (progress < count || progress >= count * 2) {
-      progress = count + modulo(progress - count, count);
+    // Native scrolling rounds fractional card widths to physical pixels. Match
+    // normalize()'s tolerance so a start offset 0.1px below the seam cannot
+    // jump a full cycle and cancel the following smooth scroll.
+    const tolerance = .75 / stride;
+    const shift = progress < count - tolerance ? count : progress >= count * 2 - tolerance ? -count : 0;
+    if (shift) {
+      progress += shift;
       viewport.scrollTo({ left: progress * stride, behavior: "instant" });
       publishRef.current();
     }
-    scrollPhysical(Math.round(progress) + direction * visible);
+    scrollPhysical(Math.round(progress) + direction * Math.max(1, Math.min(count, Math.trunc(step || visible))));
   }
   function keyboard(event: KeyboardEvent<HTMLDivElement>) {
     if (event.target !== event.currentTarget || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;

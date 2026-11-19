@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     await connectToDatabase();
-    const user = await UserModel.findOne({ email: parsed.data.email }).select("+passwordHash");
+    const user = await UserModel.findOne({ email: parsed.data.email }).select("+passwordHash +sessionVersion");
     const isValidPassword = await verifyPassword(parsed.data.password, user?.passwordHash ?? DUMMY_PASSWORD_HASH);
 
     if (!user || !isValidPassword) {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     user.lastLoginAt = new Date();
     await user.save();
 
-    const token = signAccessToken({ id: user.id, roles: user.roles });
+    const token = signAccessToken({ id: user.id, roles: user.roles, sessionVersion: user.sessionVersion });
     const response = NextResponse.json({ user: serializeUser(user) });
     response.headers.set("Cache-Control", "no-store");
     return setAuthCookie(response, token);

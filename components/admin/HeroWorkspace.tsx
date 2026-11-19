@@ -1,9 +1,15 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
+import { formatPersianDate, formatPersianDateTime } from "@/lib/date-time";
+
+import { DynamicSelect } from "@/components/ui/dynamic/DynamicSelect";
+import { DynamicDateTimePicker } from "@/components/ui/dynamic/DynamicDateTimePicker";
+
+
+
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { DashboardPageIntro } from "@/components/dashboard/DashboardPageIntro";
+import { ResourceManager, type ResourceConfig } from "./ResourceManager";
+import { TableIdentity } from "@/components/ui/dynamic/DynamicTable";
 import {
   discountNow,
   synchronizeDiscountClock,
@@ -18,16 +24,16 @@ import {
   RequestError,
 } from "@/components/studio/shared";
 import { DynamicModal } from "@/components/ui/dynamic/DynamicModal";
-import { MusicNoteIcon, PlusIcon } from "@/components/ui/icons";
+
 import {
   NeumorphicButton,
-  NeumorphicLink,
+
 } from "@/components/ui/neumorphic/Button";
-import { NeumorphicSurface } from "@/components/ui/neumorphic/Surface";
+
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import type {
   AdminHeroPlacement,
-  AdminHeroResponse,
+
   HeroPaymentStatus,
 } from "@/lib/hero/types";
 import {
@@ -42,17 +48,6 @@ const paymentLabels: Record<HeroPaymentStatus, string> = {
   PAID: "Paid",
   COMPLIMENTARY: "Complimentary",
 };
-function localInput(value: string | number) {
-  const date = new Date(value);
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
-    .toISOString()
-    .slice(0, 19);
-}
-function utcInput(value: string, original?: string) {
-  return original && localInput(original) === value
-    ? original
-    : new Date(value).toISOString();
-}
 function eligibleCandidate(track: MarketplaceTrack) {
   return Boolean(
     track.artworkUrl &&
@@ -256,12 +251,10 @@ function PlacementEditor({
   const [position, setPosition] = useState(placement?.position ?? 0);
   const [label, setLabel] = useState(placement?.label ?? "Featured");
   const [startsAt, setStartsAt] = useState(() =>
-    localInput(placement?.startsAt ?? Math.floor(discountNow() / 1000) * 1000),
+    placement?.startsAt ?? new Date(Math.floor(discountNow() / 1000) * 1000).toISOString(),
   );
   const [endsAt, setEndsAt] = useState(() =>
-    localInput(
-      placement?.endsAt ?? Math.floor(discountNow() / 1000) * 1000 + 7 * day,
-    ),
+    placement?.endsAt ?? new Date(Math.floor(discountNow() / 1000) * 1000 + 7 * day).toISOString(),
   );
   const [fee, setFee] = useState(String(placement?.agreedFeeToman ?? 0));
   const [paymentStatus, setPaymentStatus] = useState<HeroPaymentStatus>(
@@ -296,8 +289,8 @@ function PlacementEditor({
       trackId,
       position,
       label: label.trim() || "Featured",
-      startsAt: utcInput(startsAt, placement?.startsAt),
-      endsAt: utcInput(endsAt, placement?.endsAt),
+      startsAt,
+      endsAt,
       agreedFeeToman: Number(fee),
       paymentStatus,
       paymentReference: paymentReference.trim(),
@@ -425,27 +418,24 @@ function PlacementEditor({
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Starts at *">
               {(id) => (
-                <input
+                <DynamicDateTimePicker
                   id={id}
-                  type="datetime-local"
-                  step={1}
+                  showSeconds
                   required
                   value={startsAt}
-                  onChange={(event) => setStartsAt(event.target.value)}
-                  className={controlClass}
+                  onValueChange={setStartsAt}
                 />
               )}
             </Field>
             <Field label="Ends at *">
               {(id) => (
-                <input
+                <DynamicDateTimePicker
                   id={id}
-                  type="datetime-local"
-                  step={1}
+                  showSeconds
                   required
                   value={endsAt}
-                  onChange={(event) => setEndsAt(event.target.value)}
-                  className={controlClass}
+                  min={startsAt}
+                  onValueChange={setEndsAt}
                 />
               )}
             </Field>
@@ -458,7 +448,7 @@ function PlacementEditor({
                 onClick={() => {
                   const start = Date.parse(startsAt);
                   if (Number.isFinite(start))
-                    setEndsAt(localInput(start + days * day));
+                    setEndsAt(new Date(start + days * day).toISOString());
                 }}
               >
                 {days} days
@@ -468,7 +458,7 @@ function PlacementEditor({
           <p className="text-xs leading-6 text-muted">
             Timezone:{" "}
             <strong className="text-secondary">
-              {Intl.DateTimeFormat().resolvedOptions().timeZone}
+              Asia/Tehran · تقویم شمسی، ساعت تهران
             </strong>
             . Bookings may run for up to {MAX_HERO_WINDOW_DAYS} days.
           </p>
@@ -494,7 +484,7 @@ function PlacementEditor({
               hint="After collecting the fee, mark the booking as Paid."
             >
               {(id) => (
-                <select
+                <DynamicSelect
                   id={id}
                   value={paymentStatus}
                   onChange={(event) =>
@@ -507,7 +497,7 @@ function PlacementEditor({
                       {text}
                     </option>
                   ))}
-                </select>
+                </DynamicSelect>
               )}
             </Field>
           </div>
@@ -556,272 +546,5 @@ function PlacementEditor({
   );
 }
 
-export function HeroWorkspace() {
-  const [placements, setPlacements] = useState<AdminHeroPlacement[]>([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [revision, setRevision] = useState(0);
-  const [editor, setEditor] = useState<{
-    placement: AdminHeroPlacement | null;
-  } | null>(null);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const toast = useToast();
-  useEffect(() => {
-    const controller = new AbortController();
-    apiRequest<AdminHeroResponse>(`/api/admin/hero?page=${page}&pageSize=24`, {
-      signal: controller.signal,
-    })
-      .then((data) => {
-        if (!controller.signal.aborted) {
-          setPlacements(data.placements);
-          setTotal(data.total);
-          setHasMore(data.hasMore);
-          synchronizeDiscountClock(data.serverTime);
-          setError("");
-        }
-      })
-      .catch((failure: unknown) => {
-        if (!controller.signal.aborted) setError(errorMessage(failure));
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-    return () => controller.abort();
-  }, [page, revision]);
-  const close = useCallback(() => setEditor(null), []);
-  const refresh = useCallback(() => {
-    setLoading(true);
-    setRevision((value) => value + 1);
-  }, []);
-  const saved = useCallback(() => {
-    setEditor(null);
-    setPage(1);
-    setLoading(true);
-    setRevision((value) => value + 1);
-  }, []);
-  async function toggle(placement: AdminHeroPlacement) {
-    setBusyId(placement.id);
-    try {
-      await apiRequest(
-        `/api/admin/hero/${placement.id}`,
-        placement.isActive
-          ? { method: "DELETE" }
-          : {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                isActive: true,
-                expectedVersion: placement.version,
-              }),
-            },
-      );
-      toast.success(
-        placement.isActive ? "Placement disabled" : "Placement enabled",
-      );
-      refresh();
-    } catch (failure) {
-      toast.error("Could not update placement", errorMessage(failure));
-    } finally {
-      setBusyId(null);
-    }
-  }
-  return (
-    <div className="space-y-7">
-      <DashboardPageIntro
-        eyebrow="Homepage advertising"
-        title="Hero placements."
-        description="Choose the beats in your homepage spotlight, schedule their display and record advertising settlement in toman."
-        action={
-          <NeumorphicButton
-            variant="accent"
-            onClick={() => setEditor({ placement: null })}
-          >
-            <PlusIcon className="size-4" /> Add placement
-          </NeumorphicButton>
-        }
-      />
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted">
-          {total} {total === 1 ? "booking" : "bookings"} · up to 10 live beats
-          in the hero
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <NeumorphicLink href="/" size="sm">
-            View homepage
-          </NeumorphicLink>
-          <NeumorphicButton size="sm" onClick={refresh} disabled={loading}>
-            Refresh
-          </NeumorphicButton>
-        </div>
-      </div>
-      {loading ? (
-        <div
-          className="neo-raised h-52 animate-pulse rounded-[var(--radius-card)]"
-          role="status"
-          aria-label="Loading hero placements"
-        />
-      ) : error ? (
-        <RequestError message={error} retry={refresh} />
-      ) : !placements.length ? (
-        <NeumorphicSurface className="rounded-[var(--radius-card)] p-8">
-          <h2 className="text-xl font-extrabold">Choose the next spotlight.</h2>
-          <p className="mt-3 max-w-xl text-sm leading-7 text-muted">
-            Add a published producer beat, choose its display window, and record
-            the advertising fee. Awaiting-payment bookings remain in this
-            workspace until settled.
-          </p>
-          <NeumorphicButton
-            className="mt-5"
-            onClick={() => setEditor({ placement: null })}
-          >
-            Add the first placement
-          </NeumorphicButton>
-        </NeumorphicSurface>
-      ) : (
-        <div className="grid items-start gap-5 xl:grid-cols-2">
-          {placements.map((placement) => (
-            <NeumorphicSurface
-              key={placement.id}
-              className="space-y-5 rounded-[var(--radius-card)] p-5 sm:p-6"
-            >
-              <div className="flex min-w-0 items-start gap-4">
-                <div className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-control)] bg-surface-high">
-                  {placement.artworkUrl ? (
-                    <Image
-                      src={placement.artworkUrl}
-                      alt=""
-                      fill
-                      unoptimized
-                      sizes="64px"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <MusicNoteIcon className="size-7 text-accent-text" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-accent-text">
-                      Position {placement.position}
-                    </span>
-                    <PlacementBadge placement={placement} />
-                  </div>
-                  <h2 className="mt-2 break-words text-lg font-extrabold">
-                    {placement.trackTitle}
-                  </h2>
-                  <p className="mt-1 break-words text-xs text-muted">
-                    {placement.producerName}
-                  </p>
-                </div>
-              </div>
-              <div className="neo-inset grid gap-4 rounded-[var(--radius-control)] p-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-[10px] uppercase tracking-wide text-muted">
-                    Starts
-                  </p>
-                  <time
-                    dateTime={placement.startsAt}
-                    className="mt-1 block text-xs leading-6 text-secondary"
-                  >
-                    {new Date(placement.startsAt).toLocaleString()}
-                  </time>
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wide text-muted">
-                    Ends
-                  </p>
-                  <time
-                    dateTime={placement.endsAt}
-                    className="mt-1 block text-xs leading-6 text-secondary"
-                  >
-                    {new Date(placement.endsAt).toLocaleString()}
-                  </time>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-                <strong className="text-accent-text">
-                  {formatPrice(placement.agreedFeeToman)}
-                </strong>
-                <span className="text-xs text-muted">
-                  {paymentLabels[placement.paymentStatus]}
-                </span>
-              </div>
-              {!placement.trackAvailable && (
-                <p className="text-xs leading-6 text-warning-text">
-                  This beat is currently unavailable for advertising. Its
-                  booking is retained for your records.
-                </p>
-              )}
-              <div className="flex flex-wrap gap-2">
-                <NeumorphicButton
-                  size="sm"
-                  onClick={() => setEditor({ placement })}
-                  disabled={busyId === placement.id}
-                >
-                  Edit placement
-                </NeumorphicButton>
-                <NeumorphicButton
-                  size="sm"
-                  variant="quiet"
-                  onClick={() => void toggle(placement)}
-                  disabled={busyId === placement.id}
-                >
-                  {busyId === placement.id
-                    ? "Updating…"
-                    : placement.isActive
-                      ? "Disable"
-                      : "Enable"}
-                </NeumorphicButton>
-                <Link
-                  href={`/tracks/${placement.trackId}`}
-                  className="ml-auto inline-flex min-h-11 items-center text-xs font-semibold text-accent-text"
-                >
-                  View beat →
-                </Link>
-              </div>
-            </NeumorphicSurface>
-          ))}
-        </div>
-      )}
-      {(page > 1 || hasMore) && (
-        <nav
-          aria-label="Hero placement pages"
-          className="flex flex-wrap items-center justify-center gap-4"
-        >
-          <NeumorphicButton
-            disabled={loading || page === 1}
-            onClick={() => {
-              setLoading(true);
-              setPage((value) => value - 1);
-            }}
-          >
-            Previous
-          </NeumorphicButton>
-          <span className="text-sm text-muted">
-            Page {page} / {Math.max(1, Math.ceil(total / 24))}
-          </span>
-          <NeumorphicButton
-            disabled={loading || !hasMore}
-            onClick={() => {
-              setLoading(true);
-              setPage((value) => value + 1);
-            }}
-          >
-            Next
-          </NeumorphicButton>
-        </nav>
-      )}
-      {editor && (
-        <PlacementEditor
-          key={editor.placement?.id ?? "new"}
-          placement={editor.placement}
-          onClose={close}
-          onSaved={saved}
-        />
-      )}
-    </div>
-  );
-}
+
+export function HeroWorkspace() { const config: ResourceConfig<AdminHeroPlacement> = { title: "Hero placements", description: "Select sponsored beats, schedule their display and record advertising fees in Toman.", endpoint: "/api/admin/hero", itemsKey: "placements", pagination: "offset", searchable: false, label: item => item.trackTitle, canCreate: true, canEdit: true, canDelete: true, createLabel: "Add placement", deleteLabel: "Disable", deleteDescription: "This stops the placement from appearing in the homepage hero. The booking record is retained.", columns: [{ id: "beat", header: "Beat", cell: item => <TableIdentity image={item.artworkUrl} title={item.trackTitle} subtitle={item.producerName} /> }, { id: "position", header: "Position", accessor: "position" }, { id: "ends", header: "Ends", cell: item => formatPersianDate(item.endsAt) }, { id: "status", header: "Status", cell: item => <PlacementBadge placement={item} /> }, { id: "fee", header: "Advertising fee", cell: item => formatPrice(item.agreedFeeToman) }], editor: ({ item, onClose, onSaved }) => <PlacementEditor placement={item} onClose={onClose} onSaved={onSaved} />, details: item => <div className="space-y-4"><TableIdentity image={item.artworkUrl} title={item.trackTitle} subtitle={item.producerName} /><PlacementBadge placement={item} /><p className="text-sm">Starts: {formatPersianDateTime(item.startsAt)}</p><p className="text-sm">Ends: {formatPersianDateTime(item.endsAt)}</p><p className="text-sm">{formatPrice(item.agreedFeeToman)} | {paymentLabels[item.paymentStatus]}</p><p className="break-words text-xs text-muted">{item.paymentReference || "No payment reference recorded."}</p></div> }; return <ResourceManager config={config} />; }

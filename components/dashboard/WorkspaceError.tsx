@@ -1,0 +1,3 @@
+"use client";
+import { NeumorphicButton, NeumorphicLink } from "@/components/ui/neumorphic/Button";
+export function WorkspaceError({ retry }: { retry: () => void }) { return <section className="neo-raised mx-auto my-8 max-w-xl space-y-5 rounded-[var(--radius-card)] p-6 sm:p-9" role="alert"><h2 className="text-2xl font-extrabold">We couldn&apos;t open this workspace.</h2><p className="text-sm leading-7 text-muted">The connection may be temporarily unavailable. Try again to reload your saved information.</p><div className="flex flex-wrap gap-3"><NeumorphicButton variant="accent" onClick={retry}>Try again</NeumorphicButton><NeumorphicLink href="/">Back to home</NeumorphicLink></div></section>; }

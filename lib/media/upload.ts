@@ -29,12 +29,16 @@ export function acquireMediaUploadLease() {
   };
 }
 
-export async function parseBoundedTrackForm(request: Request) {
+export async function parseBoundedTrackForm(request: Request, options: { artworkOnly?: boolean; imageFields?: readonly ("thumbnail" | "banner")[] } = {}) {
+  const imageFields = options.imageFields ?? (options.artworkOnly ? ["artwork"] : null);
+  const imageOnly = imageFields !== null;
+  const allowedFiles = new Set<string>(imageFields ?? ["master", "artwork"]);
+  const requestLimit = imageOnly ? allowedFiles.size * MAX_ARTWORK_BYTES + MAX_DATA_BYTES + 8192 : MAX_UPLOAD_BYTES;
   if (request.signal.aborted) throw new MediaValidationError("The upload was cancelled.");
   const contentType = request.headers.get("content-type");
   if (!contentType?.startsWith("multipart/form-data")) throw new MediaValidationError("Use a multipart form with track data and files.", 415);
   const declaredLength = Number(request.headers.get("content-length") || 0);
-  if (declaredLength > MAX_UPLOAD_BYTES) throw new MediaValidationError("This upload exceeds the 70 MB request limit.", 413);
+  if (declaredLength > requestLimit) throw new MediaValidationError(imageOnly ? "Each image must be at most 5 MB." : "This upload exceeds the 70 MB request limit.", 413);
   if (!request.body) throw new MediaValidationError("The upload body is missing.");
   const directory = await mkdtemp(path.join(os.tmpdir(), "beat-upload-"));
   let cleaned = false;
@@ -43,9 +47,9 @@ export async function parseBoundedTrackForm(request: Request) {
     const absolute = path.resolve(directory);
     if (path.dirname(absolute) !== path.resolve(os.tmpdir()) || !path.basename(absolute).startsWith("beat-upload-")) throw new Error("Unsafe temporary upload directory.");
     cleaned = true;
-    await rm(absolute, { recursive: true, force: true });
+    await rm(absolute, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
   };
-  const files: Partial<Record<"master" | "artwork", UploadedMediaFile>> = {};
+  const files: Partial<Record<"master" | "artwork" | "thumbnail" | "banner", UploadedMediaFile>> = {};
   const writes: Promise<void>[] = [];
   let rawData: string | undefined;
   let totalBytes = 0;
@@ -64,18 +68,20 @@ export async function parseBoundedTrackForm(request: Request) {
   try {
     const parser = busboy({ headers: { "content-type": contentType },
       highWaterMark: 64 * 1024, fileHwm: 64 * 1024,
-      limits: { fileSize: MAX_MASTER_BYTES + 1, files: 2, fields: 1, fieldSize: MAX_DATA_BYTES + 1, parts: 4, headerPairs: 100 },
+      limits: { fileSize: (imageOnly ? MAX_ARTWORK_BYTES : MAX_MASTER_BYTES) + 1, files: allowedFiles.size, fields: 1, fieldSize: MAX_DATA_BYTES + 1, parts: allowedFiles.size + 2, headerPairs: 100 },
     });
     parser.on("file", (name, stream, info) => {
-      if ((name !== "master" && name !== "artwork") || files[name]) { stream.resume(); fail(new MediaValidationError("Only one master and one artwork file are allowed.")); return; }
+      if (!allowedFiles.has(name)) { stream.resume(); fail(new MediaValidationError("An unexpected file field was uploaded.")); return; }
+      const field = name as keyof typeof files;
+      if (files[field]) { stream.resume(); fail(new MediaValidationError("Upload only one file for each image or audio field.")); return; }
       const descriptor: UploadedMediaFile = { name: path.basename(info.filename || "upload").slice(0, 255), path: path.join(directory, randomUUID()), size: 0, type: info.mimeType };
-      files[name] = descriptor;
+      files[field] = descriptor;
       const limit = name === "master" ? MAX_MASTER_BYTES : MAX_ARTWORK_BYTES;
       const meter = new Transform({ transform(chunk: Buffer, _encoding, callback) {
         descriptor.size += chunk.length;
         callback(descriptor.size > limit ? new MediaValidationError(`${name === "master" ? "WAV masters" : "Artwork"} must be at most ${name === "master" ? 60 : 5} MB.`, 413) : null, chunk);
       } });
-      stream.on("limit", () => fail(new MediaValidationError("The audio file exceeds the upload limit.", 413)));
+      stream.on("limit", () => fail(new MediaValidationError("This file exceeds the upload limit.", 413)));
       const writing = pipeline(stream, meter, createWriteStream(descriptor.path, { flags: "wx", mode: 0o600 }), { signal: controller.signal })
         .catch((error: unknown) => { fail(error instanceof Error ? error : new MediaValidationError("The upload failed.")); });
       writes.push(writing);
@@ -86,12 +92,12 @@ export async function parseBoundedTrackForm(request: Request) {
       }
       rawData = value;
     });
-    parser.on("filesLimit", () => fail(new MediaValidationError("At most two files are allowed.")));
+    parser.on("filesLimit", () => fail(new MediaValidationError("Too many files were uploaded.")));
     parser.on("fieldsLimit", () => fail(new MediaValidationError("Only the track data field is allowed.")));
     parser.on("partsLimit", () => fail(new MediaValidationError("Unexpected multipart content.")));
     const bodyLimit = new Transform({ transform(chunk: Buffer, _encoding, callback) {
       totalBytes += chunk.length;
-      callback(totalBytes > MAX_UPLOAD_BYTES ? new MediaValidationError("This upload exceeds the 70 MB request limit.", 413) : null, chunk);
+      callback(totalBytes > requestLimit ? new MediaValidationError(imageOnly ? "Each image must be at most 5 MB." : "This upload exceeds the 70 MB request limit.", 413) : null, chunk);
     } });
     const source = Readable.fromWeb(request.body as import("node:stream/web").ReadableStream<Uint8Array>);
     await pipeline(source, bodyLimit, parser, { signal: controller.signal });
@@ -101,7 +107,7 @@ export async function parseBoundedTrackForm(request: Request) {
     if (Object.values(files).some((file) => file.size === 0)) throw new MediaValidationError("Empty files cannot be uploaded.");
     let data: unknown;
     try { data = JSON.parse(rawData); } catch { throw new MediaValidationError("The track data must contain valid JSON."); }
-    return { data, master: files.master, artwork: files.artwork, cleanup };
+    return { data, master: files.master, artwork: files.artwork, thumbnail: files.thumbnail, banner: files.banner, cleanup };
   } catch (error) {
     controller.abort();
     await Promise.allSettled(writes);

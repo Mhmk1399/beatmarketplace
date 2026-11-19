@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { HeroCarouselSlot } from "./HeroCarouselSlot";
+import { useHeroCarouselMotion } from "./useHeroCarouselMotion";
 import { AudioFavoriteButton } from "@/components/audio/AudioFavoriteButton";
 import Link from "next/link";
 import {
@@ -10,8 +12,6 @@ import {
   useState,
   type FocusEvent,
   type KeyboardEvent,
-  type MouseEvent,
-  type PointerEvent,
 } from "react";
 import {
   PlayerPauseIcon,
@@ -82,39 +82,6 @@ function Cover({
     </div>
   );
 }
-function SideCard({
-  slide,
-  side,
-}: {
-  slide: HeroSlide;
-  side: "previous" | "next";
-}) {
-  return (
-    <div
-      className={`hero-featured-card hero-featured-side hero-featured-side-${side}`}
-      aria-hidden="true"
-    >
-      <div className="hero-featured-side-art">
-        <Cover audio={slide.audio} decorative />
-      </div>
-      <div className="hero-featured-side-copy">
-        <strong>{slide.audio.title}</strong>
-        <span>{slide.beat ? `${slide.beat.bpm} BPM` : "Listening room"}</span>
-      </div>
-    </div>
-  );
-}
-function selectionAfter(
-  signature: string,
-  current: string | null,
-  direction: number,
-) {
-  const ids = signature ? signature.split("|") : [];
-  if (ids.length < 2) return current;
-  const index = Math.max(0, ids.indexOf(current ?? ""));
-  return ids[((index + direction) % ids.length + ids.length) % ids.length];
-}
-
 function FeaturedCard({ selected, selectedIndex, total, selectedPlaying, onPlay, now }: { selected: HeroSlide; selectedIndex: number; total: number; selectedPlaying: boolean; onPlay: () => void; now: number }) {
   const cheapest = selected?.beat
     ? [...selected.beat.licenses]
@@ -230,26 +197,12 @@ function FeaturedCard({ selected, selectedIndex, total, selectedPlaying, onPlay,
               </article>);
 }
 
-export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
+export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; fallbackDemos?: AudioTrack[] }) {
   const player = useAudioTransport();
   const actions = useAudioActions();
   const demoMode = Boolean(demos?.length);
   const hostRef = useRef<HTMLDivElement>(null);
-  const swipeRef = useRef<{
-    id: number;
-    x: number;
-    y: number;
-    horizontal: boolean;
-  } | null>(null);
-  const suppressClick = useRef(false);
-  const currentRef = useRef<HTMLDivElement>(null);
-  const outgoingRef = useRef<HTMLDivElement>(null);
-  const transitionLock = useRef(false);
-  const queuedSteps = useRef(0);
-  const restoreFocus = useRef(false);
-  const finishRef = useRef<() => void>(() => {});
   const advanceRef = useRef<(direction: number) => void>(() => {});
-  const [transition, setTransition] = useState<{ from: HeroSlide; direction: number } | null>(null);
   const [placements, setPlacements] = useState<PublicHeroPlacement[]>([]);
   const [loading, setLoading] = useState(!demoMode);
   const [error, setError] = useState("");
@@ -260,11 +213,10 @@ export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
   const [inView, setInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(true);
+  const [autoPaused, setAutoPaused] = useState(false);
   const second = useDiscountSecond();
   const now = second || discountNow();
-  const visible: HeroSlide[] = demoMode
-    ? demos!.map((audio) => ({ id: audio.id, label: "Listening room", audio }))
-    : placements
+  const sponsored: HeroSlide[] = placements
         .filter(
           (placement) =>
             Date.parse(placement.startsAt) <= now &&
@@ -276,6 +228,10 @@ export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
           audio: marketplaceAudioTrack(placement.track),
           beat: placement.track,
         }));
+  const showingDemos = demoMode || sponsored.length === 0 && Boolean(fallbackDemos?.length);
+  const visible: HeroSlide[] = demoMode
+    ? demos!.map(audio => ({ id: audio.id, label: "Listening demo", audio }))
+    : sponsored.length ? sponsored : (fallbackDemos ?? []).map(audio => ({ id: audio.id, label: "Listening demo", audio }));
   const signature = visible.map((placement) => placement.id).join("|");
   const selectedIndex = Math.max(
     0,
@@ -285,7 +241,10 @@ export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
   const selectedPlaying = Boolean(
     selected && player.track?.id === selected.audio.id && player.playing,
   );
+  const { stageRef, trackRef, positions, registerSlot, advance, dragging, pointerDown, pointerMove, finishSwipe, clickCapture } = useHeroCarouselMotion(signature, selected?.id, setSelectedId, reducedMotion);
   const rotating =
+    !dragging &&
+    !autoPaused &&
     !reducedMotion &&
     inView &&
     pageVisible &&
@@ -359,120 +318,17 @@ export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
     };
   }, []);
 
-  function advance(direction: number) {
-    if (!selected || visible.length < 2) return;
-    if (transitionLock.current) { queuedSteps.current = Math.max(-10, Math.min(10, queuedSteps.current + direction)); return; }
-    if (reducedMotion) { setSelectedId((current) => selectionAfter(signature, current, direction)); return; }
-    restoreFocus.current = Boolean(currentRef.current?.contains(document.activeElement));
-    transitionLock.current = true;
-    setTransition({ from: selected, direction });
-    setSelectedId(selectionAfter(signature, selected.id, direction));
-  }
-  function completeTransition() {
-    transitionLock.current = false;
-    if (reducedMotion) {
-      const pending = queuedSteps.current;
-      queuedSteps.current = 0;
-      setTransition(null);
-      if (pending) setSelectedId((current) => selectionAfter(signature, current, pending));
-    } else if (queuedSteps.current) {
-      const direction = Math.sign(queuedSteps.current);
-      queuedSteps.current -= direction;
-      advance(direction);
-    } else setTransition(null);
-  }
-  useLayoutEffect(() => { finishRef.current = completeTransition; advanceRef.current = advance; });
-  useLayoutEffect(() => {
-    if (!transition) return;
-    const incoming = currentRef.current;
-    const outgoing = outgoingRef.current;
-    if (!incoming || !outgoing) return;
-    let alive = true;
-    if (restoreFocus.current) { incoming.focus({ preventScroll: true }); restoreFocus.current = false; }
-    const complete = () => { if (alive) finishRef.current(); };
-    if (reducedMotion || typeof incoming.animate !== "function") { queueMicrotask(complete); return () => { alive = false; }; }
-    const theme = getComputedStyle(hostRef.current!);
-    const rawDuration = theme.getPropertyValue("--hero-slide-duration").trim();
-    const duration = (parseFloat(rawDuration) || 560) * (rawDuration.endsWith("ms") || !rawDuration ? 1 : 1000);
-    const easing = theme.getPropertyValue("--hero-slide-ease").trim() || "ease";
-    const direction = transition.direction;
-    const enter = incoming.animate([
-      { opacity: .08, transform: "translate3d(" + direction * 105 + "%, 8px, 0) rotateY(" + -direction * 12 + "deg) scale(.92)" },
-      { opacity: 1, transform: "translate3d(0, 0, 0) rotateY(0deg) scale(1)" },
-    ], { duration, easing, fill: "both" });
-    const exit = outgoing.animate([
-      { opacity: 1, transform: "translate3d(0, 0, 0) rotateY(0deg) scale(1)" },
-      { opacity: 0, transform: "translate3d(" + -direction * 105 + "%, -6px, 0) rotateY(" + direction * 12 + "deg) scale(.9)" },
-    ], { duration, easing, fill: "both" });
-    void enter.finished.then(complete).catch(() => {});
-    return () => { alive = false; enter.cancel(); exit.cancel(); };
-  }, [transition, reducedMotion]);
+  useLayoutEffect(() => { advanceRef.current = advance; });
   useEffect(() => {
-    if (!rotating || transition) return;
+    if (!rotating) return;
     const timer = setTimeout(() => advanceRef.current(1), 6000);
     return () => clearTimeout(timer);
-  // The stable ID signature keeps the shared price clock from restarting rotation.
-  }, [signature, rotating, selected?.id, transition]);
+  }, [signature, rotating, selected?.id]);
 
   function keyboard(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
     advance(event.key === "ArrowLeft" ? -1 : 1);
-  }
-  function pointerDown(event: PointerEvent<HTMLDivElement>) {
-    if (!event.isPrimary || event.button !== 0) return;
-    suppressClick.current = false;
-    if (
-      event.target instanceof Element &&
-      event.target.closest("button, input") &&
-      !event.target.closest(".hero-featured-cover")
-    )
-      return;
-    swipeRef.current = {
-      id: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-      horizontal: false,
-    };
-  }
-  function pointerMove(event: PointerEvent<HTMLDivElement>) {
-    const swipe = swipeRef.current;
-    if (!swipe || swipe.id !== event.pointerId) return;
-    const x = event.clientX - swipe.x;
-    const y = event.clientY - swipe.y;
-    if (
-      !swipe.horizontal &&
-      Math.abs(x) > 10 &&
-      Math.abs(x) > Math.abs(y) * 1.25
-    ) {
-      swipe.horizontal = true;
-      event.currentTarget.setPointerCapture(event.pointerId);
-    }
-    if (swipe.horizontal) {
-      suppressClick.current = true;
-      event.currentTarget.style.setProperty(
-        "--hero-swipe",
-        `${Math.max(-40, Math.min(40, x * 0.3))}px`,
-      );
-    }
-  }
-  function finishSwipe(event: PointerEvent<HTMLDivElement>, cancelled = false) {
-    const swipe = swipeRef.current;
-    if (!swipe || swipe.id !== event.pointerId) return;
-    swipeRef.current = null;
-    event.currentTarget.style.setProperty("--hero-swipe", "0px");
-    if (event.currentTarget.hasPointerCapture(event.pointerId))
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    const distance = event.clientX - swipe.x;
-    if (!cancelled && swipe.horizontal && Math.abs(distance) > 36)
-      advance(distance < 0 ? 1 : -1);
-  }
-  function clickCapture(event: MouseEvent<HTMLDivElement>) {
-    if (event.detail !== 0 && suppressClick.current) {
-      suppressClick.current = false;
-      event.preventDefault();
-      event.stopPropagation();
-    }
   }
   function blur(event: FocusEvent<HTMLDivElement>) {
     if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
@@ -480,13 +336,6 @@ export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
   function refresh() {
     setLoading(true);
     setRetry((value) => value + 1);
-  }
-  function playSelected() {
-    if (selected)
-      actions.toggle(
-        selected.audio,
-        visible.map((slide) => slide.audio),
-      );
   }
 
   return (
@@ -496,9 +345,9 @@ export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
       role="region"
       aria-roledescription="carousel"
       aria-label={
-        demoMode ? "Featured listening demos" : "Featured sponsored beats"
+        showingDemos ? "Featured listening demos" : "Featured sponsored beats"
       }
-      aria-busy={loading}
+      aria-busy={loading && !selected}
       onKeyDown={keyboard}
       onFocusCapture={() => setFocused(true)}
       onBlurCapture={blur}
@@ -507,8 +356,14 @@ export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
       }}
       onPointerLeave={() => setHovered(false)}
     >
-       
-      {loading ? (
+      {selected && <div className="hero-featured-heading">
+        <div><h2>{showingDemos ? "Listening demos" : "Producer spotlight"}</h2><p className="hero-featured-context">{showingDemos ? "Full tracks · not for sale" : "Sponsored · 30-second previews"}</p></div>
+        <div className="hero-featured-tools"><span className="hero-featured-counter">{String(selectedIndex + 1).padStart(2,"0")} / {String(visible.length).padStart(2,"0")}</span>
+          {error && !demoMode && <NeumorphicButton variant="quiet" size="sm" className="hero-featured-retry" disabled={loading} aria-label="Retry featured placements" onClick={refresh}>Retry</NeumorphicButton>}
+          <NeumorphicButton variant="quiet" size="sm" className="hero-featured-auto" disabled={visible.length < 2 || reducedMotion} aria-label={autoPaused ? "Resume automatic featured slides" : "Pause automatic featured slides"} aria-pressed={autoPaused} onClick={()=>setAutoPaused(value=>!value)}>{autoPaused ? <PlayerPlayIcon/> : <PlayerPauseIcon/>}</NeumorphicButton>
+        </div>
+      </div>}
+      {loading && !selected ? (
         <div
           className="hero-featured-placeholder hero-featured-loading"
           role="status"
@@ -548,7 +403,9 @@ export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
       ) : (
         <>
           <div
+            ref={stageRef}
             className="hero-featured-deck"
+            data-dragging={dragging}
             onPointerDown={pointerDown}
             onPointerMove={pointerMove}
             onPointerUp={finishSwipe}
@@ -560,30 +417,11 @@ export function FeaturedBeats({ demos }: { demos?: AudioTrack[] }) {
             onClickCapture={clickCapture}
           >
             <div className="hero-featured-motion-window">
-            {visible.length > 2 && (
-              <SideCard
-                slide={
-                  visible[(selectedIndex - 1 + visible.length) % visible.length]
-                }
-                side="previous"
-              />
-            )}
-            {visible.length > 1 && (
-              <SideCard
-                slide={visible[(selectedIndex + 1) % visible.length]}
-                side="next"
-              />
-            )}
-            <div
-              className="hero-featured-active-position"
-              data-transitioning={Boolean(transition)}
-              aria-live={rotating ? "off" : "polite"}
-            >
-              {transition && <div ref={outgoingRef} className="hero-featured-slide hero-featured-slide-outgoing" aria-hidden="true" inert><FeaturedCard selected={transition.from} selectedIndex={Math.max(0, visible.findIndex((slide) => slide.id === transition.from.id))} total={visible.length} selectedPlaying={player.track?.id === transition.from.audio.id && player.playing} onPlay={() => {}} now={now} /></div>}
-              <div key={selected.id} ref={currentRef} className="hero-featured-slide hero-featured-slide-current" tabIndex={-1}>
-                <FeaturedCard selected={selected} selectedIndex={selectedIndex} total={visible.length} selectedPlaying={selectedPlaying} onPlay={playSelected} now={now} />
+              <div ref={trackRef} className="hero-featured-cards-track" aria-live={rotating ? "off" : "polite"}>
+                {visible.map((slide, index) => <HeroCarouselSlot key={slide.id} id={slide.id} position={positions[index]?.position ?? 0} onRegister={registerSlot}>
+                  <FeaturedCard selected={slide} selectedIndex={index} total={visible.length} selectedPlaying={player.track?.id === slide.audio.id && player.playing} onPlay={() => actions.toggle(slide.audio, visible.map((item) => item.audio))} now={now} />
+                </HeroCarouselSlot>)}
               </div>
-            </div>
             </div>
             {visible.length > 1 && (
               <>

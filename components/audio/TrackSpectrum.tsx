@@ -2,9 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import { useAudioAnalyser, useAudioTransport } from "@/components/audio/AudioPlayerProvider";
+import type { AudioAnalyser } from "@/lib/audio/types";
 
-/** A bounded, live FFT view of the one global audio element. Idle graphics carry no sample data. */
-export function TrackSpectrum({ trackId, variant = "orbit" }: { trackId: string; variant?: "orbit" | "bars" }) {
+type SpectrumSnapshot = { trackId: string; frequencies: Uint8Array<ArrayBuffer> };
+// One small real FFT frame per player; optional sheet views can retain it across remounts.
+const frozenFrames = new WeakMap<AudioAnalyser["getAnalyser"], SpectrumSnapshot>();
+
+/** A bounded live FFT view. Idle is neutral unless real samples were explicitly retained. */
+export function TrackSpectrum({ trackId, variant = "orbit", preserveOnPause = false }: { trackId: string; variant?: "orbit" | "bars"; preserveOnPause?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { getAnalyser } = useAudioAnalyser();
   const transport = useAudioTransport();
@@ -23,7 +28,9 @@ export function TrackSpectrum({ trackId, variant = "orbit" }: { trackId: string;
     let height = 0;
     let frame = 0;
     let lastFrame = 0;
-    let frequencies: Uint8Array<ArrayBuffer> | null = null;
+    const snapshot = preserveOnPause ? frozenFrames.get(getAnalyser) : undefined;
+    if (preserveOnPause && snapshot?.trackId !== trackId) frozenFrames.delete(getAnalyser);
+    let frequencies: Uint8Array<ArrayBuffer> | null = snapshot?.trackId === trackId ? snapshot.frequencies : null;
     let colors = { accent: "", bright: "", line: "", signal: "" };
 
     function draw(live: boolean) {
@@ -33,7 +40,13 @@ export function TrackSpectrum({ trackId, variant = "orbit" }: { trackId: string;
       if (analyser) {
         if (!frequencies || frequencies.length !== analyser.frequencyBinCount) frequencies = new Uint8Array(analyser.frequencyBinCount);
         analyser.getByteFrequencyData(frequencies);
+        if (preserveOnPause) {
+          const saved = frozenFrames.get(getAnalyser);
+          if (saved?.trackId !== trackId || saved.frequencies !== frequencies) frozenFrames.set(getAnalyser, { trackId, frequencies });
+        }
       }
+      const sampled = Boolean(analyser || (preserveOnPause && frequencies));
+      canvas.dataset.signal = analyser ? "live" : sampled ? "frozen" : "neutral";
       context.clearRect(0, 0, width, height);
       const bars = width < 400 || lowPower ? 56 : 88;
       context.lineCap = "round";
@@ -52,10 +65,10 @@ export function TrackSpectrum({ trackId, variant = "orbit" }: { trackId: string;
         context.lineWidth = width < 400 ? 2.3 : 3;
         for (let index = 0; index < bars; index++) {
           const bin = Math.min((frequencies?.length ?? 1) - 1, Math.floor(Math.pow(index / bars, 1.6) * (frequencies?.length ?? 0) * 0.8));
-          const energy = analyser && frequencies ? frequencies[bin] / 255 : 0;
+          const energy = sampled && frequencies ? frequencies[bin] / 255 : 0;
           const length = 3 + energy * Math.min(width, height) * 0.105;
           const angle = index / bars * Math.PI * 2 - Math.PI / 2;
-          context.globalAlpha = analyser ? 0.45 + energy * 0.55 : 0.32;
+          context.globalAlpha = sampled ? 0.45 + energy * 0.55 : 0.32;
           context.beginPath();
           context.moveTo(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
           context.lineTo(cx + Math.cos(angle) * (radius + length), cy + Math.sin(angle) * (radius + length));
@@ -69,9 +82,9 @@ export function TrackSpectrum({ trackId, variant = "orbit" }: { trackId: string;
         context.lineWidth = Math.max(2, gap * 0.4);
         for (let index = 0; index < bars; index++) {
           const bin = Math.min((frequencies?.length ?? 1) - 1, Math.floor(Math.pow(index / bars, 1.5) * (frequencies?.length ?? 0) * 0.8));
-          const energy = analyser && frequencies ? frequencies[bin] / 255 : 0;
+          const energy = sampled && frequencies ? frequencies[bin] / 255 : 0;
           const length = 3 + energy * (height - 10);
-          context.globalAlpha = analyser ? 0.45 + energy * 0.55 : 0.26;
+          context.globalAlpha = sampled ? 0.45 + energy * 0.55 : 0.26;
           context.beginPath(); context.moveTo(gap * (index + 0.5), (height - length) / 2); context.lineTo(gap * (index + 0.5), (height + length) / 2); context.stroke();
         }
       }
@@ -116,7 +129,7 @@ export function TrackSpectrum({ trackId, variant = "orbit" }: { trackId: string;
       document.removeEventListener("visibilitychange", synchronize);
       window.removeEventListener("resize", resize);
     };
-  }, [getAnalyser, playing, trackId, variant]);
+  }, [getAnalyser, playing, preserveOnPause, trackId, variant]);
 
   return <canvas ref={canvasRef} className={`track-spectrum track-spectrum-${variant}`} data-reactive={playing} aria-hidden="true" />;
 }

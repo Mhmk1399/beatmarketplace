@@ -29,7 +29,7 @@ export function TrackCard({ track, queue }: { track: MarketplaceTrack; queue?: M
         <button type="button" aria-label={`${saved ? "Unsave" : "Save"} ${track.title}`} aria-pressed={saved} onClick={() => void player.favorite(track.id)} className="music-track-save">
           <svg viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M20.3 5.8a5 5 0 0 0-7.1 0L12 7l-1.2-1.2a5 5 0 0 0-7.1 7.1L12 21l8.3-8.1a5 5 0 0 0 0-7.1Z" /></svg>
         </button>
-        <span className="music-track-preview">{active ? <><span className="music-mini-levels" aria-hidden="true"><i /><i /><i /><i /></span> Playing preview</> : <><MusicNoteIcon className="size-3.5" /> 30s preview</>}</span>
+        <span className="music-track-preview">{active ? <><span className="music-mini-levels" aria-hidden="true"><i /><i /><i /><i /></span> Playing preview</> : <><MusicNoteIcon className="size-3.5" /> {track.previewUrl ? "30s preview" : "Preview coming soon"}</>}</span>
         <button type="button" disabled={!track.previewUrl} onClick={() => player.toggle(track, queue)} aria-label={`${active ? "Pause" : "Play"} ${track.title}`} className="neo-button neo-button-accent music-track-play">
           {active ? <PlayerPauseIcon className="size-5" /> : <PlayIcon className="size-6" />}
         </button>

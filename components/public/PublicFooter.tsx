@@ -1,21 +1,24 @@
 import Link from "next/link";
 
 import { BrandMark } from "@/components/public/BrandMark";
+import { ArrowRightIcon, MusicNoteIcon, ShieldIcon } from "@/components/ui/icons";
+import styles from "./PublicFooter.module.css";
+
+const groups = [
+  { label: "Find your sound", links: [{ label: "All beats", href: "/marketplace" }, { label: "Producers", href: "/producers" }, { label: "Live offers", href: "/discounts" }, { label: "Browse by genre", href: "/#explore-genres" }, { label: "Browse by mood", href: "/moods" }, { label: "Browse by instrument", href: "/instruments" }, { label: "Listening demos", href: "/#listening-room" }] },
+  { label: "Make it yours", links: [{ label: "Producer Studio", href: "/#producer" }, { label: "How it works", href: "/#how-it-works" }, { label: "Licensing & downloads", href: "/#beat-questions" }, { label: "My purchases", href: "/dashboard/orders" }] },
+  { label: "Stay connected", links: [{ label: "About us", href: "/about" }, { label: "Contact & support", href: "/contact" }, { label: "Sign in", href: "/login" }, { label: "Create an account", href: "/signup" }] },
+];
 
 export function PublicFooter() {
   return (
-    <footer className="px-5 pb-8 pt-14 sm:pt-20">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8 border-t border-divider pt-8 sm:flex-row sm:items-end sm:justify-between">
-        <div className="max-w-sm space-y-4">
-          <BrandMark />
-          <p className="text-sm leading-6 text-muted">A home for original sound, independent producers, and the releases they inspire.</p>
+    <footer className={styles.footer}>
+      <div className={styles.panel}>
+        <div className={styles.grid}>
+          <div className={styles.brand}><BrandMark /><p>A home for original sound, independent producers, and the releases they inspire.</p><Link href="/marketplace" className={styles.browse}><MusicNoteIcon />Find your next sound<ArrowRightIcon /></Link></div>
+          {groups.map(group=><nav key={group.label} aria-label={group.label}><h2>{group.label}</h2>{group.links.map(item=><Link href={item.href} prefetch={false} key={item.href}>{item.label}</Link>)}</nav>)}
         </div>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-muted">
-          <Link href="/" className="transition-colors hover:text-on-accent">Home</Link>
-          <Link href="/login" className="transition-colors hover:text-on-accent">Login</Link>
-          <Link href="/signup" className="transition-colors hover:text-on-accent">Create account</Link>
-          <span className="text-faint">© {new Date().getFullYear()}</span>
-        </div>
+        <div className={styles.bottom}><p><ShieldIcon />Prices in toman · Producer-defined licenses · WAV after verified payment</p><span>© {new Date().getFullYear()} BeatMarketplace</span></div>
       </div>
     </footer>
   );

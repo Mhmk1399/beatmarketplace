@@ -22,6 +22,7 @@ export function NavigationItem({
   return (
     <Link
       href={item.href}
+      prefetch={false}
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn("dashboard-nav-item group flex min-h-11 items-center gap-3 rounded-[var(--radius-control)] px-3.5 text-sm font-semibold", active && "dashboard-nav-item-active")}

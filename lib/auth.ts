@@ -32,7 +32,7 @@ export async function verifyPassword(password: string, passwordHash: string) {
   return compare(password, passwordHash);
 }
 
-export function signAccessToken(user: { id: string; roles: UserRole[] }) {
+export function signAccessToken(user: { id: string; roles: UserRole[]; sessionVersion?: number }) {
   const options: SignOptions = {
     algorithm: "HS256",
     audience: config.jwtAudience,
@@ -44,6 +44,7 @@ export function signAccessToken(user: { id: string; roles: UserRole[] }) {
     {
       sub: user.id,
       type: "access",
+      sv: user.sessionVersion ?? 0,
       roles: user.roles,
     },
     getJwtSecret(),
@@ -95,8 +96,9 @@ export async function resolveAuthenticatedUser(token: string | null | undefined)
   if (!payload) return { ok: false, reason: "INVALID" };
 
   await connectToDatabase();
-  const user = await UserModel.findById(payload.sub);
+  const user = await UserModel.findById(payload.sub).select("+sessionVersion");
   if (!user) return { ok: false, reason: "NOT_FOUND" };
+  if ((payload.sv ?? 0) !== (user.sessionVersion ?? 0)) return { ok: false, reason: "INVALID" };
   if (user.status && user.status !== "ACTIVE") return { ok: false, reason: "DISABLED" };
 
   return { ok: true, user };
@@ -145,5 +147,7 @@ export function clearAuthCookie(response: NextResponse) {
 }
 
 export function serializeUser(user: UserDocument) {
-  return user.toJSON();
+  const data = user.toJSON();
+  delete (data as Record<string, unknown>).sessionVersion;
+  return data;
 }

@@ -1,0 +1,13 @@
+{
+  "generation": "Built-in image_gen tool",
+  "assets": [
+    {
+      "path": "public/assets/contact/studio.webp",
+      "prompt": "Use case: photorealistic-natural. Asset type: original full-bleed background artwork for the left half of a dark music marketplace contact form, inspired by a violet-lit studio close-up. Square composition, realistic professional music studio desk: a large matte black nearfield monitor speaker with a purple woofer on the right center, a small MIDI keyboard and drum-pad controller on the desk across the bottom-right foreground, a computer display softly out of focus behind on the far right with abstract violet horizontal music tracks and no readable text. No people. Deep graphite #171a20 and black palette with violet #9b5cf6 lighting, subtle magenta highlights #d946ef, premium realistic tactile materials. The left third and upper-left should be very dark and uncluttered, useful negative space for white website heading overlay; do not generate any text yourself. Camera at desk height from the front-left, studio equipment prominent in the right and lower part of frame. Cinematic controlled purple light, realistic shadows, high-end music studio photography. Full image background, no border, no logo, no watermark, no lettering, no UI elements. Avoid flashy multicolor RGB, white backgrounds, cartoon or vector style."
+    }
+  ],
+  "reusedAssets": [
+    "public/assets/about/headphones.webp"
+  ],
+  "optimization": "Studio illustration resized to 1000x1000 and encoded as WebP using Sharp. Original generated PNG retained."
+}

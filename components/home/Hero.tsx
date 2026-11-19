@@ -1,12 +1,10 @@
 import { FeaturedBeats } from "@/components/home/FeaturedBeats";
+import { HeroSearch } from "./HeroSearch";
 import {
-  ArrowRightIcon,
   DiscIcon,
-  PlayIcon,
   ShieldIcon,
   TagIcon,
 } from "@/components/ui/icons";
-import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
 import { demoTracks } from "@/lib/audio/demo-tracks";
 
 export function Hero() {
@@ -28,19 +26,12 @@ export function Hero() {
               <span className="text-gradient">signature sound.</span>
             </h1>
             <p className="hero-showcase-intro">
-              Original beats from independent producers. Find the feeling, hear
-              the potential, and make your next release your own.
+              Original beats for your next release. Preview the sound, choose
+              your license, and pay in toman.
             </p>
-            <div className="hero-showcase-actions">
-              <NeumorphicLink href="/marketplace" variant="accent" size="lg">
-                Explore beats <ArrowRightIcon className="size-4" />
-              </NeumorphicLink>
-              <NeumorphicLink href="/#listening-room" variant="quiet" size="lg">
-                <PlayIcon className="size-5" /> Just listen
-              </NeumorphicLink>
-            </div>
+            <HeroSearch />
           </div>
-          <FeaturedBeats demos={demoTracks} />
+          <FeaturedBeats fallbackDemos={demoTracks} />
         </div>
         <div
           className="hero-showcase-promises"

@@ -1,25 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { DashboardAvatar, getUserName } from "@/components/dashboard/DashboardAvatar";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ChevronDownIcon, LogOutIcon, SettingsIcon, UserIcon } from "@/components/ui/icons";
-import { useToast } from "@/components/ui/toast/ToastProvider";
 import { cn } from "@/lib/cn";
 import type { DashboardUser } from "@/lib/dashboard/session";
 import type { WorkspaceDefinition } from "@/lib/dashboard/workspaces";
 
 export function DashboardUserMenu({ user, workspace }: { user: DashboardUser; workspace: WorkspaceDefinition }) {
   const [open, setOpen] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const router = useRouter();
-  const { logout } = useAuth();
-  const toast = useToast();
+  const { requestLogout, isLoggingOut } = useAuth();
 
   useEffect(() => {
     if (!open) return;
@@ -41,17 +36,10 @@ export function DashboardUserMenu({ user, workspace }: { user: DashboardUser; wo
     };
   }, [open]);
 
-  async function handleLogout() {
-    setLoggingOut(true);
-    try {
-      await logout();
-      toast.success("Signed out", "Your session has been cleared.");
-      router.replace("/");
-      router.refresh();
-    } catch {
-      toast.error("Could not sign out", "Please try again.");
-      setLoggingOut(false);
-    }
+  function handleLogout() {
+    setOpen(false);
+    buttonRef.current?.focus();
+    requestLogout();
   }
 
   return (
@@ -86,8 +74,8 @@ export function DashboardUserMenu({ user, workspace }: { user: DashboardUser; wo
           <Link role="menuitem" href={`${workspace.href}/settings`} onClick={() => setOpen(false)} className="dashboard-menu-item">
             <SettingsIcon className="size-[18px]" /> Settings
           </Link>
-          <button role="menuitem" type="button" onClick={handleLogout} disabled={loggingOut} className="dashboard-menu-item w-full text-error-text">
-            <LogOutIcon className="size-[18px]" /> {loggingOut ? "Logging out…" : "Logout"}
+          <button role="menuitem" type="button" onClick={handleLogout} disabled={isLoggingOut} className="dashboard-menu-item w-full text-error-text">
+            <LogOutIcon className="size-[18px]" /> {isLoggingOut ? "Signing out…" : "Logout"}
           </button>
         </div>
       )}

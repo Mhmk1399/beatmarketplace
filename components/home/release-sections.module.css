@@ -1,0 +1,62 @@
+.section:global(.music-home-section) { padding-block: 18px; }
+.lastSection:global(.music-home-section) { padding-bottom: clamp(40px, 5vw, 70px); }
+.panel { position: relative; isolation: isolate; min-width: 0; overflow: hidden; border: 1px solid var(--release-edge); border-radius: var(--radius-panel); background: var(--release-fill); box-shadow: var(--release-shadow); }
+.flowPanel { padding-bottom: 22px; }
+.studioArt { position: absolute; z-index: -1; inset: 0; pointer-events: none; }
+.studioArt picture { display: block; width: 100%; height: 100%; }
+.studioArt img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 36%; }
+.studioArt::after { position: absolute; inset: 0; content: ""; background: var(--release-studio-shade); }
+.flowIntro { position: relative; min-height: clamp(180px, 15vw, 210px); padding: 24px 42px 14px; }
+.kicker { display: flex; align-items: center; gap: 8px; color: var(--music-label); font-size: .6rem; font-weight: 800; letter-spacing: .25em; line-height: 1.8; text-transform: uppercase; }
+.kicker > svg { width: 16px; height: 16px; }
+.flowIntro h2, .ctaCopy h2 { margin-top: 10px; color: var(--text); font-size: clamp(1.8rem, 3.1vw, 2.75rem); font-weight: 900; line-height: 1.13; letter-spacing: -.045em; }
+.flowIntro h2 { max-width: min(590px, 55%); }
+.flowIntro h2 span, .ctaCopy h2 span { background: var(--fill-text); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.smallWave { display: block; width: 190px; height: 26px; margin-top: 14px; color: var(--accent-text); opacity: .9; mask-image: var(--release-wave-mask); }
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; margin-inline: 24px; }
+.steps > li { position: relative; display: flex; align-items: center; gap: 18px; min-width: 0; min-height: 114px; padding: 16px 20px; border: 1px solid var(--release-card-edge); border-radius: 20px; background: var(--release-card-fill); box-shadow: var(--release-card-shadow); }
+.steps > li:not(:last-child)::before { position: absolute; top: calc(50% - 1px); left: calc(100% + 1px); width: 32px; height: 2px; background: var(--release-connector); box-shadow: var(--release-connector-shadow); content: ""; }
+.steps > li:not(:last-child)::after { position: absolute; top: calc(50% - 4px); left: calc(100% + 13px); width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--accent-text); box-shadow: var(--release-connector-shadow); content: ""; }
+.stepIcon { display: grid; width: 54px; height: 54px; flex-shrink: 0; place-items: center; border: 1px solid var(--release-card-edge); border-radius: 15px; color: var(--accent-text); background: var(--release-icon-fill); box-shadow: var(--shadow-inset); }
+.stepIcon > svg { width: 30px; height: 30px; filter: drop-shadow(0 0 5px var(--accent)); }
+.stepCopy { min-width: 0; }
+.stepNumber { display: block; margin-bottom: 5px; color: var(--accent-text); font-size: .65rem; font-weight: 750; }
+.steps h3 { color: var(--text); font-size: .875rem; font-weight: 800; line-height: 1.5; letter-spacing: -.02em; }
+.steps p { margin-top: 5px; color: var(--muted); font-size: .7rem; line-height: 1.7; }
+.ctaPanel { min-height: 286px; padding: 30px 42px; }
+.ctaPanel::before, .ctaPanel::after { position: absolute; z-index: -1; pointer-events: none; content: ""; }
+.ctaPanel::before { inset: 0; background: var(--release-cta-haze); }
+.ctaPanel::after { width: 120%; height: 200%; right: -32%; bottom: -178%; border: 1px solid var(--release-ribbon-edge); border-radius: 50%; box-shadow: var(--release-ribbon-shadow); background: var(--release-ribbon-fill); }
+.ctaCopy { position: relative; z-index: 2; width: fit-content; max-width: 55%; }
+.ctaCopy h2 { font-size: clamp(2rem, 3.2vw, 2.85rem); }
+.ctaDescription { margin-top: 12px; color: var(--muted); font-size: .85rem; line-height: 1.7; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 18px; }
+.actions > a { min-height: 46px; padding: 10px 21px; border-radius: var(--radius-pill); font-size: .75rem; white-space: nowrap; }
+.actions .findBeat { box-shadow: var(--shadow-accent); }
+.actions .bringMusic { border: 1px solid var(--focus-border); color: var(--text); background: var(--release-secondary-fill); box-shadow: var(--shadow-control); }
+.actions > a > svg { flex-shrink: 0; }
+.releaseArtwork { position: absolute; z-index: 1; inset: 0 0 0 38%; pointer-events: none; }
+.bigWave { position: absolute; top: 27%; left: 2%; width: 76%; height: 44%; color: var(--accent-text); mask-image: var(--release-wave-mask); }
+.bigWave > svg { width: 100%; height: 100%; filter: drop-shadow(0 0 5px var(--accent)); opacity: .76; }
+.releaseArtwork[data-playing="true"] .bigWave > svg { opacity: .13; }
+.liveWave { position: absolute; inset: 0; }
+.liveWave > canvas { display: block; width: 100%; height: 100%; }
+.releaseCard { position: absolute; top: 49%; width: 26%; max-width: 210px; aspect-ratio: .76; overflow: hidden; border: 1px solid var(--release-cover-edge); border-radius: 16px; background: var(--canvas-deep); box-shadow: var(--release-cover-shadow); transform: translate(-50%, -50%) rotate(9deg) skewY(-17deg); }
+.releaseCard img { width: 100%; height: 100%; object-fit: cover; }
+.frontCard { left: 57%; z-index: 4; border-color: var(--accent-text); box-shadow: var(--release-front-shadow); }
+.frontCard picture { position: absolute; inset: 0; display: block; }
+.frontCard::after { position: absolute; z-index: 1; inset: 0; pointer-events: none; content: ""; background: var(--release-cover-shade); }
+.backCardOne { left: 68%; z-index: 3; width: 24%; opacity: .68; filter: hue-rotate(24deg) brightness(.72); }
+.backCardTwo { left: 77%; z-index: 2; width: 22%; opacity: .54; filter: brightness(.62); }
+.backCardThree { left: 85%; z-index: 1; width: 20%; opacity: .38; filter: brightness(.55); }
+.coverMark { position: absolute; z-index: 2; bottom: 14px; left: 14px; width: 30px; height: 30px; color: var(--accent-text); transform: skewY(17deg) rotate(-9deg); }
+.frontCard .play { position: absolute; z-index: 3; bottom: 12px; right: 12px; width: 44px; height: 44px; min-height: 44px; padding: 0; border: 1px solid var(--release-cover-edge); border-radius: var(--radius-pill); color: var(--canvas-deep); background: var(--accent-text); box-shadow: var(--shadow-control); pointer-events: auto; transform: skewY(17deg) rotate(-9deg); }
+.frontCard .play > svg { width: 24px; height: 24px; }
+.frontCard:focus-within { outline: var(--focus-outline); outline-offset: 5px; }
+@media (max-width: 1199px) and (min-width: 900px) { .steps { gap: 24px; margin-inline: 20px; } .steps > li { padding: 14px; gap: 12px; } .stepIcon { width: 46px; height: 46px; } .stepIcon > svg { width: 26px; height: 26px; } .steps > li:not(:last-child)::before { width: 24px; } .steps > li:not(:last-child)::after { left: calc(100% + 9px); } .steps h3 { font-size: .8rem; } .steps p { font-size: .65rem; } }
+@media (max-width: 899px) { .flowIntro { padding-inline: 28px; min-height: 210px; } .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-inline: 20px; } .steps > li { padding: 16px; } .steps > li::before, .steps > li::after { display: none; } .studioArt img { object-position: 62% center; } .ctaPanel { padding: 30px 28px; } .ctaCopy { max-width: 60%; } .ctaCopy h2 { font-size: 2.1rem; } .ctaDescription { max-width: 270px; font-size: .8rem; } .actions { gap: 10px; } .actions > a { padding-inline: 15px; } .releaseArtwork { left: 40%; } .releaseCard { width: 32%; } .backCardOne { width: 29%; } .backCardTwo { width: 27%; } .backCardThree { width: 24%; } .desktopBreak { display: none; } }
+@media (max-width: 599px) { .section:global(.music-home-section) { padding-block: 12px; } .lastSection:global(.music-home-section) { padding-bottom: 40px; } .flowPanel { display: flex; flex-direction: column; padding-bottom: 18px; } .flowIntro { order: 0; min-height: 0; padding: 24px 22px 0; } .flowIntro h2 { max-width: 100%; font-size: clamp(1.8rem, 7.8vw, 2.6rem); } .kicker { font-size: .52rem; letter-spacing: .2em; } .smallWave { width: 138px; height: 25px; margin-top: 12px; } .studioArt { position: relative; z-index: 0; order: 1; height: clamp(150px, 43vw, 230px); margin-top: -12px; overflow: hidden; mask-image: var(--release-mobile-art-mask); } .studioArt img { object-fit: cover; object-position: center 40%; } .studioArt::after { background: var(--release-mobile-studio-shade); } .steps { position: relative; z-index: 1; order: 2; gap: 12px; margin: -10px 16px 0; } .steps > li { min-height: 146px; flex-direction: column; align-items: flex-start; gap: 10px; padding: 15px; } .stepIcon { width: 42px; height: 42px; border-radius: 13px; } .stepIcon > svg { width: 25px; height: 25px; } .stepNumber { position: absolute; top: 22px; right: 15px; } .steps h3 { font-size: .8rem; } .steps p { font-size: .7rem; } .ctaPanel { padding: 26px 22px 18px; } .ctaCopy { max-width: 100%; } .ctaCopy h2 { font-size: clamp(1.9rem, 8.2vw, 2.75rem); } .ctaDescription { max-width: 100%; } .actions { gap: 10px; margin-top: 20px; } .actions > a { flex: 1 1 auto; min-height: 46px; padding-inline: 14px; font-size: .7rem; } .releaseArtwork { position: relative; inset: auto; width: calc(100% + 44px); height: 230px; margin: 15px -22px -8px; } .bigWave { top: 22%; left: 0; width: 80%; height: 53%; } .releaseCard { width: 32%; max-width: 165px; } .frontCard { left: 49%; } .backCardOne { left: 62%; width: 29%; } .backCardTwo { left: 74%; width: 26%; } .backCardThree { left: 84%; width: 23%; } .ctaPanel::after { width: 170%; height: 80%; right: -40%; bottom: -56%; } }
+@media (max-width: 379px) { .steps { grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: -4px; } .steps > li { flex-direction: row; align-items: center; min-height: 96px; gap: 14px; } .stepNumber { position: static; margin-bottom: 3px; } .steps h3 { font-size: .85rem; } .steps p { font-size: .72rem; } .steps > li:not(:last-child)::before { display: block; top: calc(100% + 1px); left: 36px; width: 1px; height: 12px; } .steps > li:not(:last-child)::after { display: block; top: calc(100% + 5px); left: 34px; width: 5px; height: 5px; } .actions { flex-direction: column; align-items: stretch; } .releaseArtwork { height: 215px; } .frontCard .play { right: 8px; bottom: 8px; } .coverMark { left: 10px; width: 24px; } }
+@media (hover: hover) { .frontCard { transition: translate var(--motion-base), box-shadow var(--motion-base); } .frontCard:hover { translate: 0 -4px; box-shadow: var(--release-front-shadow), var(--music-glow); } }
+@media (prefers-reduced-motion: reduce) { .frontCard { transition: none; } .frontCard:hover { translate: none; } }
+@media (forced-colors: active) { .studioArt, .bigWave, .backCardOne, .backCardTwo, .backCardThree { display: none; } .flowIntro h2 span, .ctaCopy h2 span { background: none; -webkit-text-fill-color: CanvasText; } .panel, .steps > li, .stepIcon { border-color: CanvasText; } }

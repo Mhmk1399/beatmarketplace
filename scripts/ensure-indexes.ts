@@ -11,6 +11,10 @@ async function main() {
     import("../models/User"), import("../models/ProducerProfile"), import("../models/Track"), import("../models/Contract"),
     import("../models/Genre"), import("../models/Mood"), import("../models/Instrument"), import("../models/Order"),
     import("../models/Favorite"), import("../models/TrackDiscount"), import("../models/HeroPlacement"),
+    import("../models/ContactMessage"), import("../models/ContactRateLimit"),
+    import("../models/PlatformSettings"),
+    import("../models/Collection"),
+    import("../models/TrackMetric"), import("../models/TrackVisitor"),
   ]);
   for (const name of mongoose.modelNames().sort()) {
     const model = mongoose.model(name);

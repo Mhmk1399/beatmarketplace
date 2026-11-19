@@ -1,6 +1,6 @@
 import mongoose, { type HydratedDocument, type Model, Schema } from "mongoose";
 
-import { transformMongoDocument } from "@/models/schemas/shared";
+import { objectStorageAssetSchema, type ObjectStorageAsset, transformMongoDocument } from "@/models/schemas/shared";
 
 export type InstrumentFamily =
   | "DRUMS"
@@ -21,6 +21,8 @@ export type InstrumentFields = {
   slug: string;
   family: InstrumentFamily;
   description: string;
+  thumbnail?: ObjectStorageAsset;
+  banner?: ObjectStorageAsset;
   aliases: string[];
   isActive: boolean;
   sortOrder: number;
@@ -41,6 +43,8 @@ const instrumentSchema = new Schema<InstrumentFields>(
       index: true,
     },
     description: { type: String, default: "", maxlength: 1_000 },
+    thumbnail: { type: objectStorageAssetSchema, required: false },
+    banner: { type: objectStorageAssetSchema, required: false },
     aliases: { type: [String], default: [] },
     isActive: { type: Boolean, default: true, index: true },
     sortOrder: { type: Number, default: 0, min: 0 },
@@ -49,9 +53,15 @@ const instrumentSchema = new Schema<InstrumentFields>(
 );
 
 instrumentSchema.index({ family: 1, sortOrder: 1, name: 1 });
+instrumentSchema.index({ isActive: 1, sortOrder: 1, name: 1, _id: 1 });
+instrumentSchema.index({ createdAt: -1, _id: -1 });
 
 const InstrumentModel =
   (mongoose.models.Instrument as Model<InstrumentFields> | undefined) ??
   mongoose.model<InstrumentFields>("Instrument", instrumentSchema);
+
+if (process.env.NODE_ENV !== "production" && !InstrumentModel.schema.path("thumbnail")) {
+  InstrumentModel.schema.add({ thumbnail: { type: objectStorageAssetSchema }, banner: { type: objectStorageAssetSchema } });
+}
 
 export default InstrumentModel;

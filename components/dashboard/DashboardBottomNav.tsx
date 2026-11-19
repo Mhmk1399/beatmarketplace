@@ -1,0 +1,8 @@
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { DashboardIcon } from "./DashboardIcon";
+import { MenuIcon } from "@/components/ui/icons";
+import type { WorkspaceId } from "@/lib/dashboard/workspaces";
+import type { DashboardIconName } from "@/lib/dashboard/navigation";
+export function DashboardBottomNav({ workspace, onMore }: { workspace: WorkspaceId; onMore: () => void }) { const pathname = usePathname(), root = workspace === "admin" ? "/admin" : workspace === "producer" ? "/studio" : "/dashboard"; const items: { label: string; href: string; icon: DashboardIconName }[] = workspace === "admin" ? [{ label: "Dashboard", href: root, icon: "overview" }, { label: "Users", href: "/admin/users", icon: "users" }, { label: "Beats", href: "/admin/beats", icon: "tracks" }] : workspace === "producer" ? [{ label: "Home", href: root, icon: "overview" }, { label: "My beats", href: "/studio/tracks", icon: "tracks" }, { label: "Sales", href: "/studio/sales", icon: "contracts" }] : [{ label: "Home", href: root, icon: "overview" }, { label: "Library", href: "/dashboard/orders", icon: "contracts" }, { label: "Favorites", href: "/dashboard/favorites", icon: "tracks" }]; return <nav className="dashboard-bottom-nav" aria-label="Workspace quick navigation">{items.map(item => <Link prefetch={false} key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}><DashboardIcon name={item.icon} className="size-5" /><span>{item.label}</span></Link>)}<button type="button" onClick={onMore} aria-label="Open more workspace navigation"><MenuIcon className="size-5" /><span>More</span></button></nav>; }

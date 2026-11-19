@@ -12,6 +12,12 @@ export function mediaDriver(): "local" | "s3" {
   return driver;
 }
 
+export function s3DeliveryMode(): "redirect" | "proxy" {
+  const mode = process.env.MEDIA_S3_DELIVERY_MODE || "redirect";
+  if (mode !== "redirect" && mode !== "proxy") throw new MediaValidationError("Unsupported object delivery configuration.", 503);
+  return mode;
+}
+
 export function s3Configuration() {
   const bucket = process.env.MEDIA_S3_BUCKET;
   const provider = process.env.MEDIA_S3_PROVIDER || "S3";
@@ -20,7 +26,7 @@ export function s3Configuration() {
   const endpoint = process.env.MEDIA_S3_ENDPOINT;
   const accessKeyId = process.env.MEDIA_S3_ACCESS_KEY_ID;
   const secretAccessKey = process.env.MEDIA_S3_SECRET_ACCESS_KEY;
-  const prefix = (process.env.MEDIA_S3_PREFIX || "media").replace(/^\/+|\/+$/g, "");
+  const prefix = (process.env.MEDIA_S3_PREFIX || "beatmarket").trim().replace(/^\/+|\/+$/g, "");
   if (!bucket || !accessKeyId || !secretAccessKey || !/^[a-zA-Z0-9/_-]+$/.test(prefix) || prefix.includes("..")) {
     throw new MediaValidationError("Object storage is not configured. Please contact the administrator.", 503);
   }

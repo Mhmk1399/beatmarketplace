@@ -1,6 +1,7 @@
 import mongoose, { type HydratedDocument, type Model, Schema } from "mongoose";
 
 import { objectStorageAssetSchema, type ObjectStorageAsset, transformMongoDocument } from "@/models/schemas/shared";
+import { MUSICAL_KEYS, normalizeMusicalKey } from "@/lib/music/keys";
 
 export type TrackStatus = "DRAFT" | "SCHEDULED" | "PUBLISHED" | "ARCHIVED";
 export type TrackVisibility = "PUBLIC" | "PRIVATE";
@@ -79,7 +80,7 @@ const collaboratorSchema = new Schema<TrackCollaborator>(
 
 const trackMetadataSchema = new Schema<TrackMetadata>(
   {
-    musicalKey: { type: String, required: true, trim: true, maxlength: 20 },
+    musicalKey: { type: String, required: true, trim: true, enum: MUSICAL_KEYS, set: (value: string) => normalizeMusicalKey(value) ?? value },
     bpm: { type: Number, required: true, min: 20, max: 400 },
     tags: {
       type: [String],
@@ -87,8 +88,8 @@ const trackMetadataSchema = new Schema<TrackMetadata>(
       set: (tags: string[]) => [...new Set(tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean))].slice(0, 30),
     },
     genreId: { type: Schema.Types.ObjectId, ref: "Genre", default: null, index: true },
-    moodIds: [{ type: Schema.Types.ObjectId, ref: "Mood" }],
-    instrumentIds: [{ type: Schema.Types.ObjectId, ref: "Instrument" }],
+    moodIds: { type: [{ type: Schema.Types.ObjectId, ref: "Mood" }], default: [], validate: { validator: (ids: mongoose.Types.ObjectId[]) => ids.length <= 10 && new Set(ids.map(String)).size === ids.length, message: "Choose at most 10 distinct moods." } },
+    instrumentIds: { type: [{ type: Schema.Types.ObjectId, ref: "Instrument" }], default: [], validate: { validator: (ids: mongoose.Types.ObjectId[]) => ids.length <= 20 && new Set(ids.map(String)).size === ids.length, message: "Choose at most 20 distinct instruments." } },
     durationSeconds: { type: Number, min: 0 },
     isExplicit: { type: Boolean, default: false },
   },
@@ -135,6 +136,9 @@ const trackSchema = new Schema<TrackFields>(
 );
 
 trackSchema.pre("validate", function validatePublishableTrack() {
+  const normalizedKey = normalizeMusicalKey(this.metadata?.musicalKey);
+  if (normalizedKey && normalizedKey !== this.metadata.musicalKey) this.metadata.musicalKey = normalizedKey;
+
   if (this.status === "SCHEDULED" && !this.releaseDate) {
     this.invalidate("releaseDate", "A scheduled track requires a release date.");
   }
@@ -168,6 +172,8 @@ trackSchema.pre("save", function setPublishedAt() {
   if (this.status === "PUBLISHED" && !this.publishedAt) this.publishedAt = new Date();
 });
 
+trackSchema.set("optimisticConcurrency", true);
+trackSchema.index({ createdAt: -1, _id: -1 });
 trackSchema.index({ visibility: 1, status: 1, releaseDate: -1 });
 trackSchema.index({ producerId: 1, status: 1, createdAt: -1 });
 trackSchema.index({ "metadata.genreId": 1, status: 1 });
@@ -176,6 +182,9 @@ trackSchema.index({ "metadata.instrumentIds": 1, status: 1 });
 trackSchema.index({ title: "text", description: "text", "metadata.tags": "text" });
 trackSchema.index({ visibility: 1, status: 1, createdAt: -1, _id: -1 });
 trackSchema.index({ visibility: 1, status: 1, "metadata.genreId": 1, createdAt: -1, _id: -1 });
+// Each compound index contains one array field; combining both arrays is invalid in MongoDB.
+trackSchema.index({ visibility: 1, status: 1, "metadata.moodIds": 1, createdAt: -1, _id: -1 }, { name: "discovery_mood_newest" });
+trackSchema.index({ visibility: 1, status: 1, "metadata.instrumentIds": 1, createdAt: -1, _id: -1 }, { name: "discovery_instrument_newest" });
 trackSchema.index({ producerId: 1, createdAt: -1, _id: -1 });
 trackSchema.index({ "audio.preview.key": 1 }, { sparse: true });
 trackSchema.index({ "artwork.key": 1 }, { sparse: true });

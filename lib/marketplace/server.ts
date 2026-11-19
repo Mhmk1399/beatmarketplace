@@ -9,8 +9,10 @@ import { activeDiscountFilter, serializeDiscount } from "@/lib/marketplace/disco
 import { validationError } from "@/lib/validation";
 import ContractModel, { type ContractDocument } from "@/models/Contract";
 import GenreModel from "@/models/Genre";
+import MoodModel from "@/models/Mood";
+import InstrumentModel from "@/models/Instrument";
 import ProducerProfileModel from "@/models/ProducerProfile";
-import TrackModel, { type TrackDocument } from "@/models/Track";
+import TrackModel, { type TrackFields } from "@/models/Track";
 import UserModel from "@/models/User";
 import TrackDiscountModel from "@/models/TrackDiscount";
 import { parseBoundedTrackForm } from "@/lib/media/upload";
@@ -40,7 +42,7 @@ export function marketplaceError(error: unknown) {
     return NextResponse.json({ error: "A record with this value already exists." }, { status: 409 });
   }
   if (error instanceof MarketplaceError) return NextResponse.json({ error: error.message }, { status: error.status });
-  if (error instanceof Error && "status" in error && typeof error.status === "number" && [400, 408, 413, 415, 422, 429, 503].includes(error.status)) {
+  if (error instanceof Error && "status" in error && typeof error.status === "number" && [400, 403, 408, 413, 415, 422, 429, 503].includes(error.status)) {
     return NextResponse.json({ error: error.message }, { status: error.status, ...(error.status === 429 ? { headers: { "Retry-After": "10" } } : {}) });
   }
   console.error("Marketplace request failed", error instanceof Error ? error.name : "Unknown error");
@@ -76,12 +78,12 @@ export function serializeStudioLicense(contract: ContractDocument): StudioLicens
 }
 
 /** Explicit allowlist: full masters, storage buckets/keys, collaborators, and user records never escape. */
-export async function serializeTracks(tracks: TrackDocument[], now = new Date(), options: { includeLicenseTerms?: boolean } = {}): Promise<MarketplaceTrack[]> {
+export async function serializeTracks(tracks: (TrackFields & { _id: mongoose.Types.ObjectId; __v?: number })[], now = new Date(), options: { includeLicenseTerms?: boolean; includeTaxonomy?: boolean } = {}): Promise<MarketplaceTrack[]> {
   if (!tracks.length) return [];
   const trackIds = tracks.map((track) => track._id);
   const producerIds = [...new Set(tracks.map((track) => String(track.producerId)))];
   const genreIds = tracks.flatMap((track) => track.metadata.genreId ? [track.metadata.genreId] : []);
-  const [licenseGroups, profiles, producers, genres, discounts] = await Promise.all([
+  const [licenseGroups, profiles, producers, genres, discounts, moods, instruments] = await Promise.all([
     TrackModel.aggregate<{ _id: mongoose.Types.ObjectId; licenses: LicenseRecord[] }>([
       { $match: { _id: { $in: trackIds } } },
       { $lookup: { from: ContractModel.collection.name, localField: "_id", foreignField: "trackIds", let: { producer: "$producerId" }, pipeline: [
@@ -95,28 +97,39 @@ export async function serializeTracks(tracks: TrackDocument[], now = new Date(),
       ], as: "licenses" } },
       { $project: { _id: 1, licenses: 1 } },
     ]).option({ maxTimeMS: 10_000 }),
-    ProducerProfileModel.find({ userId: { $in: producerIds } }).select("userId stageName"),
-    UserModel.find({ _id: { $in: producerIds } }).select("firstName lastName profile.displayName"),
-    GenreModel.find({ _id: { $in: genreIds } }).select("name"),
+    ProducerProfileModel.find({ userId: { $in: producerIds } }).select("userId stageName").lean(),
+    UserModel.find({ _id: { $in: producerIds } }).select("firstName lastName profile.displayName profile.avatar.key").lean(),
+    GenreModel.find({ _id: { $in: genreIds } }).select("name").lean(),
     TrackDiscountModel.find({ ...activeDiscountFilter(now), trackId: { $in: trackIds } }),
+    options.includeTaxonomy ? MoodModel.find({ _id: { $in: tracks.flatMap(track => track.metadata.moodIds ?? []) }, isActive: true }).select("name slug").lean() : [],
+    options.includeTaxonomy ? InstrumentModel.find({ _id: { $in: tracks.flatMap(track => track.metadata.instrumentIds ?? []) }, isActive: true }).select("name slug").lean() : [],
   ]);
   const profileNames = new Map(profiles.map((profile) => [String(profile.userId), profile.stageName]));
   const producerNames = new Map(producers.map((producer) => [String(producer._id), producer.profile.displayName || `${producer.firstName} ${producer.lastName}`]));
+  const producerAvatars = new Map(producers.map(producer => [String(producer._id), producer.profile.avatar?.key ? `/api/producers/${producer._id}/images/avatar?v=${encodeURIComponent(producer.profile.avatar.key)}` : null]));
   const genreNames = new Map(genres.map((genre) => [String(genre._id), genre.name]));
   const discountByTrack = new Map(discounts.map((discount) => [String(discount.trackId), discount]));
   const licensesByTrack = new Map(licenseGroups.map((row) => [String(row._id), row.licenses]));
+  const moodTags = new Map(moods.map(item => [String(item._id), { id: String(item._id), name: item.name, slug: item.slug }]));
+  const instrumentTags = new Map(instruments.map(item => [String(item._id), { id: String(item._id), name: item.name, slug: item.slug }]));
   return tracks.map((track) => {
     const producerId = String(track.producerId);
     const genreId = track.metadata.genreId ? String(track.metadata.genreId) : null;
     const candidate = discountByTrack.get(String(track._id));
     const discount = candidate && String(candidate.producerId) === producerId ? serializeDiscount(candidate) : null;
     return {
-      id: String(track._id), title: track.title, slug: track.slug, description: track.description,
+      id: String(track._id), title: track.title, slug: track.slug, description: track.description, version: track.__v ?? 0,
       producerId, producerName: profileNames.get(producerId) || producerNames.get(producerId) || "Producer",
+      producerAvatarUrl: producerAvatars.get(producerId) || null,
       artworkUrl: track.artwork?.publicUrl ?? null, previewUrl: track.audio.preview?.publicUrl ?? null,
       previewStartSeconds: track.audio.previewStartSeconds ?? 0, previewDurationSeconds: track.audio.previewDurationSeconds ?? 30,
       durationSeconds: track.metadata.durationSeconds ?? 0, bpm: track.metadata.bpm, musicalKey: track.metadata.musicalKey,
       genre: genreId && genreNames.has(genreId) ? { id: genreId, name: genreNames.get(genreId)! } : null,
+      moodIds: (track.metadata.moodIds ?? []).map(String), instrumentIds: (track.metadata.instrumentIds ?? []).map(String),
+      ...(options.includeTaxonomy ? {
+        moods: (track.metadata.moodIds ?? []).flatMap(id => moodTags.get(String(id)) ?? []),
+        instruments: (track.metadata.instrumentIds ?? []).flatMap(id => instrumentTags.get(String(id)) ?? []),
+      } : {}),
       tags: [...track.metadata.tags], status: track.status, visibility: track.visibility,
       licenses: (licensesByTrack.get(String(track._id)) ?? []).slice(0, MAX_PUBLIC_LICENSES_PER_TRACK).map((contract) => serializeLicense(contract, discount, now)),
       hasMoreLicenses: (licensesByTrack.get(String(track._id))?.length ?? 0) > MAX_PUBLIC_LICENSES_PER_TRACK,
@@ -130,3 +143,4 @@ export async function parseTrackForm(request: Request) {
 }
 
 export function escapeSearch(value: string) { return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+export async function validateTrackChoices(data: { moodIds?: string[]; instrumentIds?: string[] }) { for (const [collection, ids, label] of [["moods",data.moodIds,"moods"],["instruments",data.instrumentIds,"instruments"]] as const) { if (ids?.length && await mongoose.connection.db!.collection(collection).countDocuments({ _id: { $in: ids.map(id => new mongoose.Types.ObjectId(id)) }, isActive: true }) !== ids.length) throw new MarketplaceError(`Select only active ${label}.`); } }

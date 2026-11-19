@@ -1,3 +1,4 @@
+import { validateTrackChoices } from "@/lib/marketplace/server";
 import { randomUUID } from "node:crypto";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
@@ -15,6 +16,8 @@ import UserModel from "@/models/User";
 import ProducerProfileModel from "@/models/ProducerProfile";
 import TrackDiscountModel from "@/models/TrackDiscount";
 import { decodeCatalogCursor, encodeCatalogCursor } from "@/lib/marketplace/pagination";
+import { genreAliases } from "@/lib/marketplace/genres";
+import { musicalKeySearchPattern } from "@/lib/music/keys";
 
 export const runtime = "nodejs";
 
@@ -43,7 +46,14 @@ export async function GET(request: Request) {
       filter.$or = [{ title: expression }, { description: expression }, { "metadata.tags": expression }, { producerId: { $in: [...profiles.map((profile) => profile.userId), ...users.map((user) => user._id)] } }];
     }
     if (query.genreId) filter["metadata.genreId"] = new mongoose.Types.ObjectId(query.genreId);
-    if (query.key) filter["metadata.musicalKey"] = { $regex: `^${escapeSearch(query.key)}$`, $options: "i" };
+    else if (query.genre) {
+      const genres = await GenreModel.find({ isActive: true, slug: { $in: genreAliases(query.genre) } }).select("_id").lean();
+      // An unknown or inactive genre matches nothing, including unassigned beats.
+      filter["metadata.genreId"] = { $in: genres.map((genre) => genre._id) };
+    }
+    if (query.key) filter["metadata.musicalKey"] = { $regex: musicalKeySearchPattern(query.key), $options: "i" };
+    if (query.moodId) filter["metadata.moodIds"] = new mongoose.Types.ObjectId(query.moodId);
+    if (query.instrumentId) filter["metadata.instrumentIds"] = new mongoose.Types.ObjectId(query.instrumentId);
     if (query.minBpm !== undefined || query.maxBpm !== undefined) filter["metadata.bpm"] = {
       ...(query.minBpm !== undefined ? { $gte: query.minBpm } : {}),
       ...(query.maxBpm !== undefined ? { $lte: query.maxBpm } : {}),
@@ -133,6 +143,7 @@ export async function POST(request: Request) {
     const form = await parseTrackForm(request);
     cleanUpload = form.cleanup;
     const data = trackInputSchema.parse(form.data);
+    await validateTrackChoices(data);
     if (!form.master) throw new MarketplaceError("Upload a WAV master to create your track.");
     if (data.genreId && !await GenreModel.exists({ _id: data.genreId, isActive: true })) throw new MarketplaceError("Select an active genre.");
     if (data.status === "PUBLISHED" && (!data.genreId || !form.artwork)) throw new MarketplaceError("Choose a genre and upload artwork before publishing.");
@@ -142,7 +153,7 @@ export async function POST(request: Request) {
     const track = await TrackModel.create({
       producerId: authentication.user._id, title: data.title, slug: `${slugBase}-${randomUUID().slice(0, 12)}`, description: data.description,
       artwork: media.artwork, audio: { master: media.master, preview: media.preview, previewStartSeconds: data.previewStartSeconds, previewDurationSeconds: 30 },
-      metadata: { bpm: data.bpm, musicalKey: data.musicalKey, genreId: data.genreId, tags: data.tags, durationSeconds: media.durationSeconds },
+      metadata: { moodIds: data.moodIds, instrumentIds: data.instrumentIds, bpm: data.bpm, musicalKey: data.musicalKey, genreId: data.genreId, tags: data.tags, durationSeconds: media.durationSeconds },
       status: data.status, visibility: data.visibility,
     });
     committed = true;

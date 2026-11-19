@@ -1,3 +1,4 @@
+import { validateTrackChoices } from "@/lib/marketplace/server";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
@@ -9,6 +10,7 @@ import { removeStoredAssets, storeTrackMedia } from "@/lib/media/storage";
 import { acquireMediaUploadLease } from "@/lib/media/upload";
 import GenreModel from "@/models/Genre";
 import TrackModel from "@/models/Track";
+import { issueViewToken } from "@/lib/analytics/token";
 
 export const runtime = "nodejs";
 
@@ -18,13 +20,14 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     await connectToDatabase();
     const track = await TrackModel.findById(id);
     if (!track) throw new MarketplaceError("This track could not be found.", 404);
-    if (track.status !== "PUBLISHED" || track.visibility !== "PUBLIC" || !await producerIsPublic(track.producerId)) {
+    const publicTrack = track.status === "PUBLISHED" && track.visibility === "PUBLIC" && await producerIsPublic(track.producerId);
+    if (!publicTrack) {
       const authentication = await authenticateRequest(request);
       if (!authentication.ok || String(track.producerId) !== authentication.user.id) throw new MarketplaceError("This track is unavailable.", 404);
     }
     const now = new Date();
-    const [serialized] = await serializeTracks([track], now, { includeLicenseTerms: true });
-    return NextResponse.json({ track: serialized, serverTime: new Date().toISOString() }, { headers: { "Cache-Control": "no-store" } });
+    const [serialized] = await serializeTracks([track], now, { includeLicenseTerms: true, includeTaxonomy: true });
+    return NextResponse.json({ track: serialized, viewToken: publicTrack ? issueViewToken(String(track._id)) : null, serverTime: new Date().toISOString() }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return marketplaceError(error); }
 }
 
@@ -43,6 +46,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const form = await parseTrackForm(request);
     cleanUpload = form.cleanup;
     const data = trackPatchSchema.parse(form.data);
+    await validateTrackChoices(data);
+    if (data.expectedVersion !== undefined && track.__v !== data.expectedVersion) throw new MarketplaceError("This beat changed. Refresh and try again.", 409);
     if (data.genreId && !await GenreModel.exists({ _id: data.genreId, isActive: true })) throw new MarketplaceError("Select an active genre.");
     const genreId = data.genreId === undefined ? track.metadata.genreId : data.genreId;
     const status = data.status ?? track.status;
@@ -53,8 +58,10 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const start = data.previewStartSeconds ?? track.audio.previewStartSeconds ?? 0;
     const oldPreview = track.audio.preview;
     const oldArtwork = track.artwork;
-    const replaceMedia = Boolean(form.master || form.artwork || data.previewStartSeconds !== undefined || !track.audio.preview);
-    if (replaceMedia) {
+    const hasMaster = Boolean(form.master || track.audio.master);
+    if (!hasMaster && (form.artwork || status === "PUBLISHED")) throw new MarketplaceError("Upload the WAV master before adding artwork or publishing.");
+    const replaceMedia = Boolean(form.master || form.artwork || (data.previewStartSeconds !== undefined && data.previewStartSeconds !== track.audio.previewStartSeconds) || !track.audio.preview);
+    if (replaceMedia && hasMaster) {
       const media = await storeTrackMedia({ master: form.master, artwork: form.artwork, previewStartSeconds: start, existingMasterKey: track.audio.master?.key, existingMaster: track.audio.master });
       writtenKeys = [media.master?.key, media.preview?.key, media.artwork?.key].filter((key): key is string => Boolean(key));
       if (media.master) track.audio.master = media.master;
@@ -70,6 +77,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (data.musicalKey !== undefined) track.metadata.musicalKey = data.musicalKey;
     if (data.genreId !== undefined) track.metadata.genreId = data.genreId ? new mongoose.Types.ObjectId(data.genreId) : null;
     if (data.tags !== undefined) track.metadata.tags = data.tags;
+    if (data.moodIds !== undefined) track.metadata.moodIds = data.moodIds.map(id=>new mongoose.Types.ObjectId(id));
+    if (data.instrumentIds !== undefined) track.metadata.instrumentIds = data.instrumentIds.map(id=>new mongoose.Types.ObjectId(id));
     if (data.status !== undefined) track.status = data.status;
     if (data.visibility !== undefined) track.visibility = data.visibility;
     await track.save();

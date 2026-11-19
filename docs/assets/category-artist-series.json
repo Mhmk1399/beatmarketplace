@@ -1,0 +1,306 @@
+{
+  "version": 1,
+  "mode": "built-in image_gen",
+  "generatedOn": "2026-11-19",
+  "description": "Original AI-generated category artwork. Existing category names, descriptions and ordering are unchanged. Pop uses a Dua Lipa thumbnail and an abstract crystal/microphone banner; mohammad uses an unbranded recording studio without people.",
+  "processing": {
+    "format": "webp",
+    "maxBytesExclusive": 800000,
+    "thumbnail": [
+      600,
+      600
+    ],
+    "banner": [
+      1920,
+      720
+    ]
+  },
+  "assets": [
+    {
+      "slug": "trap",
+      "slot": "banner",
+      "artist": "Travis Scott",
+      "file": "public/assets/genres/artist-series-v1/trap-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 96370,
+      "sha256": "2f366c0e5f2e2f6fd64a16233be0ace99bbe56c8bba451682d1dfed52f3ddc52",
+      "prompt": "Use case: stylized-concept. Asset type: ONE wide panoramic music-category background banner, approximately 1920x720 (8:3), not a UI screenshot. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable Travis Scott, thin braids and neck tattoos, black streetwear with a subtle silver chain, looking upward, a violet eclipse ring and storm clouds behind him, small dark crystals and faint frequency particles. COMPOSITION: portrait occupies the rightmost 40%, face centered at 76% of image width and 42% of height with complete safe headroom; leftmost 52% is quiet graphite mist, deliberately dark and uncluttered for large HTML headings. Keep facial features in a central horizontal band so the design tolerates responsive panoramic cropping. Neon energy sweeps from the portrait toward the dark left but remains very subtle there. Produce a real wide landscape image, not letterboxed portrait artwork. Do not add any text."
+    },
+    {
+      "slug": "trap",
+      "slot": "thumbnail",
+      "artist": "Travis Scott",
+      "file": "public/assets/genres/artist-series-v1/trap-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 50668,
+      "sha256": "60f245598ce68b55fb9850ecc05b9b7e7bb5e8ad53364715339be8bebff7b312",
+      "prompt": "Use case: stylized-concept.\nAsset type: one production-ready square music-category cover for a premium BeatMarketplace website, NOT a screenshot or UI mockup.\nCreate a single 1024x1024 full-bleed square editorial portrait artwork of Travis Scott for the TRAP category. Recognizable Travis Scott facial identity, dark skin, signature thin braids, neck tattoos, sculptural black streetwear and a restrained silver chain; low-angle chest-up portrait, chin lifted slightly, facing three-quarter left. Frame the full head safely inside the upper 80%, with 10% headroom, handsome realistic facial proportions, natural skin texture, dramatic violet rim light.\nScene: graphite-black clouds, a luminous violet orbital eclipse ring behind his head, subtle floating dark crystal fragments and a speaker cone partly visible at a lower corner, refined futuristic trap atmosphere.\nMatch the user's supplied visual direction: deep charcoal #11131b, violet #8b5cf6 and lavender highlights #d8b4fe, restrained pink rim accents, moody high-end cinematic photographic collage, clean luminous edges and soft volumetric smoke. Avoid a flat purple wash; keep depth and detail in skin and black fabric.\nThe bottom 24% fades softly into graphite darkness for live HTML labels; keep the face above this area. Composition must remain legible in a small rounded category card and tolerate a mild landscape crop. No written text, no artist name, no genre text, no typography, no logo, no watermark, no UI, no button, no rounded frame. Opaque background."
+    },
+    {
+      "slug": "hip-hop",
+      "slot": "banner",
+      "artist": "Kendrick Lamar",
+      "file": "public/assets/genres/artist-series-v1/hip-hop-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 117120,
+      "sha256": "58ec57de72ac19cf77da23202ef2bbbea385e7a768d17d8117926fe197a36867",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) background banner. Subject in the right 40%, face centered at 76% width and 42% height with full safe headroom. Left 52% must remain quiet, dark graphite negative space for live HTML headings; background motifs there are faint. Face should sit in a central horizontal band safe for responsive banner cropping. A real wide landscape composition, not a portrait with black sidebars. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable Kendrick Lamar, dark skin, short twisted braids, close neat beard, a black hoodie and calm serious gaze. Background concept: layered translucent violet geometric glass planes, nocturnal city silhouettes and subtle palms, a black vinyl record partly visible near a lower corner. Maintain the user's premium purple music-category reference style. No text or graphic interface elements."
+    },
+    {
+      "slug": "hip-hop",
+      "slot": "thumbnail",
+      "artist": "Kendrick Lamar",
+      "file": "public/assets/genres/artist-series-v1/hip-hop-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 49640,
+      "sha256": "50d999f5461da7dd99f587ef623ed770052e71918c81eff61c8467c4ac867e84",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% headroom; face remains above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at a small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable Kendrick Lamar, dark skin, short twisted braids, close neat beard, a black hoodie and calm serious gaze. Background concept: layered translucent violet geometric glass planes, nocturnal city silhouettes and subtle palms, a black vinyl record partly visible near a lower corner. Maintain the user's premium purple music-category reference style. No text or graphic interface elements."
+    },
+    {
+      "slug": "drill",
+      "slot": "banner",
+      "artist": "Central Cee",
+      "file": "public/assets/genres/artist-series-v1/drill-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 139782,
+      "sha256": "ce6fe7ec22f7c44bd35ad5594813e5ac79fa7c918a30774585950194a8114c2d",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) wide music-category background banner. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable Central Cee in a black unbranded knit beanie and shiny black puffer, subtle facial tattoos, confident cool direct gaze. Night-time London council-estate towers with violet windows, elegant curved purple sound trails, a faint abstract painted crown and out-of-focus fence texture. COMPOSITION: Central Cee fills the right 40%, face centered at 76% width and 43% height, full head safely framed. Left 52% is mostly deep charcoal mist with subdued building silhouettes, quiet negative space reserved for live HTML headings. Maintain the user's dramatic purple drill-banner aesthetic without reproducing any text, UI, logos or typography. Responsive banner-safe composition with face in central horizontal band."
+    },
+    {
+      "slug": "drill",
+      "slot": "thumbnail",
+      "artist": "Central Cee",
+      "file": "public/assets/genres/artist-series-v1/drill-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 50508,
+      "sha256": "f2459c2cd08013d2c9cb85c7c5e8a44c072abc8dae2a7255ddb548cc24d1495e",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 music category cover. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable British rapper Central Cee, light-brown skin, distinctive youthful face, small facial tattoos, close black knit beanie WITHOUT letters or logos, glossy black puffer jacket, looking directly toward the lens from a slight low angle. Scene: nocturnal London council-estate towers, small violet lit windows, three fine curved violet sound trails crossing the sky, faint crown-like abstract graffiti and chain-link texture kept in the lower background. Editorial atmosphere: hard drums, raw tension, a confident cool expression. Head and face in upper central area with 10% safe headroom, shoulders visible, bottom 24% dissolves into dark graphite smoke for HTML category labels. Clear detailed face at small card size; no text anywhere."
+    },
+    {
+      "slug": "rnb",
+      "slot": "banner",
+      "artist": "The Weeknd",
+      "file": "public/assets/genres/artist-series-v1/rnb-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 133460,
+      "sha256": "bad1ce9f2b7dc128e44bdd30b7c79e4b9639f6e8400bec1b6f586675b7ad5b2b",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) background banner. Subject in the right 40%, face centered at 76% width and 42% height with full safe headroom. Left 52% must remain quiet, dark graphite negative space for live HTML headings; background motifs there are faint. Face should sit in a central horizontal band safe for responsive banner cropping. A real wide landscape composition, not a portrait with black sidebars. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable The Weeknd (Abel Tesfaye), sculpted high short afro, full neat beard, angular dark sunglasses, black turtleneck and tailored dark jacket. Background concept: a large soft violet moon, nocturnal skyline and flowing glossy purple silk-like sound ribbons. Maintain the user's premium purple music-category reference style. No text or graphic interface elements."
+    },
+    {
+      "slug": "rnb",
+      "slot": "thumbnail",
+      "artist": "The Weeknd",
+      "file": "public/assets/genres/artist-series-v1/rnb-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 44660,
+      "sha256": "10708a406814c80b8b0b869e2eed385f1e371cee3d5e5dd75cf674ff45a32cd7",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% headroom; face remains above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at a small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable The Weeknd (Abel Tesfaye), sculpted high short afro, full neat beard, angular dark sunglasses, black turtleneck and tailored dark jacket. Background concept: a large soft violet moon, nocturnal skyline and flowing glossy purple silk-like sound ribbons. Maintain the user's premium purple music-category reference style. No text or graphic interface elements."
+    },
+    {
+      "slug": "afro",
+      "slot": "banner",
+      "artist": "Burna Boy",
+      "file": "public/assets/genres/artist-series-v1/afro-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 143774,
+      "sha256": "7524aa990a95dba5fc586dddb19571ed0db288d69d1e35389c8f96d08ab6268b",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) background banner. Subject occupies the right 40%, face centered at 76% width and 42% height, full head safely in frame. Left 52% is dark, quiet graphite negative space for live HTML headings. Background motifs remain faint on the left. Keep the face in a central horizontal band for responsive cropping; true wide landscape composition. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable Burna Boy, dark skin, pulled-back locs, trimmed beard, dark sunglasses, black luxury streetwear and restrained silver necklaces. Scene: palm silhouettes and warm violet tropical night haze, flowing dotted frequency ribbons that suggest moving Afrobeats rhythms. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "afro",
+      "slot": "thumbnail",
+      "artist": "Burna Boy",
+      "file": "public/assets/genres/artist-series-v1/afro-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 56464,
+      "sha256": "00a20b3d9cea27c58bfff948af144322412361afa412b0b07816d1993056cacf",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% safe headroom; face stays above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable Burna Boy, dark skin, pulled-back locs, trimmed beard, dark sunglasses, black luxury streetwear and restrained silver necklaces. Scene: palm silhouettes and warm violet tropical night haze, flowing dotted frequency ribbons that suggest moving Afrobeats rhythms. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "pop",
+      "slot": "banner",
+      "artist": null,
+      "file": "public/assets/genres/artist-series-v1/pop-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 120486,
+      "sha256": "8407f1250dd75e4621ce17b649b6ee5dbc45230a02b221a190e8c19fd0f6f1fa",
+      "prompt": "Use case: stylized-concept. Create ONE premium panoramic 1920x720 (8:3) abstract pop-music category background, no people. On the right 45%, exquisite polished translucent violet crystal prisms, an elegant unbranded black studio microphone and a luminous lavender orbit suspended in graphite smoke. Subtle glossy pop-editorial lighting, flowing purple frequency ribbons, deep graphite-black #11131b, violet #8b5cf6 and pale lavender #d8b4fe. Objects stay within the central horizontal band for responsive cropping. Left 52% is quiet dark graphite negative space for webpage headings. Refined cinematic composition, opaque full bleed. No people, no portraits, no lettering, no logos, no watermarks, no buttons, no borders or frame."
+    },
+    {
+      "slug": "pop",
+      "slot": "thumbnail",
+      "artist": "Dua Lipa",
+      "file": "public/assets/genres/artist-series-v1/pop-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 46106,
+      "sha256": "eb260bca49057b2ca420d132892aa936e1a287cda838dbded3bf3c53a0b503cc",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% safe headroom; face stays above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable adult singer Dua Lipa, long sleek dark hair, glamorous but natural skin texture, black elegant fashion top, poised three-quarter portrait. Scene: polished translucent violet crystal prisms and a fine luminous lavender orbit around her, rich purple smoke and glossy pop-editorial lighting. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "lo-fi",
+      "slot": "banner",
+      "artist": "Joji",
+      "file": "public/assets/genres/artist-series-v1/lo-fi-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 105102,
+      "sha256": "54ead87d9921feeb1f4e75f607e7f44d1457320ad834d653f3f8b113b60b39ba",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) background banner. Subject occupies the right 40%, face centered at 76% width and 42% height, full head safely in frame. Left 52% is dark, quiet graphite negative space for live HTML headings. Background motifs remain faint on the left. Keep the face in a central horizontal band for responsive cropping; true wide landscape composition. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable adult singer Joji, tousled dark hair, thoughtful gentle expression, dark hoodie, realistic natural East Asian facial features. Scene: dreamy violet moon, cherry-blossom branches, distant torii silhouette, misty mountain lake and gentle clouds; quiet contemplative lo-fi night. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "lo-fi",
+      "slot": "thumbnail",
+      "artist": "Joji",
+      "file": "public/assets/genres/artist-series-v1/lo-fi-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 42498,
+      "sha256": "742dd3031095b349225e77baccb9e5736b031bda1c159e1ce808a2ef422a63b1",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% safe headroom; face stays above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable adult singer Joji, tousled dark hair, thoughtful gentle expression, dark hoodie, realistic natural East Asian facial features. Scene: dreamy violet moon, cherry-blossom branches, distant torii silhouette, misty mountain lake and gentle clouds; quiet contemplative lo-fi night. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "edm",
+      "slot": "banner",
+      "artist": "Martin Garrix",
+      "file": "public/assets/genres/artist-series-v1/edm-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 115734,
+      "sha256": "c91e9ba2171afc070954f9a9426606c86b5e53a926da44573c56df0fde6db748",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) background banner. Subject occupies the right 40%, face centered at 76% width and 42% height, full head safely in frame. Left 52% is dark, quiet graphite negative space for live HTML headings. Background motifs remain faint on the left. Keep the face in a central horizontal band for responsive cropping; true wide landscape composition. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable adult Dutch DJ Martin Garrix, short tousled brown hair, clean-shaven face, black concert T-shirt, focused uplifting gaze. Scene: a distant electronic-music festival stage, restrained crowd silhouettes, sweeping violet laser beams, elegant waveform arcs and luminous geometric stage towers without any logo. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "edm",
+      "slot": "thumbnail",
+      "artist": "Martin Garrix",
+      "file": "public/assets/genres/artist-series-v1/edm-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 50094,
+      "sha256": "5f24a1275baa655bf324a306ac1f7f47030ef952a24c46977430009efec5edf3",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% safe headroom; face stays above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable adult Dutch DJ Martin Garrix, short tousled brown hair, clean-shaven face, black concert T-shirt, focused uplifting gaze. Scene: a distant electronic-music festival stage, restrained crowd silhouettes, sweeping violet laser beams, elegant waveform arcs and luminous geometric stage towers without any logo. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "house",
+      "slot": "banner",
+      "artist": "Black Coffee",
+      "file": "public/assets/genres/artist-series-v1/house-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 81778,
+      "sha256": "e3a33434bbbd3ebd9189b11f4f5ba579ca7d2607154893af605c0168e565c889",
+      "prompt": "Create one panoramic 1920x720 editorial music-category background illustration. A recognizable portrait of adult South African DJ Black Coffee on the right third, wearing a fully buttoned black designer shirt and simple black eyeglasses. His full head and shoulders remain visible, positioned at 76% width. Sophisticated studio portrait lighting, softly glowing violet concentric sound rings and subtle abstract percussion textures in a smoky graphite-black setting. Cohesive dark violet and lavender palette matching premium deep-house music-marketplace cover artwork. The left half is quiet dark negative space for webpage headings. No text, no logos, no watermarks, no UI, no frame. Opaque full bleed."
+    },
+    {
+      "slug": "house",
+      "slot": "thumbnail",
+      "artist": "Black Coffee",
+      "file": "public/assets/genres/artist-series-v1/house-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 53048,
+      "sha256": "c948289beb91abde1a59b3d3f2166eb152ab7e901b4ccd17acea849cae9876f7",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% safe headroom; face stays above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable South African DJ Black Coffee, dark skin, shaved head, close neat beard, understated black designer shirt, sophisticated calm expression. Scene: an intimate high-end nightclub, softly glowing violet concentric sound rings and subtle warm percussion-inspired textures, understated deep-house atmosphere. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "boom-bap",
+      "slot": "banner",
+      "artist": "Nas",
+      "file": "public/assets/genres/artist-series-v1/boom-bap-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 144994,
+      "sha256": "3d4429d5cd676b05b66a08cd4e49fa8abf62565def1ef1337edd48089710c3de",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) background banner. Subject occupies the right 40%, face centered at 76% width and 42% height, full head safely in frame. Left 52% is dark, quiet graphite negative space for live HTML headings. Background motifs remain faint on the left. Keep the face in a central horizontal band for responsive cropping; true wide landscape composition. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable rapper Nas (Nasir Jones), close-cropped hair, neat goatee, black streetwear jacket and restrained silver chain, confident thoughtful direct gaze. Scene: a moody New York brick rooftop and fire escapes, black vinyl records and a subtle drum-machine silhouette, layered violet smoke and classic boom-bap textures. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "boom-bap",
+      "slot": "thumbnail",
+      "artist": "Nas",
+      "file": "public/assets/genres/artist-series-v1/boom-bap-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 62510,
+      "sha256": "5bdf63a023b536f55c06875c187adfca5028e316f42fe347ec773826084a45ac",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% safe headroom; face stays above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable rapper Nas (Nasir Jones), close-cropped hair, neat goatee, black streetwear jacket and restrained silver chain, confident thoughtful direct gaze. Scene: a moody New York brick rooftop and fire escapes, black vinyl records and a subtle drum-machine silhouette, layered violet smoke and classic boom-bap textures. Faithful premium violet music-category editorial portrait matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "persian-fusion",
+      "slot": "banner",
+      "artist": "Mohsen Namjoo",
+      "file": "public/assets/genres/artist-series-v1/persian-fusion-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 168788,
+      "sha256": "0effddebf8eb0d43a9734977a4dd12f0568dfd3a288c5f31165618097f4c9a9b",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) background banner. Subject occupies the right 40%, face centered at 76% width and 42% height, full head safely in frame. Left 52% is dark, quiet graphite negative space for live HTML headings. Background motifs remain faint on the left. Keep the face in a central horizontal band for responsive cropping; true wide landscape composition. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable Iranian singer and musician Mohsen Namjoo, expressive face, curly graying dark hair, characteristic moustache and short stubble, dark open-collar jacket; a traditional Persian setar partly visible near the lower edge. Scene: delicate Persian geometric lattice and arch silhouettes blending with modern violet frequency particles and mist; elegant traditional-contemporary fusion without calligraphy. Faithful premium violet music-category editorial artwork matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "persian-fusion",
+      "slot": "thumbnail",
+      "artist": "Mohsen Namjoo",
+      "file": "public/assets/genres/artist-series-v1/persian-fusion-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 70754,
+      "sha256": "1a3e06064a5fcf021a21ca60582d08dfc4745781cff33b32f60855d143696fef",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% safe headroom; face stays above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable Iranian singer and musician Mohsen Namjoo, expressive face, curly graying dark hair, characteristic moustache and short stubble, dark open-collar jacket; a traditional Persian setar partly visible near the lower edge. Scene: delicate Persian geometric lattice and arch silhouettes blending with modern violet frequency particles and mist; elegant traditional-contemporary fusion without calligraphy. Faithful premium violet music-category editorial artwork matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "ambient",
+      "slot": "banner",
+      "artist": "Brian Eno",
+      "file": "public/assets/genres/artist-series-v1/ambient-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 82140,
+      "sha256": "88ea05b484e2128f2d0cc4fa34f22979421b3394273289f4175317627baad30f",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) background banner. Subject occupies the right 40%, face centered at 76% width and 42% height, full head safely in frame. Left 52% is dark, quiet graphite negative space for live HTML headings. Background motifs remain faint on the left. Keep the face in a central horizontal band for responsive cropping; true wide landscape composition. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable older musician Brian Eno, bald head, pale skin, gentle mature face with subtle gray stubble, dark simple crewneck, serene thoughtful expression. Scene: vast quiet violet fog, softly diffused glass-like light forms, distant spectral mountains and floating fine sound particles, contemplative spacious ambient atmosphere. Faithful premium violet music-category editorial artwork matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "ambient",
+      "slot": "thumbnail",
+      "artist": "Brian Eno",
+      "file": "public/assets/genres/artist-series-v1/ambient-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 30182,
+      "sha256": "f92aab8ed9d011ef770b2833c96ea7f76c4a331f4ac202b36cff9f3d8001ae67",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 category cover. Chest-up portrait with the full head in the upper central area, 10% safe headroom; face stays above a lower 24% fade into graphite darkness reserved for live HTML labels. Keep recognizable facial detail at small card size. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic recognizable face, rich black fabric detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: recognizable older musician Brian Eno, bald head, pale skin, gentle mature face with subtle gray stubble, dark simple crewneck, serene thoughtful expression. Scene: vast quiet violet fog, softly diffused glass-like light forms, distant spectral mountains and floating fine sound particles, contemplative spacious ambient atmosphere. Faithful premium violet music-category editorial artwork matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "mohammad",
+      "slot": "banner",
+      "artist": null,
+      "file": "public/assets/genres/artist-series-v1/mohammad-banner.webp",
+      "width": 1920,
+      "height": 720,
+      "bytes": 126376,
+      "sha256": "145534014d04f34e089d25a042106495f31699ea2d0b2435280a77c9442dfc4f",
+      "prompt": "Use case: stylized-concept. Asset type: ONE panoramic 1920x720 (8:3) recording-studio banner. Beautiful studio headphone and mixing console still-life arranged on the right 42%, left 52% is quiet graphite negative space for live HTML headings. No people or portraits anywhere. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic black studio equipment and fine material detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: NO PERSON. A premium unbranded black studio headphone set resting on a refined audio mixing desk, near-field speakers and a small keyboard controller. Scene: a beautiful intimate recording studio with violet rim lights, a softly glowing abstract waveform on a distant monitor with no readable interface text, subtle frequency particles and atmospheric graphite smoke. Faithful premium violet music-category editorial artwork matching the user's references. No text, words, logos or interface elements."
+    },
+    {
+      "slug": "mohammad",
+      "slot": "thumbnail",
+      "artist": null,
+      "file": "public/assets/genres/artist-series-v1/mohammad-thumbnail.webp",
+      "width": 600,
+      "height": 600,
+      "bytes": 48022,
+      "sha256": "c246b6730e95315a035e263fc2cceec9a0a1da86455646551d39d1c5a824db97",
+      "prompt": "Use case: stylized-concept. Asset type: ONE square 1024x1024 recording-studio category cover. Beautiful studio headphone and mixing console still-life, main objects in upper central 70%, lower 24% fading into graphite darkness reserved for live HTML labels. No people or portraits anywhere. Premium cinematic photographic editorial collage for a music marketplace. Match a cohesive deep graphite-black #11131b / violet #8b5cf6 / lavender #d8b4fe art direction, restrained magenta rim lighting, realistic black studio equipment and fine material detail, soft volumetric smoke and refined luminous sound motifs. No lettering, no words, no genre names, no logos, no watermarks, no UI buttons, no borders, no rounded frame. Opaque full-bleed standalone artwork. Subject: NO PERSON. A premium unbranded black studio headphone set resting on a refined audio mixing desk, near-field speakers and a small keyboard controller. Scene: a beautiful intimate recording studio with violet rim lights, a softly glowing abstract waveform on a distant monitor with no readable interface text, subtle frequency particles and atmospheric graphite smoke. Faithful premium violet music-category editorial artwork matching the user's references. No text, words, logos or interface elements."
+    }
+  ]
+}
