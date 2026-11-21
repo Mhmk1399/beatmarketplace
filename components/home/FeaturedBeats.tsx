@@ -1,6 +1,7 @@
 "use client";
 
 import { CoverImage } from "@/components/ui/CoverImage";
+import { trackHref } from "@/lib/marketplace/track-url";
 import { HeroCarouselSlot } from "./HeroCarouselSlot";
 import { useHeroCarouselMotion } from "./useHeroCarouselMotion";
 import { AudioFavoriteButton } from "@/components/audio/AudioFavoriteButton";
@@ -112,7 +113,7 @@ function FeaturedCard({ selected, selectedIndex, total, selectedPlaying, onPlay,
                 <div className="hero-featured-art">
                 {selected.beat ? (
                   <Link
-                    href={`/tracks/${selected.beat.id}`}
+                    href={trackHref(selected.beat)}
                     className="hero-featured-cover"
                     aria-label={`View ${selected.audio.title} and licenses`}
                     draggable={false}
@@ -134,7 +135,7 @@ function FeaturedCard({ selected, selectedIndex, total, selectedPlaying, onPlay,
                   <div className="hero-featured-track-copy">
                     <h3>
                       {selected.beat ? (
-                        <Link href={`/tracks/${selected.beat.id}`}>
+                        <Link href={trackHref(selected.beat)}>
                           {selected.audio.title}
                         </Link>
                       ) : (
@@ -173,7 +174,7 @@ function FeaturedCard({ selected, selectedIndex, total, selectedPlaying, onPlay,
                       {cheapest ? (
                         <LicensePrice license={cheapest} />
                       ) : (
-                        <Link href={`/tracks/${selected.beat.id}`}>
+                        <Link href={trackHref(selected.beat)}>
                           View licenses
                         </Link>
                       )}

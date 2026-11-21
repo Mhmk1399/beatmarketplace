@@ -1,6 +1,7 @@
 // Root layout for the BeatMarketplace app.
 // This keeps the app offline-safe by avoiding external font downloads during builds.
 import type { Metadata } from "next";
+import { configuredAppOrigin } from "@/lib/config";
 
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ToastProvider } from "@/components/ui/toast/ToastProvider";
@@ -25,6 +26,7 @@ import "@/components/marketplace/marketplace-browser.css";
 import "@/components/marketplace/track-detail.css";
 
 export const metadata: Metadata = {
+  metadataBase: configuredAppOrigin(),
   title: {
     default: "BeatMarketplace — Find your next sound",
     template: "%s — BeatMarketplace",

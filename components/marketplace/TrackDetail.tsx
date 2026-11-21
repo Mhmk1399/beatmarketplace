@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { CoverImage } from "@/components/ui/CoverImage";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { trackHref } from "@/lib/marketplace/track-url";
 import { useEffect, useRef, useState } from "react";
 import { TrackDetailSkeleton } from "./TrackDetailSkeleton";
 import { useDetailNavHeight } from "./useDetailNavHeight";
@@ -190,7 +192,7 @@ function TrackListeningHero({
   const toast = useToast();
   async function share() {
     if (shareBusy) return;
-    const url = `${window.location.origin}/tracks/${track.id}`;
+    const url = `${window.location.origin}${trackHref(track)}`;
     setShareBusy(true);
     try {
       if (navigator.share) {
@@ -392,8 +394,16 @@ function TrackListeningHero({
   );
 }
 
-export function TrackDetail({ id }: { id: string }) {
+export function TrackDetail({ id, initialSlug }: { id: string; initialSlug?: string }) {
   const { data, error, mutate, scope, isValidating } = useTrackDetail(id);
+  const pathname = usePathname(), router = useRouter();
+  const initialHref = initialSlug ? trackHref({ id, slug: initialSlug }) : null;
+  useEffect(() => {
+    // A renamed beat refreshes both the address and server metadata, without hijacking another page.
+    if (!data || !initialHref || pathname !== initialHref) return;
+    const next = trackHref(data.track);
+    if (next !== initialHref) router.replace(next, { scroll: false });
+  }, [data, initialHref, pathname, router]);
   // SWR exposes the retry error in state; consume its rejected promise as well.
   const refresh = () => { void mutate().catch(() => undefined); };
   if (error && (!data || [401, 403, 404].includes(error.status)))

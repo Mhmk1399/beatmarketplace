@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CoverImage } from "@/components/ui/CoverImage";
+import { trackHref } from "@/lib/marketplace/track-url";
 import { ArrowRightIcon, MusicNoteIcon, PlayIcon } from "@/components/ui/icons";
 import { PlayerPauseIcon } from "@/components/audio/PlayerIcons";
 import { useMarketplace } from "@/components/marketplace/MarketplaceProvider";
@@ -21,7 +22,7 @@ export function TrackCard({ track, queue }: { track: MarketplaceTrack; queue?: M
   return (
     <article className="music-track-card group" data-playing={active || undefined}>
       <div className="music-track-cover">
-        <Link href={`/tracks/${track.id}`} className="music-track-art-link" aria-label={`View ${track.title} and licenses`}>
+        <Link href={trackHref(track)} className="music-track-art-link" aria-label={`View ${track.title} and licenses`}>
           {track.artworkUrl ? <CoverImage src={track.artworkUrl} alt={`Artwork for ${track.title}`} sizes="(max-width:640px) 90vw, (max-width:1024px) 45vw, 25vw" /> : <div className="artwork-nocturne flex h-full items-center justify-center"><MusicNoteIcon className="size-20 text-accent-text" /></div>}
         </Link>
         <div className="music-track-shade" aria-hidden="true" />
@@ -36,11 +37,11 @@ export function TrackCard({ track, queue }: { track: MarketplaceTrack; queue?: M
       </div>
       <div className="music-track-info">
         <p className="music-track-genre">{track.genre?.name || "Original beat"}</p>
-        <h3><Link href={`/tracks/${track.id}`} className="music-track-title">{track.title}</Link></h3>
+        <h3><Link href={trackHref(track)} className="music-track-title">{track.title}</Link></h3>
         <p className="music-track-producer">{track.producerName}</p>
         <div className="music-track-metadata"><span>{track.bpm} <small>BPM</small></span><span>{track.musicalKey}</span></div>
         {onSale && discount && <DiscountCountdown discount={discount} compact />}
-        <Link href={`/tracks/${track.id}`} className="music-track-license">
+        <Link href={trackHref(track)} className="music-track-license">
           <span className="music-track-license-label">View licenses <ArrowRightIcon className="size-3.5" /></span>
           {cheapest ? <LicensePrice license={cheapest} /> : <span className="text-xs text-accent-text">Preview only</span>}
         </Link>

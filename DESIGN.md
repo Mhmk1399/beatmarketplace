@@ -41,6 +41,8 @@ Track loading uses the same responsive layout and measured navbar spacing as the
 
 Beat, category, mood and instrument covers use the shared `CoverImage` primitive. The parent provides a positioned, clipped frame with a stable aspect ratio or explicit dimensions; the image fills it with a centered cover crop and preserves its proportions. Intentional focal positions can be passed explicitly. Letterboxing and duplicate blurred images behind a contained cover are not the cover-card pattern. Text uses the existing bottom scrim, and unavailable images retain a themed placeholder within the same frame.
 
+Beat navigation and sharing use title-based canonical slugs, including safely encoded Persian names. The actual beat name supplies the browser title and social metadata. IDs remain internal API/cache identities; former names and ID links resolve to the canonical page. URL ownership and metadata privacy follow `docs/TRACK_URLS.md`.
+
 ## Elevation & Depth
 
 Use the shared `--fill-*`, `--shadow-*`, `--border-*`, and `--music-*` material tokens. Clay buttons use raised/pressed depth; music cards and player surfaces can layer bounded glass effects. Focus indicators must remain distinct from decorative glow.
