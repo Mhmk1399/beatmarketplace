@@ -4,15 +4,19 @@ import { hashPassword, serializeUser, setAuthCookie, signAccessToken } from "@/l
 import { connectToDatabase } from "@/lib/db";
 import { registerSchema, validationError } from "@/lib/validation";
 import UserModel from "@/models/User";
+import { readSecureJson, requireSameOrigin, securityErrorResponse } from "@/lib/security/request";
+import { consumeApiQuota } from "@/lib/security/rate-limit";
 
 export async function POST(request: Request) {
   try {
-    const parsed = registerSchema.safeParse(await request.json());
+    requireSameOrigin(request);
+    const parsed = registerSchema.safeParse(await readSecureJson(request));
     if (!parsed.success) {
       return NextResponse.json(validationError(parsed.error), { status: 400 });
     }
 
     await connectToDatabase();
+    await consumeApiQuota("register", parsed.data.email, 3, 3600_000);
 
     const identityFilters: Array<Record<string, string>> = [{ email: parsed.data.email }];
     if (parsed.data.phoneNumber) identityFilters.push({ phoneNumber: parsed.data.phoneNumber });
@@ -38,6 +42,8 @@ export async function POST(request: Request) {
     response.headers.set("Cache-Control", "no-store");
     return setAuthCookie(response, token);
   } catch (error) {
+    const secured = securityErrorResponse(error);
+    if (secured) return secured;
     if (typeof error === "object" && error && "code" in error && error.code === 11000) {
       return NextResponse.json({ error: "Email or phone number is already registered." }, { status: 409 });
     }

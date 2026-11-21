@@ -25,7 +25,7 @@ Initial logins are generated locally in the Git-ignored `.data/sample-catalog/ac
 - Account registration/login, HTTP-only cookie sessions, current database role checks.
 - Producer onboarding and track upload/edit/draft/publish/archive.
 - Musical key selection uses one shared list of 24 major/minor keys in editors and catalog filters. Sharp/flat equivalents normalize consistently; API and model validation reject arbitrary values.
-- Server-created, independent **exactly 30-second WAV previews**, starting at the producer's chosen position. The original master is never served by the public media route.
+- Server-created, independent **30-second, 128 kbps MP3 previews**, starting at the producer's chosen position. The original master is never served by the public media route.
 - Real catalog at `/marketplace`, search by title/producer/tags, genre/BPM/key filters, price sorting and pagination.
 - Track details and license comparison, persistent shared preview player, account-based saved beats.
 - Global music dock with queue, seek, next/previous, skip, volume, shuffle/repeat and a complete mobile player. The homepage listening room uses the five supplied full-length MP3 demos and custom covers.
@@ -58,9 +58,13 @@ Change `app/theme.css` to change the entire design system: semantic colors, mate
 
 ## Audio and storage
 
-The global player and Three.js integration are documented in [shared audio architecture](docs/AUDIO_PLAYER.md). Full-length public listening demos are separate from the protected marketplace previews.
+Producer and admin uploads show transfer progress followed by preview preparation, storage and saving stages. Failed attempts retain the open editor's files and details; unchanged retries can recover a saved result without creating a duplicate track. See [upload progress and retry behavior](docs/TRACK_UPLOADS.md).
 
-The implemented uploader supports uncompressed PCM WAV (8/16/24/32-bit) and 32-bit IEEE float WAV, up to 60 MB, 30 seconds to 30 minutes. Artwork accepts PNG, JPEG or WebP up to 5 MB. A server parser validates the file and writes only the chosen audio frames into a separate 30-second preview, without copying ancillary source metadata.
+CDN activation, the read-only deployment checker and the on-device listening recorder are described in [audio deployment checks](docs/AUDIO_DEPLOYMENT.md). Cached preview delivery stays enabled by default; the optional CDN is configured through the hosting environment when its real address is available.
+
+The global player and Three.js integration are documented in [shared audio architecture](docs/AUDIO_PLAYER.md). Shared playback includes a persistent 96 kbps data-saver option, lower-data homepage demo copies, and visible loading/offline/retry feedback. Preview bytes use bounded server caching and authorization-checked ETag revalidation; see [delivery details](docs/MEDIA_SECURITY.md). Full-length public listening demos are separate from the protected marketplace previews.
+
+The implemented uploader supports uncompressed PCM WAV (8/16/24/32-bit) and 32-bit IEEE float WAV, up to 60 MB, 30 seconds to 30 minutes. Artwork accepts PNG, JPEG or WebP up to 5 MB. A server parser validates the file and writes only the chosen 30 seconds into a temporary WAV, without source metadata. FFmpeg encodes that cropped file as a separate 128 kbps stereo MP3. The uploaded original stays byte-identical and private for paid downloads. See [music delivery security](docs/MEDIA_SECURITY.md).
 
 Media lives under `.data/media` by default, outside `public/` and ignored by Git. Set `MEDIA_STORAGE_DIR` for a private durable local volume, or select the implemented S3-compatible adapter through `MEDIA_STORAGE_DRIVER=s3`. Uploads and local downloads stream with bounded memory; S3/R2 delivery uses authenticated short-lived signed URLs. Superseded masters remain available to purchased order snapshots. See [storage, deployment and capacity](docs/STORAGE_AND_SCALE.md) for credentials, CORS, indexes, limits and verification boundaries.
 
@@ -103,7 +107,7 @@ npm run check
 npm run build
 ```
 
-`npm run check` runs ESLint, route generation and strict TypeScript checks. Test suites and one-off generation/benchmark scripts have been removed from the project. `npm run db:indexes` remains a deployment requirement because automatic production index creation is disabled. Use `NEXT_DIST_DIR=.next-qa` to isolate a verification build from a running development server.
+`npm run check` runs ESLint, route generation and strict TypeScript checks. `npm run test:media` checks preview encoding, original preservation, role-separated delivery, partial requests and request protection. `npm run db:indexes` remains a deployment requirement because automatic production index creation is disabled. Use `NEXT_DIST_DIR=.next-qa` to isolate a verification build from a running development server.
 
 ## Scope and next stages
 

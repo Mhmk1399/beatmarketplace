@@ -1,3 +1,6 @@
+import { trackUploadResponse } from "@/lib/uploads/server-progress";
+import { trackUploadIdentity } from "@/lib/uploads/identity";
+import type { UploadStageReporter } from "@/lib/uploads/protocol";
 import { validateTrackChoices } from "@/lib/marketplace/server";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
@@ -32,20 +35,20 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   } catch (error) { return marketplaceError(error); }
 }
 
-export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+async function updateProducerTrack(request: Request, id: string, producerId: mongoose.Types.ObjectId, actorId: string, report: UploadStageReporter) {
+  const uploadId = trackUploadIdentity(actorId, request.headers.get("x-upload-request-id"));
   let writtenKeys: string[] = [];
   let committed = false;
   let releaseUpload: (() => void) | undefined;
   let cleanUpload: (() => Promise<void>) | undefined;
   try {
-    const authentication = await requireMarketplaceRole(request, "PRODUCER");
-    if (!authentication.ok) return authentication.response;
-    const id = objectIdSchema.parse((await context.params).id);
-    const track = await TrackModel.findOne({ _id: id, producerId: authentication.user._id }).select("+audio.master");
+    const track = await TrackModel.findOne({ _id: id, producerId }).select("+audio.master +lastUploadRequestId");
     if (!track) throw new MarketplaceError("This track could not be found.", 404);
+    if (uploadId && track.lastUploadRequestId === uploadId) return NextResponse.json({ track: (await serializeTracks([track]))[0], recovered: true });
     releaseUpload = acquireMediaUploadLease();
     const form = await parseTrackForm(request);
     cleanUpload = form.cleanup;
+    report("validating");
     const data = trackPatchSchema.parse(form.data);
     await validateTrackChoices(data);
     if (data.expectedVersion !== undefined && track.__v !== data.expectedVersion) throw new MarketplaceError("This beat changed. Refresh and try again.", 409);
@@ -61,9 +64,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const oldArtwork = track.artwork;
     const hasMaster = Boolean(form.master || track.audio.master);
     if (!hasMaster && (form.artwork || status === "PUBLISHED")) throw new MarketplaceError("Upload the WAV master before adding artwork or publishing.");
-    const replaceMedia = Boolean(form.master || form.artwork || (data.previewStartSeconds !== undefined && data.previewStartSeconds !== track.audio.previewStartSeconds) || !track.audio.preview);
+    const replaceMedia = Boolean(form.master || form.artwork || (data.previewStartSeconds !== undefined && data.previewStartSeconds !== track.audio.previewStartSeconds) || !track.audio.preview || track.audio.preview.key.endsWith(".preview.wav"));
     if (replaceMedia && hasMaster) {
-      const media = await storeTrackMedia({ master: form.master, artwork: form.artwork, previewStartSeconds: start, existingMasterKey: track.audio.master?.key, existingMaster: track.audio.master });
+      const media = await storeTrackMedia({ master: form.master, artwork: form.artwork, previewStartSeconds: start, existingMasterKey: track.audio.master?.key, existingMaster: track.audio.master, onProgress: report });
       writtenKeys = [media.master?.key, media.preview?.key, media.artwork?.key].filter((key): key is string => Boolean(key));
       if (media.master) track.audio.master = media.master;
       if (media.preview) track.audio.preview = media.preview;
@@ -82,6 +85,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (data.instrumentIds !== undefined) track.metadata.instrumentIds = data.instrumentIds.map(id=>new mongoose.Types.ObjectId(id));
     if (data.status !== undefined) track.status = data.status;
     if (data.visibility !== undefined) track.visibility = data.visibility;
+    report("saving");
+    track.lastUploadRequestId = uploadId ?? undefined;
     await saveTrackWithSlug(track);
     committed = true;
     // Purchased orders retain exact masters; superseded master files must remain available to entitlements.
@@ -92,11 +97,20 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const [serialized] = await serializeTracks([track]);
     return NextResponse.json({ track: serialized });
   } catch (error) {
-    if (!committed && writtenKeys.length) await removeStoredAssets(writtenKeys);
+    if (!committed && writtenKeys.length) await removeStoredAssets(writtenKeys).catch(() => undefined);
     return marketplaceError(error);
   } finally {
     try { await cleanUpload?.(); } finally { releaseUpload?.(); }
   }
+}
+
+export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+  try {
+    const authentication = await requireMarketplaceRole(request, "PRODUCER");
+    if (!authentication.ok) return authentication.response;
+    const id = objectIdSchema.parse((await context.params).id);
+    return trackUploadResponse(request, report => updateProducerTrack(request, id, authentication.user._id, authentication.user.id, report), marketplaceError);
+  } catch (error) { return marketplaceError(error); }
 }
 
 export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {

@@ -579,3 +579,8 @@
   .audio-dock-panel, .audio-listening-modal { background: Canvas; border-color: CanvasText; }
   .audio-sheet-stage::before { background: none; }
 }
+
+.audio-listening-options { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; min-width: 0; color: var(--player-muted); font-size: 12px; line-height: 1.5; padding-top: 4px; }
+.audio-listening-options > span { flex: 1 1 150px; min-width: 0; overflow-wrap: anywhere; }
+.audio-listening-option-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.audio-listening-option-actions > button { min-height: 44px; white-space: nowrap; }

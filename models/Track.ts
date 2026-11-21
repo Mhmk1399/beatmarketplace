@@ -3,6 +3,7 @@ import mongoose, { type HydratedDocument, type Model, Schema } from "mongoose";
 import { objectStorageAssetSchema, type ObjectStorageAsset, transformMongoDocument } from "@/models/schemas/shared";
 import { MUSICAL_KEYS, normalizeMusicalKey } from "@/lib/music/keys";
 import { installTrackSearch } from "@/lib/search/track-index";
+import { previewUrl } from "@/lib/media/policy";
 
 export type TrackStatus = "DRAFT" | "SCHEDULED" | "PUBLISHED" | "ARCHIVED";
 export type TrackVisibility = "PUBLIC" | "PRIVATE";
@@ -38,6 +39,7 @@ export type TrackMetadata = {
 };
 
 export type TrackFields = {
+  lastUploadRequestId?: string;
   producerId: mongoose.Types.ObjectId;
   title: string;
   slug: string;
@@ -99,6 +101,7 @@ const trackMetadataSchema = new Schema<TrackMetadata>(
 
 const trackSchema = new Schema<TrackFields>(
   {
+    lastUploadRequestId: { type: String, select: false },
     producerId: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
     title: { type: String, required: true, trim: true, minlength: 1, maxlength: 160 },
     slug: { type: String, required: true, unique: true, lowercase: true, trim: true, maxlength: 200 },
@@ -151,8 +154,10 @@ trackSchema.pre("validate", function validatePublishableTrack() {
   if (this.status === "PUBLISHED") {
     if (!this.metadata.genreId) this.invalidate("metadata.genreId", "A published track requires a genre.");
     if (!this.artwork) this.invalidate("artwork", "A published track requires artwork.");
-    if (!this.audio.preview) this.invalidate("audio.preview", "A published track requires preview audio.");
-    if (!this.audio.master) this.invalidate("audio.master", "A published track requires a private master file.");
+    if (!previewUrl(this.audio.preview)) this.invalidate("audio.preview", "A published track requires a separate 30-second preview file.");
+    if (!this.audio.master?.key.endsWith(".master.wav") || this.audio.master.mimeType !== "audio/wav" || this.audio.master.publicUrl) {
+      this.invalidate("audio.master", "A published track requires a private WAV master without a public URL.");
+    }
     if (this.audio.preview?.durationSeconds !== 30 || this.audio.previewDurationSeconds !== 30) {
       this.invalidate("audio.preview", "A published track requires an exact 30-second preview.");
     }
@@ -194,7 +199,7 @@ trackSchema.index({ "artwork.key": 1 }, { sparse: true });
 // A retained development model cannot acquire middleware through schema.add().
 // Recompile its in-memory definition once when introducing the derived search fields.
 // Existing records, connections and indexes remain untouched.
-if (process.env.NODE_ENV !== "production" && mongoose.models.Track && !mongoose.models.Track.schema.path("search.tokens")) {
+if (process.env.NODE_ENV !== "production" && mongoose.models.Track && (!mongoose.models.Track.schema.path("search.tokens") || !mongoose.models.Track.schema.path("lastUploadRequestId"))) {
   mongoose.deleteModel("Track");
 }
 const TrackModel = (mongoose.models.Track as Model<TrackFields> | undefined) ?? mongoose.model<TrackFields>("Track", trackSchema);

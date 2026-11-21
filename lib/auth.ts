@@ -6,6 +6,7 @@ import { config, getJwtSecret } from "@/lib/config";
 import { connectToDatabase } from "@/lib/db";
 import type { UserRole } from "@/lib/types";
 import UserModel, { type UserDocument } from "@/models/User";
+import { requireSameOrigin, securityErrorResponse } from "@/lib/security/request";
 
 export const AUTH_COOKIE_NAME = "beatmarketplace_access";
 
@@ -73,7 +74,9 @@ function getCookieValue(request: Request, name: string) {
 
   for (const cookie of cookieHeader.split(";")) {
     const [key, ...valueParts] = cookie.trim().split("=");
-    if (key === name) return decodeURIComponent(valueParts.join("="));
+    if (key === name) {
+      try { return decodeURIComponent(valueParts.join("=")); } catch { return null; }
+    }
   }
 
   return null;
@@ -105,6 +108,10 @@ export async function resolveAuthenticatedUser(token: string | null | undefined)
 }
 
 export async function authenticateRequest(request: Request): Promise<AuthenticationResult> {
+  if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
+    try { requireSameOrigin(request); }
+    catch (error) { return { ok: false, response: securityErrorResponse(error)! }; }
+  }
   const resolution = await resolveAuthenticatedUser(getAccessToken(request));
   if (resolution.ok) return resolution;
 
@@ -115,7 +122,7 @@ export async function authenticateRequest(request: Request): Promise<Authenticat
     DISABLED: { error: "Account access is disabled.", status: 403 },
   } as const;
   const failure = errors[resolution.reason];
-  return { ok: false, response: NextResponse.json({ error: failure.error }, { status: failure.status }) };
+  return { ok: false, response: NextResponse.json({ error: failure.error }, { status: failure.status, headers: { "Cache-Control": "private, no-store" } }) };
 }
 
 export function setAuthCookie(response: NextResponse, token: string) {

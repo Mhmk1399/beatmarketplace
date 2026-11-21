@@ -1,3 +1,6 @@
+import { trackUploadResponse } from "@/lib/uploads/server-progress";
+import { trackUploadIdentity } from "@/lib/uploads/identity";
+import type { UploadStageReporter } from "@/lib/uploads/protocol";
 import { validateTrackChoices } from "@/lib/marketplace/server";
 import { saveTrackWithSlug } from "@/lib/marketplace/track-slug-server";
 import { trackSlugBase } from "@/lib/marketplace/track-url";
@@ -132,36 +135,54 @@ export async function GET(request: Request) {
   } catch (error) { return marketplaceError(error); }
 }
 
-export async function POST(request: Request) {
+async function createProducerTrack(request: Request, producerId: mongoose.Types.ObjectId, actorId: string, report: UploadStageReporter) {
+  const uploadId = trackUploadIdentity(actorId, request.headers.get("x-upload-request-id"));
   let writtenKeys: string[] = [];
   let committed = false;
   let releaseUpload: (() => void) | undefined;
   let cleanUpload: (() => Promise<void>) | undefined;
   try {
-    const authentication = await requireMarketplaceRole(request, "PRODUCER");
-    if (!authentication.ok) return authentication.response;
+    if (uploadId) {
+      const existing = await TrackModel.findOne({ _id: uploadId, producerId });
+      if (existing) return NextResponse.json({ track: (await serializeTracks([existing]))[0], recovered: true });
+    }
     releaseUpload = acquireMediaUploadLease();
     const form = await parseTrackForm(request);
     cleanUpload = form.cleanup;
+    report("validating");
     const data = trackInputSchema.parse(form.data);
     await validateTrackChoices(data);
     if (!form.master) throw new MarketplaceError("Upload a WAV master to create your track.");
     if (data.genreId && !await GenreModel.exists({ _id: data.genreId, isActive: true })) throw new MarketplaceError("Select an active genre.");
     if (data.status === "PUBLISHED" && (!data.genreId || !form.artwork)) throw new MarketplaceError("Choose a genre and upload artwork before publishing.");
-    const media = await storeTrackMedia({ master: form.master, artwork: form.artwork, previewStartSeconds: data.previewStartSeconds });
+    const media = await storeTrackMedia({ master: form.master, artwork: form.artwork, previewStartSeconds: data.previewStartSeconds, onProgress: report });
     writtenKeys = [media.master?.key, media.preview?.key, media.artwork?.key].filter((key): key is string => Boolean(key));
     const track = new TrackModel({
-      producerId: authentication.user._id, title: data.title, slug: trackSlugBase(data.title), description: data.description,
+      ...(uploadId ? { _id: new mongoose.Types.ObjectId(uploadId) } : {}), lastUploadRequestId: uploadId ?? undefined,
+      producerId, title: data.title, slug: trackSlugBase(data.title), description: data.description,
       artwork: media.artwork, audio: { master: media.master, preview: media.preview, previewStartSeconds: data.previewStartSeconds, previewDurationSeconds: 30 },
       metadata: { moodIds: data.moodIds, instrumentIds: data.instrumentIds, bpm: data.bpm, musicalKey: data.musicalKey, genreId: data.genreId, tags: data.tags, durationSeconds: media.durationSeconds },
       status: data.status, visibility: data.visibility,
     });
+    report("saving");
     await saveTrackWithSlug(track);
     committed = true;
     const [serialized] = await serializeTracks([track]);
     return NextResponse.json({ track: serialized }, { status: 201 });
   } catch (error) {
-    if (!committed && writtenKeys.length) await removeStoredAssets(writtenKeys);
+    if (!committed && writtenKeys.length) await removeStoredAssets(writtenKeys).catch(() => undefined);
+    if (uploadId && typeof error === "object" && error && "code" in error && error.code === 11000) {
+      const existing = await TrackModel.findOne({ _id: uploadId, producerId });
+      if (existing) return NextResponse.json({ track: (await serializeTracks([existing]))[0], recovered: true });
+    }
     return marketplaceError(error);
   } finally { try { await cleanUpload?.(); } finally { releaseUpload?.(); } }
+}
+
+export async function POST(request: Request) {
+  try {
+    const authentication = await requireMarketplaceRole(request, "PRODUCER");
+    if (!authentication.ok) return authentication.response;
+    return trackUploadResponse(request, report => createProducerTrack(request, authentication.user._id, authentication.user.id, report), marketplaceError);
+  } catch (error) { return marketplaceError(error); }
 }

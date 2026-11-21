@@ -10,7 +10,7 @@ import type { ObjectStorageAsset } from "@/models/schemas/shared";
 import { localMediaRoot, mediaDriver, s3Configuration } from "./config";
 import { MAX_MASTER_BYTES, MediaValidationError } from "./wav";
 
-export const mediaKeyPattern = /^[0-9a-f-]{36}\.(master\.wav|preview\.wav|artwork\.(png|jpg|webp))$/;
+export const mediaKeyPattern = /^[0-9a-f-]{36}\.(master\.wav|preview\.(wav|mp3)|artwork\.(png|jpg|webp))$/;
 export function validateMediaKey(key: string) { if (!mediaKeyPattern.test(key)) throw new MediaValidationError("Invalid media key.", 404); }
 export function partitionedMediaKey(key: string) { validateMediaKey(key); return `${key.slice(0, 2)}/${key.slice(2, 4)}/${key}`; }
 export function mediaPath(key: string, storedKey?: string) {
@@ -52,11 +52,11 @@ export async function resolveLocalPath(asset: ObjectStorageAsset) {
   }
 }
 
-export async function storedAssetStream(asset: ObjectStorageAsset) {
+export async function storedAssetStream(asset: ObjectStorageAsset, signal?: AbortSignal) {
   validateMediaKey(asset.key);
-  if (isLocalAsset(asset)) return createReadStream(/* turbopackIgnore: true */ await resolveLocalPath(asset));
+  if (isLocalAsset(asset)) return createReadStream(/* turbopackIgnore: true */ await resolveLocalPath(asset), { signal });
   if (!["S3", "R2"].includes(asset.provider)) throw new MediaValidationError("Unsupported media storage provider.", 503);
-  const result = await mediaS3Client().send(new GetObjectCommand({ Bucket: asset.bucket, Key: objectKey(asset) }));
+  const result = await mediaS3Client().send(new GetObjectCommand({ Bucket: asset.bucket, Key: objectKey(asset) }), { abortSignal: signal });
   if (!result.Body) throw new MediaValidationError("Media could not be found.", 404);
   return result.Body as Readable;
 }

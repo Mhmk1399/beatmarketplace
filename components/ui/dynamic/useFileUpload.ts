@@ -7,14 +7,14 @@ export function useFileUpload() {
   const [progress, setProgress] = useState<FileUploadProgress>(idleUpload);
   const current = useRef<AbortController | null>(null);
   useEffect(() => () => { const active = current.current; current.current = null; active?.abort(); }, []);
-  const upload = useCallback(async <T,>(url: string, body: FormData, method = "POST"): Promise<T> => {
+  const upload = useCallback(async <T,>(url: string, body: FormData, method = "POST", headers?: HeadersInit): Promise<T> => {
     if (current.current) throw new Error("An upload is already in progress.");
     const controller = new AbortController(); current.current = controller;
     setProgress({ ...idleUpload, phase: "uploading", percent: 0 });
     try {
       const data = await apiRequest<T>(url, {
-        method, body, quiet: true, signal: controller.signal, onUploadProgress: next => {
-          if (current.current === controller) setProgress(previous => previous.phase === next.phase && previous.percent === next.percent && previous.total === next.total ? previous : next);
+        method, body, headers, quiet: true, signal: controller.signal, onUploadProgress: next => {
+          if (current.current === controller) setProgress(previous => previous.phase === next.phase && previous.stage === next.stage && previous.percent === next.percent && previous.total === next.total ? previous : next);
         }
       });
       if (current.current === controller) setProgress(previous => ({ ...previous, phase: "success", percent: 100 }));

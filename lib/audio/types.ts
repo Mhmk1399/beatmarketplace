@@ -4,6 +4,8 @@ export type AudioTrack = {
   title: string;
   artist: string;
   src: string;
+  lowDataSrc?: string;
+  downloadSrc?: string;
   coverUrl: string | null;
   description: string;
   href?: string;
@@ -28,6 +30,9 @@ export type AudioPlayerState = {
   repeat: RepeatMode;
   shuffle: boolean;
   error: string | null;
+  quality: "standard" | "data-saver";
+  slowConnection: boolean;
+  offline: boolean;
 };
 
 export type AudioPlayerActions = {
@@ -46,6 +51,7 @@ export type AudioPlayerActions = {
   enqueue: (track: AudioTrack) => void;
   removeFromQueue: (id: string) => void;
   retry: () => void;
+  setQuality: (quality: "standard" | "data-saver") => void;
 };
 
 export type AudioPlayerContextValue = AudioPlayerState & AudioPlayerActions;

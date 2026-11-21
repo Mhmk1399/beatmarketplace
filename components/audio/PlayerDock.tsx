@@ -342,6 +342,22 @@ function Queue({ player }: { player: AudioPlayerContextValue }) {
   );
 }
 
+function ListeningOptions({ player, status }: { player: AudioPlayerContextValue; status: string }) {
+  const message = player.offline ? "You’re offline. Reconnect to load audio."
+    : player.error || (player.slowConnection ? "Your connection is slow. Try lower-data audio." : player.buffering ? (player.elapsed > 0 ? "Buffering audio…" : "Loading audio…") : status);
+  return <div className="audio-listening-options">
+    <span role="status" aria-live="polite">{message}</span>
+    <div className="audio-listening-option-actions">
+      {player.track?.lowDataSrc && <NeumorphicButton size="sm" variant="quiet" aria-pressed={player.quality === "data-saver"}
+        aria-label={player.quality === "data-saver" ? "Use standard audio" : "Use lower-data audio"}
+        onClick={() => player.setQuality(player.quality === "data-saver" ? "standard" : "data-saver")}>
+        Data saver {player.quality === "data-saver" ? "on" : "off"}
+      </NeumorphicButton>}
+      {(player.error || player.slowConnection) && <NeumorphicButton size="sm" variant="quiet" disabled={player.offline} onClick={player.retry}>Retry audio</NeumorphicButton>}
+    </div>
+  </div>;
+}
+
 /** Mounted once beside route content, so navigation never remounts the music player. */
 export function PlayerDock() {
   const player = useAudioPlayer();
@@ -522,18 +538,7 @@ export function PlayerDock() {
           <span className="sr-only" role="status" aria-live="polite">
             {status}
           </span>
-          {player.error && (
-            <div className="audio-player-error" role="alert">
-              <span>{player.error}</span>
-              <NeumorphicButton
-                size="sm"
-                variant="quiet"
-                onClick={player.retry}
-              >
-                Try again
-              </NeumorphicButton>
-            </div>
-          )}
+          <ListeningOptions player={player} status={status} />
         </div>
       </aside>
 
@@ -588,7 +593,7 @@ export function PlayerDock() {
             </NeumorphicButton>
             {track.isDemo ? (
               <a
-                href={track.src}
+                href={track.downloadSrc || track.src}
                 download
                 className={cn(neumorphicButtonClass(), "audio-sheet-action")}
               >
@@ -618,18 +623,7 @@ export function PlayerDock() {
               <span>More</span>
             </NeumorphicButton>
           </div>
-          {player.error && (
-            <div className="audio-player-error" role="alert">
-              <span>{player.error}</span>
-              <NeumorphicButton
-                size="sm"
-                variant="quiet"
-                onClick={player.retry}
-              >
-                Try again
-              </NeumorphicButton>
-            </div>
-          )}
+          <ListeningOptions player={player} status={status} />
           {showQueue && (
             <div id={queueId} className="audio-queue-panel">
               <Queue player={player} />

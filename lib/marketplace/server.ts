@@ -16,6 +16,9 @@ import TrackModel, { type TrackFields } from "@/models/Track";
 import UserModel from "@/models/User";
 import TrackDiscountModel from "@/models/TrackDiscount";
 import { parseBoundedTrackForm } from "@/lib/media/upload";
+import { previewUrl, artworkUrl } from "@/lib/media/policy";
+import { securityErrorResponse } from "@/lib/security/request";
+import { consumeApiQuota } from "@/lib/security/rate-limit";
 
 export class MarketplaceError extends Error {
   constructor(message: string, public status = 400) { super(message); }
@@ -28,10 +31,15 @@ export async function requireMarketplaceRole(request: Request, role: "PRODUCER" 
   if (!authentication.user.roles.includes(role)) {
     return { ok: false as const, response: NextResponse.json({ error: `${role === "ADMIN" ? "Admin" : "Producer"} access required.` }, { status: 403 }) };
   }
+  if (["POST", "PATCH"].includes(request.method) && new URL(request.url).pathname.startsWith("/api/tracks")) {
+    await consumeApiQuota("track-upload", authentication.user.id, 20, 3600_000);
+  }
   return authentication;
 }
 
 export function marketplaceError(error: unknown) {
+  const secured = securityErrorResponse(error);
+  if (secured) return secured;
   if (error instanceof ZodError) return NextResponse.json(validationError(error), { status: 400 });
   if (error instanceof mongoose.Error.VersionError) return NextResponse.json({ error: "This record changed while you were editing. Refresh and try again." }, { status: 409 });
   if (error instanceof SyntaxError) return NextResponse.json({ error: "Invalid JSON request data." }, { status: 400 });
@@ -121,7 +129,7 @@ export async function serializeTracks(tracks: (TrackFields & { _id: mongoose.Typ
       id: String(track._id), title: track.title, slug: track.slug, description: track.description, version: track.__v ?? 0,
       producerId, producerName: profileNames.get(producerId) || producerNames.get(producerId) || "Producer",
       producerAvatarUrl: producerAvatars.get(producerId) || null,
-      artworkUrl: track.artwork?.publicUrl ?? null, previewUrl: track.audio.preview?.publicUrl ?? null,
+      artworkUrl: artworkUrl(track.artwork), previewUrl: previewUrl(track.audio.preview),
       previewStartSeconds: track.audio.previewStartSeconds ?? 0, previewDurationSeconds: track.audio.previewDurationSeconds ?? 30,
       durationSeconds: track.metadata.durationSeconds ?? 0, bpm: track.metadata.bpm, musicalKey: track.metadata.musicalKey,
       genre: genreId && genreNames.has(genreId) ? { id: genreId, name: genreNames.get(genreId)! } : null,

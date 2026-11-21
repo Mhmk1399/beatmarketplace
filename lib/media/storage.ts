@@ -1,5 +1,5 @@
 import { createWriteStream } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { Readable } from "node:stream";
@@ -10,7 +10,10 @@ import { mediaDriver, s3Configuration } from "./config";
 import { isSpooledFile, type MediaUpload } from "./types";
 import { prepareStoredImage } from "./images";
 import { createWavPreviewFile } from "./wav-file";
+import { encodePreview } from "./preview";
+import { seedPreviewCache } from "./preview-cache";
 import { MAX_MASTER_BYTES, MediaValidationError } from "./wav";
+import type { UploadStageReporter } from "@/lib/uploads/protocol";
 
 export { MediaValidationError } from "./wav";
 export { mediaPath, partitionedMediaKey, removeStoredAssets } from "./adapter";
@@ -39,13 +42,14 @@ async function materializeUpload(file: MediaUpload, target: string) {
   return target;
 }
 
-export async function storeTrackMedia(input: { master?: MediaUpload; artwork?: MediaUpload; previewStartSeconds: number; existingMasterKey?: string; existingMaster?: ObjectStorageAsset }) {
+export async function storeTrackMedia(input: { master?: MediaUpload; artwork?: MediaUpload; previewStartSeconds: number; existingMasterKey?: string; existingMaster?: ObjectStorageAsset; onProgress?: UploadStageReporter }) {
   if (input.master && input.master.size > MAX_MASTER_BYTES) throw new MediaValidationError("WAV files must be at most 60 MB.", 413);
   if (input.artwork && input.artwork.size > 5 * 1024 * 1024) throw new MediaValidationError("Artwork must be at most 5 MB.", 413);
   if (mediaDriver() === "s3") s3Configuration();
   const directory = await mkdtemp(path.join(os.tmpdir(), "beat-process-"));
   const written: ObjectStorageAsset[] = [];
   try {
+    input.onProgress?.("validating");
     let sourcePath: string;
     if (input.master) sourcePath = await materializeUpload(input.master, path.join(directory, "source.wav"));
     else {
@@ -54,17 +58,25 @@ export async function storeTrackMedia(input: { master?: MediaUpload; artwork?: M
       sourcePath = path.join(directory, "source.wav");
       await copyStoredMaster(existing, sourcePath);
     }
-    const previewPath = path.join(directory, "preview.wav");
-    const { durationSeconds } = await createWavPreviewFile(sourcePath, previewPath, input.previewStartSeconds);
+    const croppedPath = path.join(directory, "cropped.wav");
+    const previewPath = path.join(directory, "preview.mp3");
+    const { durationSeconds } = await createWavPreviewFile(sourcePath, croppedPath, input.previewStartSeconds);
+    input.onProgress?.("previewing");
+    await encodePreview(croppedPath, previewPath);
     let artwork: Awaited<ReturnType<typeof prepareStoredImage>> | undefined;
     if (input.artwork) {
       const imagePath = await materializeUpload(input.artwork, path.join(directory, "artwork"));
       artwork = await prepareStoredImage({ path: imagePath, name: input.artwork.name, size: input.artwork.size, type: input.artwork.type }, "artwork");
     }
-    const preview = await putMediaFile(previewPath, "preview.wav", "preview.wav", "audio/wav", 30);
+    input.onProgress?.("storing");
+    const preview = await putMediaFile(previewPath, "preview.mp3", "preview.mp3", "audio/mpeg", 30);
     written.push(preview);
+    seedPreviewCache(preview, await readFile(previewPath));
     const result: { master?: ObjectStorageAsset; preview: ObjectStorageAsset; artwork?: ObjectStorageAsset; durationSeconds: number } = { preview, durationSeconds };
-    if (input.master) { result.master = await putMediaFile(sourcePath, "master.wav", input.master.name, "audio/wav", durationSeconds); written.push(result.master); }
+    if (input.master) {
+      result.master = await putMediaFile(sourcePath, "master.wav", input.master.name, "audio/wav", durationSeconds);
+      written.push(result.master);
+    }
     if (artwork && input.artwork) { result.artwork = await putMediaFile(artwork.path, "artwork.webp", `${path.parse(input.artwork.name).name}.webp`, "image/webp"); result.artwork.width = artwork.width; result.artwork.height = artwork.height; written.push(result.artwork); }
     return result;
   } catch (error) { await removeStoredAssets(written).catch(() => undefined); throw error; }

@@ -1,6 +1,6 @@
 # BeatMarketplace: Current Platform State
 
-Reviewed 2026-11-18. This document replaces the earlier shell-only snapshot.
+Reviewed 2026-11-18. Music-delivery security updated 2026-11-21; see [current delivery boundaries](docs/MEDIA_SECURITY.md). This document replaces the earlier shell-only snapshot.
 
 ## Working product flows
 
@@ -82,7 +82,7 @@ The public `/contact` page follows the responsive headphone, social and message-
 
 A single global `AudioPlayerProvider` owns playback across routes. The bottom dock supplies transport, seek, volume/mute, shuffle/repeat and queue controls; mobile has a compact dock and a complete expanded player. The five public test songs play at full length with custom SVG covers. Marketplace tracks remain capped to their independently generated 30-second preview. See [audio architecture](docs/AUDIO_PLAYER.md).
 
-The server inspects uncompressed WAV headers and streams exactly the selected 30 seconds into a separate file without source LIST/ID3 metadata. Original uploads are spooled to bounded private temporary files; complete masters are never buffered for upload/HTTP delivery. Private sharded local storage and S3/R2-compatible storage are implemented. Local delivery streams byte ranges; object storage delivery uses authorized 60-second signed URLs. See [storage and scale](docs/STORAGE_AND_SCALE.md).
+The server inspects uncompressed WAV headers, crops exactly the selected 30 seconds without source LIST/ID3 metadata and encodes that independent section as a 128 kbps MP3. Originals are preserved without transcoding. Original uploads are spooled to bounded private temporary files; complete masters are never buffered for upload/HTTP delivery. Private sharded local storage and S3/R2-compatible storage are implemented. Local delivery streams byte ranges; preview object storage delivery can use authorized 60-second signed URLs. Purchased originals always stream through authenticated buyer-only requests without exposing bucket URLs. See [storage and scale](docs/STORAGE_AND_SCALE.md).
 
 ## Orders and payment boundary
 
@@ -99,7 +99,7 @@ This establishes the implemented gateway protocol, not live merchant acceptance.
 ## Verification
 
 - `npm run check`: ESLint, route generation, strict TypeScript.
-- Test suites and one-off generation/benchmark scripts were removed; database index deployment tooling is retained.
+- `npm run test:media` verifies the independent MP3 crop, byte-identical masters, protected delivery, ranges and request protections; database index deployment tooling is retained.
 - Optimized production build.
 - Integration against configured MongoDB and S3 with disposable fixtures: roles, profile persistence/conflicts, session rotation, upload/publication, exact 30-second previews, private masters/avatars, licenses, favorites/collections, messages, buyer-only sandbox downloads and exclusion of test amounts from financial summaries. Diagnostic objects are deleted after readback; fixtures are cleaned up after QA.
 - Browser inspection and interactions on the isolated production server, including mobile layouts, player, saved beats, cart persistence and producer editor.

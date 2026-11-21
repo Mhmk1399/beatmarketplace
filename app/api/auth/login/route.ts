@@ -4,17 +4,21 @@ import { serializeUser, setAuthCookie, signAccessToken, verifyPassword } from "@
 import { connectToDatabase } from "@/lib/db";
 import { loginSchema, validationError } from "@/lib/validation";
 import UserModel from "@/models/User";
+import { readSecureJson, requireSameOrigin, securityErrorResponse } from "@/lib/security/request";
+import { consumeApiQuota } from "@/lib/security/rate-limit";
 
 const DUMMY_PASSWORD_HASH = "$2a$12$V6nWkH5VJgk5tV3XqkWkE.9Xc9xUeMNrV4t7Ca2vQ7k0Wm2TQw3V6";
 
 export async function POST(request: Request) {
   try {
-    const parsed = loginSchema.safeParse(await request.json());
+    requireSameOrigin(request);
+    const parsed = loginSchema.safeParse(await readSecureJson(request));
     if (!parsed.success) {
       return NextResponse.json(validationError(parsed.error), { status: 400 });
     }
 
     await connectToDatabase();
+    await consumeApiQuota("login", parsed.data.email, 10, 15 * 60_000);
     const user = await UserModel.findOne({ email: parsed.data.email }).select("+passwordHash +sessionVersion");
     const isValidPassword = await verifyPassword(parsed.data.password, user?.passwordHash ?? DUMMY_PASSWORD_HASH);
 
@@ -34,6 +38,8 @@ export async function POST(request: Request) {
     response.headers.set("Cache-Control", "no-store");
     return setAuthCookie(response, token);
   } catch (error) {
+    const secured = securityErrorResponse(error);
+    if (secured) return secured;
     console.error("Login error", error);
     return NextResponse.json({ error: "Failed to log in." }, { status: 500 });
   }

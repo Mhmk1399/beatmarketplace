@@ -4,9 +4,9 @@
 
 `AudioPlayerProvider` is mounted once in `app/layout.tsx`. It owns the only persistent playback element and its optional Web Audio analysis graph. `PlayerDock` is mounted beside the route content, so changing pages does not restart the track. Cart/favorites remain in `MarketplaceProvider`; its playback methods now delegate to the shared engine.
 
-The five files under `public/assets/audios/` are full-length listening demos with custom SVG covers. Their duration comes from the browser's media metadata. They are not marketplace sale records, and no producer, BPM, key or licensing metadata is invented for them.
+The five original files under `public/assets/audios/` are full-length listening demos with custom SVG covers. Playback uses generated 128 kbps copies (or the optional 96 kbps data-saver copies) under `public/assets/audios/listening/`; only the explicit Download demo action uses the original file. Their duration comes from the browser's media metadata. They are not marketplace sale records, and no producer, BPM, key or licensing metadata is invented for them.
 
-Marketplace audio uses `marketplaceAudioTrack()` to preserve the maximum 30-second preview. This client limit supplements the independently cropped preview produced by the server; it never exposes the protected original. Saved previews in Producer Studio use the same global engine. A producer's unsaved local upload audition uses its temporary browser URL and pauses other playback through shared audio focus.
+Marketplace audio uses `marketplaceAudioTrack()` to preserve the maximum 30-second preview. This client limit supplements the independently cropped, 128 kbps MP3 preview produced by the server; it never exposes the protected original. Saved previews in Producer Studio use the same global engine. A producer's unsaved local upload audition uses its temporary browser URL and pauses other playback through shared audio focus.
 
 ## Add a play button
 

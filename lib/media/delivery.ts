@@ -7,29 +7,23 @@ import type { ObjectStorageAsset } from "@/models/schemas/shared";
 import { byteLimit, isLocalAsset, mediaS3Client, objectKey, resolveLocalPath, validateMediaKey } from "./adapter";
 import { s3DeliveryMode } from "./config";
 import { MAX_MASTER_BYTES, MediaValidationError } from "./wav";
+import { parseMediaRange } from "./range";
+import { servePreview } from "./preview-cache";
 
-/** One RFC 7233 byte range; multi-range responses are deliberately not supported. */
-export function parseMediaRange(header: string | null, size: number) {
-  if (header === null) return null;
-  const match = /^bytes=(\d*)-(\d*)$/.exec(header);
-  if (!match || (!match[1] && !match[2]) || !Number.isSafeInteger(size) || size <= 0) throw new MediaValidationError("Invalid byte range.", 416);
-  const first = match[1] ? Number(match[1]) : null;
-  const last = match[2] ? Number(match[2]) : null;
-  if ((first !== null && !Number.isSafeInteger(first)) || (last !== null && !Number.isSafeInteger(last))) throw new MediaValidationError("Invalid byte range.", 416);
-  const start = first === null ? Math.max(0, size - (last || 0)) : first;
-  const end = first !== null && last !== null ? Math.min(last, size - 1) : size - 1;
-  if (start < 0 || start >= size || end < start) throw new MediaValidationError("Invalid byte range.", 416);
-  return { start, end };
-}
+export { parseMediaRange } from "./range";
 
 /** Publication/ownership/paid-entitlement authorization must happen before this helper. */
-export async function serveStoredAsset(request: Request, asset: ObjectStorageAsset, options: { downloadName?: string } = {}) {
+export async function serveStoredAsset(request: Request, asset: ObjectStorageAsset, options: { downloadName?: string; privateDownload?: boolean } = {}) {
   validateMediaKey(asset.key);
-  const headers = new Headers({ "Content-Type": asset.mimeType, "Accept-Ranges": "bytes", "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" });
+  if (asset.key.endsWith(".master.wav") && !options.privateDownload) throw new MediaValidationError("Media could not be found.", 404);
+  if (options.privateDownload && (!asset.key.endsWith(".master.wav") || asset.mimeType !== "audio/wav")) throw new MediaValidationError("Purchased file not found.", 404);
+  if (!options.privateDownload && asset.key.endsWith(".preview.mp3") && asset.mimeType === "audio/mpeg") return servePreview(request, asset);
+  const headers = new Headers({ "Content-Type": asset.mimeType, "Accept-Ranges": "bytes", "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff", "Cross-Origin-Resource-Policy": "same-origin", "Referrer-Policy": "no-referrer" });
   if (options.downloadName) headers.set("Content-Disposition", `attachment; filename="track.wav"; filename*=UTF-8''${encodeURIComponent(options.downloadName)}.wav`);
   if (!isLocalAsset(asset)) {
     if (!["S3", "R2"].includes(asset.provider)) throw new MediaValidationError("Unsupported media storage provider.", 503);
-    if (s3DeliveryMode() === "proxy" && request.method !== "HEAD") {
+    // Purchased masters always pass through authorization; never disclose reusable bucket URLs.
+    if ((options.privateDownload || s3DeliveryMode() === "proxy") && request.method !== "HEAD") {
       const client = mediaS3Client();
       const size = Number.isSafeInteger(asset.sizeBytes) && asset.sizeBytes > 0 ? asset.sizeBytes : (await client.send(new HeadObjectCommand({ Bucket: asset.bucket, Key: objectKey(asset) }), { abortSignal: request.signal })).ContentLength;
       if (!size || size > MAX_MASTER_BYTES + 44) throw new MediaValidationError("Stored file exceeds the supported size.", 413);

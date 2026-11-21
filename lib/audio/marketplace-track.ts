@@ -8,6 +8,7 @@ export function marketplaceAudioTrack(track: MarketplaceTrack): AudioTrack {
     title: track.title,
     artist: track.producerName,
     src: track.previewUrl || "",
+    lowDataSrc: track.previewUrl?.endsWith(".mp3") ? `${track.previewUrl}?quality=low` : undefined,
     coverUrl: track.artworkUrl,
     description: track.description,
     href: trackHref(track),

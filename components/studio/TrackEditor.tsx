@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dynamic/DynamicFileInput";
 import { useFileUpload } from "@/components/ui/dynamic/useFileUpload";
 import { IMAGE_MAX_BYTES, IMAGE_SOURCE_MAX_BYTES } from "@/lib/images/policy";
+import { UploadSubmission } from "@/lib/uploads/submission";
+import { UPLOAD_PROGRESS_TYPE } from "@/lib/uploads/protocol";
 
 import {
   useCallback,
@@ -25,6 +27,7 @@ import { useAudioActions } from "@/components/audio/AudioPlayerProvider";
 import { marketplaceAudioTrack } from "@/lib/audio/marketplace-track";
 import {
   apiRequest,
+  ApiRequestError,
   controlClass,
   errorMessage,
   Field,
@@ -84,6 +87,8 @@ export function TrackEditor({
   const [duration, setDuration] = useState(track?.durationSeconds ?? 0);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [retryAvailable, setRetryAvailable] = useState(false);
+  const submissionRef = useRef(new UploadSubmission());
   const [auditioning, setAuditioning] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const uploadStatusRef = useRef<HTMLDivElement>(null);
@@ -234,9 +239,10 @@ export function TrackEditor({
     try {
       const endpoint = admin ? "/api/admin/tracks" : "/api/tracks";
       const url = track ? `${endpoint}/${track.id}` : endpoint;
-      if (master || artwork)
-        await fileUpload.upload(url, form, track ? "PATCH" : "POST");
-      else await apiRequest(url, { method: "PATCH", body: form });
+      const method = track ? "PATCH" : "POST";
+      const identity = submissionRef.current.identify({ url, method, data: String(form.get("data")), master, artwork });
+      await fileUpload.upload(url, form, method, { Accept: UPLOAD_PROGRESS_TYPE, "X-Upload-Request-Id": identity });
+      setRetryAvailable(false);
       toast.success(
         values.status === "PUBLISHED" ? "Track published" : "Track saved",
         "Your selected 30-second preview is ready.",
@@ -244,6 +250,7 @@ export function TrackEditor({
       onSaved();
     } catch (error) {
       setError(errorMessage(error));
+      setRetryAvailable(!(error instanceof ApiRequestError) || error.status >= 500 || [408, 429].includes(error.status));
     } finally {
       setSaving(false);
     }
@@ -258,7 +265,7 @@ export function TrackEditor({
       description="Keep the full master private. Choose the 30 seconds that buyers can hear."
       size="lg"
     >
-      <form onSubmit={save} className="min-w-0 space-y-6" aria-busy={saving}>
+      <form onSubmit={save} onChange={() => { if (!saving) setRetryAvailable(false); }} className="min-w-0 space-y-6" aria-busy={saving}>
         <fieldset disabled={saving} className="min-w-0 space-y-6">
           <legend className="sr-only">Track information</legend>
           {admin && !track && (
@@ -276,7 +283,7 @@ export function TrackEditor({
               onChange={selectMaster}
               disabled={saving}
               existingName={track ? "Saved WAV master" : undefined}
-              hint="Uncompressed PCM WAV, at least 30 seconds. Choose your preview below."
+              hint="Your original WAV stays private for buyers. We create a smaller 30-second MP3 for public listening. Choose that section below."
             />
             <DynamicFileInput
               name="artwork"
@@ -300,6 +307,7 @@ export function TrackEditor({
               progress={fileUpload.progress}
               label="Uploading beat files"
               processingLabel="Preparing your beat and preview…"
+              onRetry={retryAvailable && !saving ? () => uploadStatusRef.current?.closest<HTMLFormElement>("form")?.requestSubmit() : undefined}
             />
           </div>
 
@@ -567,9 +575,10 @@ export function TrackEditor({
           </div>
         </fieldset>
         {error && <RequestError message={error} />}
+        {error && <p className="text-sm text-muted">Your selected files and track details are still here. {retryAvailable ? "Retry when you’re ready." : "Review the error before saving again."}</p>}
         {saving && (
           <p role="status" className="text-sm text-[var(--muted)]">
-            Uploading files and creating your preview. Keep this window open…
+            Keep this window open until your track is saved. Preview preparation may take a moment.
           </p>
         )}
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -579,6 +588,7 @@ export function TrackEditor({
           <NeumorphicButton type="submit" variant="accent" disabled={saving}>
             {saving
               ? "Saving…"
+              : retryAvailable ? "Retry upload"
               : values.status === "PUBLISHED"
                 ? "Publish track"
                 : "Save track"}

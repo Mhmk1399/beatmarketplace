@@ -11,6 +11,8 @@ import TrackModel from "@/models/Track";
 import TrackDiscountModel from "@/models/TrackDiscount";
 import { activeDiscountFilter, serializeDiscount } from "@/lib/marketplace/discount-server";
 import { computeDiscountedPrice } from "@/lib/marketplace/discounts";
+import { readSecureJson, securityErrorResponse } from "@/lib/security/request";
+import { consumeApiQuota } from "@/lib/security/rate-limit";
 
 const inputSchema = z.object({ idempotencyKey: z.uuid(), items: z.array(z.object({ trackId: objectIdSchema, contractId: objectIdSchema, expectedPrice: z.string().regex(/^\d+$/), expectedVersion: z.number().int().positive(), expectedDiscountVersion: z.number().int().positive().nullable().optional() }).strict()).min(1).max(20), acceptTerms: z.literal(true) }).strict()
   .refine((value) => new Set(value.items.map((item) => item.trackId)).size === value.items.length, "Choose one license per track.");
@@ -20,14 +22,15 @@ export async function GET(request: Request) {
     const auth = await authenticateRequest(request);
     if (!auth.ok) return auth.response;
     const orders = await OrderModel.find({ buyerId: auth.user._id }).sort({ createdAt: -1 }).limit(100);
-    return NextResponse.json({ orders: orders.map(serializeOrder) });
+    return NextResponse.json({ orders: orders.map(serializeOrder) }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) { return marketplaceError(error); }
 }
 export async function POST(request: Request) {
   try {
     const auth = await authenticateRequest(request);
     if (!auth.ok) return auth.response;
-    const input = inputSchema.parse(await request.json());
+    const input = inputSchema.parse(await readSecureJson(request));
+    await consumeApiQuota("checkout", auth.user.id, 10, 60_000);
     const config = paymentConfiguration();
     const existing = await OrderModel.findOne({ buyerId: auth.user._id, idempotencyKey: input.idempotencyKey });
     if (existing) {
@@ -76,6 +79,8 @@ export async function POST(request: Request) {
       throw error;
     }
   } catch (error) {
+    const secured = securityErrorResponse(error);
+    if (secured) return secured;
     if (error instanceof Error && "status" in error && typeof error.status === "number") return NextResponse.json({ error: error.message }, { status: error.status });
     return marketplaceError(error);
   }

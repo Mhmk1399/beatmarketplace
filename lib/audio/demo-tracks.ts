@@ -1,7 +1,7 @@
 import type { AudioTrack } from "@/lib/audio/types";
 
 /** User-supplied public songs shared by the hero, listening room and global player. */
-export const demoTracks: AudioTrack[] = [
+const originals: AudioTrack[] = [
   {
     id: "demo-die-trying",
     title: "Die Trying",
@@ -53,3 +53,11 @@ export const demoTracks: AudioTrack[] = [
     isDemo: true,
   },
 ];
+
+/** Smaller listening copies; original downloads remain an explicit demo-only action. */
+export const demoTracks: AudioTrack[] = originals.map(track => ({
+  ...track,
+  downloadSrc: track.src,
+  src: `/assets/audios/listening/${track.id}-128.mp3`,
+  lowDataSrc: `/assets/audios/listening/${track.id}-96.mp3`,
+}));

@@ -13,6 +13,7 @@ const SETTINGS_KEY = "beatmarketplace-audio-settings-v1";
 const initialState: AudioPlayerState = {
   track: null, queue: [], queueIndex: -1, playing: false, buffering: false,
   elapsed: 0, duration: 0, buffered: 0, volume: 0.8, muted: false, repeat: "off", shuffle: false, error: null,
+  quality: "standard", slowConnection: false, offline: false,
 };
 type AudioGraph = { audio: HTMLAudioElement; context: AudioContext; source: MediaElementAudioSourceNode; analyser: AnalyserNode | null };
 type LoadOptions = { autoPlay?: boolean; resetHistory?: boolean; recordHistory?: boolean };
@@ -39,6 +40,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
   const settingsReadyRef = useRef(false);
   const stateRef = useRef<AudioPlayerState>(initialState);
   const [state, setState] = useState<AudioPlayerState>(initialState);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   const update = useCallback((patch: Partial<AudioPlayerState>) => {
     if (!Object.entries(patch).some(([key, value]) => !Object.is(stateRef.current[key as keyof AudioPlayerState], value))) return;
@@ -91,7 +93,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     ++sequenceRef.current;
     intendedPlayRef.current = false;
     audioRef.current?.pause();
-    update({ playing: false, buffering: false });
+    update({ playing: false, buffering: false, slowConnection: false });
   }, [update]);
 
   const loadTrack = useCallback((track: AudioTrack, queue: AudioTrack[], options: LoadOptions = {}) => {
@@ -99,8 +101,10 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     if (!audio || !track.src) return;
     const autoPlay = options.autoPlay !== false;
     const previous = stateRef.current;
-    const changed = previous.track?.id !== track.id || previous.track?.src !== track.src;
+    const source = previous.quality === "data-saver" && track.lowDataSrc ? track.lowDataSrc : track.src;
+    const changed = previous.track?.id !== track.id || audio.getAttribute("src") !== source;
     const sequence = ++sequenceRef.current;
+    setLoadAttempt(sequence);
     completedSequenceRef.current = -1;
     intendedPlayRef.current = autoPlay;
     if (changed) audio.pause();
@@ -114,10 +118,10 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     update({ track, queue, queueIndex: queue.findIndex((item) => item.id === track.id),
       elapsed: changed ? 0 : clamp(audio.currentTime, 0, previous.duration),
       duration: changed ? trackDuration(track, 0) : previous.duration,
-      buffered: changed ? 0 : previous.buffered, playing: false, buffering: autoPlay, error: null });
+      buffered: changed ? 0 : previous.buffered, playing: false, buffering: autoPlay, slowConnection: false, error: null });
     if (changed) {
       pendingSeekRef.current = null;
-      audio.src = track.src;
+      audio.src = source;
       audio.load();
     } else if (audio.ended || (previous.duration > 0 && audio.currentTime >= previous.duration - 0.05)) {
       audio.currentTime = 0;
@@ -260,9 +264,50 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     const current = stateRef.current;
     const audio = audioRef.current;
     if (!current.track || !audio) return;
+    const elapsed = current.elapsed;
     audio.load();
     loadTrack(current.track, current.queue, { recordHistory: false });
+    pendingSeekRef.current = elapsed;
   }, [loadTrack]);
+
+  const setQuality = useCallback((quality: "standard" | "data-saver") => {
+    const current = stateRef.current;
+    if (current.quality === quality) return;
+    const elapsed = audioRef.current?.currentTime ?? current.elapsed;
+    const autoPlay = !current.offline && (current.playing || intendedPlayRef.current || Boolean(current.error));
+    update({ quality });
+    try { localStorage.setItem("beatmarketplace-audio-quality-v1", quality); } catch { /* Optional preference. */ }
+    if (current.track) {
+      loadTrack(current.track, current.queue, { recordHistory: false, autoPlay });
+      pendingSeekRef.current = elapsed;
+    }
+  }, [loadTrack, update]);
+
+  useEffect(() => {
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    let quality: "standard" | "data-saver" = connection?.saveData ? "data-saver" : "standard";
+    try {
+      const saved = localStorage.getItem("beatmarketplace-audio-quality-v1");
+      if (saved === "standard" || saved === "data-saver") quality = saved;
+    } catch { /* Browser storage is optional. */ }
+    let active = true;
+    Promise.resolve().then(() => { if (active) update({ quality, offline: !navigator.onLine }); });
+    const online = () => update({ offline: !navigator.onLine });
+    window.addEventListener("online", online); window.addEventListener("offline", online);
+    return () => { active = false; window.removeEventListener("online", online); window.removeEventListener("offline", online); };
+  }, [update]);
+
+  useEffect(() => {
+    if (!state.buffering) return;
+    const sequence = sequenceRef.current;
+    const slow = setTimeout(() => { if (sequenceRef.current === sequence && intendedPlayRef.current) update({ slowConnection: true }); }, 8000);
+    const timeout = setTimeout(() => {
+      if (sequenceRef.current !== sequence || !intendedPlayRef.current) return;
+      pause();
+      update({ error: "Audio is taking too long to load. Check your connection, try lower-data audio, or retry." });
+    }, 25_000);
+    return () => { clearTimeout(slow); clearTimeout(timeout); };
+  }, [state.buffering, state.track, state.quality, loadAttempt, pause, update]);
 
   const syncProgress = useCallback((force = false) => {
     const audio = audioRef.current;
@@ -290,8 +335,8 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     syncProgress(true);
   }, [seek, syncProgress, update]);
 
-  const actions = useMemo<AudioPlayerActions>(() => ({ play, toggle, pause, seek, skip, previous, next, setVolume, toggleMuted, cycleRepeat, toggleShuffle, clear, enqueue, removeFromQueue, retry }),
-    [play, toggle, pause, seek, skip, previous, next, setVolume, toggleMuted, cycleRepeat, toggleShuffle, clear, enqueue, removeFromQueue, retry]);
+  const actions = useMemo<AudioPlayerActions>(() => ({ play, toggle, pause, seek, skip, previous, next, setVolume, toggleMuted, cycleRepeat, toggleShuffle, clear, enqueue, removeFromQueue, retry, setQuality }),
+    [play, toggle, pause, seek, skip, previous, next, setVolume, toggleMuted, cycleRepeat, toggleShuffle, clear, enqueue, removeFromQueue, retry, setQuality]);
   const transport = useMemo<AudioTransport>(() => ({ track: state.track, playing: state.playing, buffering: state.buffering }), [state.track, state.playing, state.buffering]);
   const analyser = useMemo<AudioAnalyser>(() => ({ getAnalyser: () => graphRef.current?.analyser ?? null }), []);
   const value = useMemo<AudioPlayerContextValue>(() => ({ ...state, ...actions }), [state, actions]);
@@ -384,7 +429,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
       onLoadedMetadata={loadedMetadata} onDurationChange={loadedMetadata} onTimeUpdate={() => syncProgress()} onProgress={() => syncProgress(true)}
       onSeeking={() => { const audio = audioRef.current; if (audio && stateRef.current.duration > 0 && audio.currentTime > stateRef.current.duration) audio.currentTime = stateRef.current.duration; syncProgress(true); }}
       onSeeked={() => syncProgress(true)} onEnded={finishTrack}
-      onPlaying={() => { if (intendedPlayRef.current) update({ playing: true, buffering: false, error: null }); else audioRef.current?.pause(); }}
+      onPlaying={() => { if (intendedPlayRef.current) update({ playing: true, buffering: false, slowConnection: false, error: null }); else audioRef.current?.pause(); }}
       onPause={() => { if (audioRef.current?.paused && !stateRef.current.buffering) intendedPlayRef.current = false; update({ playing: false, buffering: false }); }}
       onWaiting={() => { if (intendedPlayRef.current) update({ buffering: true }); }}
       onStalled={() => { if (intendedPlayRef.current && !audioRef.current?.paused) update({ buffering: true }); }}

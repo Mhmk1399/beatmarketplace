@@ -7,6 +7,7 @@ import { CheckIcon, CloseIcon, MusicNoteIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
 import { formatFileSize, validateSelectedFile } from "@/lib/uploads/files";
 import type { FileUploadProgress } from "@/lib/uploads/transport";
+import { uploadStageLabels } from "@/lib/uploads/protocol";
 
 type Props = {
   id?: string;
@@ -82,11 +83,11 @@ export function FileUploadStatus({
     processing = preparing || progress.phase === "processing",
     failed = progress.phase === "error" || progress.phase === "cancelled";
   const title = preparing ? "Optimizing image…" : processing
-    ? processingLabel
+    ? progress.stage ? uploadStageLabels[progress.stage] : processingLabel
     : progress.phase === "success"
       ? "Upload complete"
       : failed
-        ? "Upload interrupted"
+        ? progress.stage ? `Stopped: ${uploadStageLabels[progress.stage].replace(/…$/, "")}` : "Upload interrupted"
         : label;
   return (
     <div
@@ -114,7 +115,7 @@ export function FileUploadStatus({
         </span>
         <strong aria-hidden="true">
           {preparing ? "WebP" : processing
-            ? "Finishing"
+            ? "Working"
             : progress.percent !== null
               ? `${progress.percent}%`
               : "…"}
@@ -132,7 +133,7 @@ export function FileUploadStatus({
             : undefined
         }
         aria-valuetext={
-          preparing ? "Converting to WebP below 800 KB before upload." : processing ? "Files sent. Preparing your upload." : undefined
+          preparing ? "Converting to WebP below 800 KB before upload." : processing ? progress.stage ? uploadStageLabels[progress.stage] : "Files sent. Preparing your upload." : undefined
         }
         data-indeterminate={processing || progress.percent === null}
       >
