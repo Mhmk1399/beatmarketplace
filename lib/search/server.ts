@@ -7,6 +7,7 @@ import { categoryImageUrl, getTaxonomyModel } from "@/lib/marketplace/taxonomy";
 import { normalizeSearch, relevance, searchGrams, searchTerms, type SearchIndex } from "./matching";
 import type { SearchBeat, SearchCategory, SearchDiscovery, SearchKind, SearchResponse } from "./types";
 import { WorkspaceError } from "@/lib/workspace/server";
+import { trackHref } from "@/lib/marketplace/track-url";
 
 type Cached = { expires: number; pending: Promise<unknown> };
 const state = globalThis as typeof globalThis & { beatSearchCache?: Map<string, Cached>; activeCatalogSearches?: number };
@@ -79,13 +80,13 @@ export async function searchCatalog(query: string, page = 1, suggest = false): P
   const result = await candidates(query), size = suggest ? 4 : 12;
   const ids = result.ids.slice((page - 1) * size, page * size).map(id => new mongoose.Types.ObjectId(id));
   // Recheck current visibility and producer status even when candidate IDs are cached.
-  const records = ids.length ? await TrackModel.aggregate<{ _id: mongoose.Types.ObjectId; title: string; description: string; artwork?: { publicUrl?: string }; metadata: { bpm: number; musicalKey: string } }>([
+  const records = ids.length ? await TrackModel.aggregate<{ _id: mongoose.Types.ObjectId; slug: string; title: string; description: string; artwork?: { publicUrl?: string }; metadata: { bpm: number; musicalKey: string } }>([
     { $match: { _id: { $in: ids }, status: "PUBLISHED", visibility: "PUBLIC" } },
     { $lookup: { from: UserModel.collection.name, localField: "producerId", foreignField: "_id", pipeline: [{ $match: { status: "ACTIVE", roles: "PRODUCER" } }, { $project: { _id: 1 } }], as: "__producer" } },
     { $match: { "__producer.0": { $exists: true } } },
-    { $project: { title: 1, description: 1, "artwork.publicUrl": 1, "metadata.bpm": 1, "metadata.musicalKey": 1 } },
+    { $project: { title: 1, slug: 1, description: 1, "artwork.publicUrl": 1, "metadata.bpm": 1, "metadata.musicalKey": 1 } },
   ]).option({ maxTimeMS: 3000 }) : [];
-  const mapped = new Map(records.map(row => [String(row._id), { id: String(row._id), title: row.title, description: row.description?.slice(0, 180) || "", href: `/tracks/${row._id}`, image: row.artwork?.publicUrl || null, bpm: row.metadata.bpm, musicalKey: row.metadata.musicalKey } satisfies SearchBeat]));
+  const mapped = new Map(records.map(row => [String(row._id), { id: String(row._id), title: row.title, description: row.description?.slice(0, 180) || "", href: trackHref({ id: String(row._id), slug: row.slug }), image: row.artwork?.publicUrl || null, bpm: row.metadata.bpm, musicalKey: row.metadata.musicalKey } satisfies SearchBeat]));
   const group = (kind: SearchKind) => result.taxonomy.filter(item => item.kind === kind).slice(0, suggest ? 4 : 24);
   return { query, corrected: result.corrected, beats: ids.flatMap(id => mapped.get(String(id)) || []), genres: group("genres"), moods: group("moods"), instruments: group("instruments"), page, hasMore: !suggest && result.ids.length > page * size, trendTerm: result.trendTerm };
 }

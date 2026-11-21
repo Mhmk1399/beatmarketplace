@@ -1,5 +1,6 @@
 import { validateTrackChoices } from "@/lib/marketplace/server";
-import { randomUUID } from "node:crypto";
+import { saveTrackWithSlug } from "@/lib/marketplace/track-slug-server";
+import { trackSlugBase } from "@/lib/marketplace/track-url";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
@@ -149,13 +150,13 @@ export async function POST(request: Request) {
     if (data.status === "PUBLISHED" && (!data.genreId || !form.artwork)) throw new MarketplaceError("Choose a genre and upload artwork before publishing.");
     const media = await storeTrackMedia({ master: form.master, artwork: form.artwork, previewStartSeconds: data.previewStartSeconds });
     writtenKeys = [media.master?.key, media.preview?.key, media.artwork?.key].filter((key): key is string => Boolean(key));
-    const slugBase = data.title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "").slice(0, 155) || "track";
-    const track = await TrackModel.create({
-      producerId: authentication.user._id, title: data.title, slug: `${slugBase}-${randomUUID().slice(0, 12)}`, description: data.description,
+    const track = new TrackModel({
+      producerId: authentication.user._id, title: data.title, slug: trackSlugBase(data.title), description: data.description,
       artwork: media.artwork, audio: { master: media.master, preview: media.preview, previewStartSeconds: data.previewStartSeconds, previewDurationSeconds: 30 },
       metadata: { moodIds: data.moodIds, instrumentIds: data.instrumentIds, bpm: data.bpm, musicalKey: data.musicalKey, genreId: data.genreId, tags: data.tags, durationSeconds: media.durationSeconds },
       status: data.status, visibility: data.visibility,
     });
+    await saveTrackWithSlug(track);
     committed = true;
     const [serialized] = await serializeTracks([track]);
     return NextResponse.json({ track: serialized }, { status: 201 });

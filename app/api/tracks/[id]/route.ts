@@ -10,6 +10,7 @@ import { removeStoredAssets, storeTrackMedia } from "@/lib/media/storage";
 import { acquireMediaUploadLease } from "@/lib/media/upload";
 import GenreModel from "@/models/Genre";
 import TrackModel from "@/models/Track";
+import { saveTrackWithSlug } from "@/lib/marketplace/track-slug-server";
 import { issueViewToken } from "@/lib/analytics/token";
 
 export const runtime = "nodejs";
@@ -81,7 +82,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (data.instrumentIds !== undefined) track.metadata.instrumentIds = data.instrumentIds.map(id=>new mongoose.Types.ObjectId(id));
     if (data.status !== undefined) track.status = data.status;
     if (data.visibility !== undefined) track.visibility = data.visibility;
-    await track.save();
+    await saveTrackWithSlug(track);
     committed = true;
     // Purchased orders retain exact masters; superseded master files must remain available to entitlements.
     await removeStoredAssets([
@@ -107,7 +108,7 @@ export async function DELETE(request: Request, context: { params: Promise<{ id: 
     if (!track) throw new MarketplaceError("This track could not be found.", 404);
     track.status = "ARCHIVED";
     track.visibility = "PRIVATE";
-    await track.save();
+    await saveTrackWithSlug(track);
     return NextResponse.json({ archived: true });
   } catch (error) { return marketplaceError(error); }
 }

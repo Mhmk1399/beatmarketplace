@@ -6,6 +6,15 @@ export const config = {
   jwtAudience: process.env.JWT_AUDIENCE ?? "beatmarketplace-web",
 };
 
+/** APP_URL is also the authoritative public origin used by payment callbacks. */
+export function configuredAppOrigin() {
+  try {
+    if (!process.env.APP_URL) return undefined;
+    const url = new URL(process.env.APP_URL);
+    return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password ? new URL(url.origin) : undefined;
+  } catch { return undefined; }
+}
+
 export function getJwtSecret() {
   const secret = process.env.JWT_SECRET;
 

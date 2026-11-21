@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:indexes": "tsx scripts/ensure-indexes.ts",
     "db:search": "tsx scripts/search-index.ts",
+    "db:slugs": "tsx scripts/track-slugs.ts",
     "db:seed": "tsx scripts/seed-catalog.ts",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
     "check": "npm run lint && npm run typecheck"

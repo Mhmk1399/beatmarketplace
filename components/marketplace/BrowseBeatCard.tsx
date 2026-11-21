@@ -1,6 +1,7 @@
 "use client";
 
 import { CoverImage } from "@/components/ui/CoverImage";
+import { trackHref } from "@/lib/marketplace/track-url";
 import Link from "next/link";
 import { AudioFavoriteButton } from "@/components/audio/AudioFavoriteButton";
 import {
@@ -62,7 +63,7 @@ export function BrowseBeatCard({ beat, demo, queue }: Props) {
       <div className="browse-beat-art">
         {beat ? (
           <Link
-            href={`/tracks/${beat.id}`}
+            href={trackHref(beat)}
             className="browse-beat-art-link"
             aria-label={`View ${audio.title} and licenses`}
             prefetch={false}
@@ -103,7 +104,7 @@ export function BrowseBeatCard({ beat, demo, queue }: Props) {
       <div className="browse-beat-copy">
         <h3>
           {beat ? (
-            <Link href={`/tracks/${beat.id}`} prefetch={false}>
+            <Link href={trackHref(beat)} prefetch={false}>
               {audio.title}
             </Link>
           ) : (
@@ -119,7 +120,7 @@ export function BrowseBeatCard({ beat, demo, queue }: Props) {
         {beat ? (
           <Link
             className="browse-beat-details"
-            href={`/tracks/${beat.id}`}
+            href={trackHref(beat)}
             prefetch={false}
             aria-label={`Licenses and details for ${audio.title}`}
           >

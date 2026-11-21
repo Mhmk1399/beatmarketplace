@@ -1,4 +1,5 @@
-import { randomUUID } from "node:crypto";
+import { saveTrackWithSlug } from "@/lib/marketplace/track-slug-server";
+import { trackSlugBase } from "@/lib/marketplace/track-url";
 import mongoose from "mongoose";
 import { z } from "zod";
 import TrackModel from "@/models/Track";
@@ -27,7 +28,7 @@ export async function mutateAdminTrack(request: Request, id?: string) {
     if (data.genreId && !await GenreModel.exists({ _id: data.genreId, isActive: true })) throw new WorkspaceError("Select an active genre.");
     if (!current && !form.master) throw new WorkspaceError("Upload a WAV master.");
     if (data.status === "PUBLISHED" && (!data.genreId || (!form.artwork && !current?.artwork))) throw new WorkspaceError("Add a genre and artwork before publishing.");
-    const track = current ?? new TrackModel({ producerId, title: data.title, slug: `${data.title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").slice(0, 145) || "beat"}-${randomUUID().slice(0, 12)}`, audio: { stems: [], previewStartSeconds: data.previewStartSeconds, previewDurationSeconds: 30 }, metadata: {} });
+    const track = current ?? new TrackModel({ producerId, title: data.title, slug: trackSlugBase(data.title), audio: { stems: [], previewStartSeconds: data.previewStartSeconds, previewDurationSeconds: 30 }, metadata: {} });
     const oldArtwork = track.artwork, oldPreview = track.audio.preview;
     const hasMaster = Boolean(form.master || track.audio.master);
     if (!hasMaster && (form.artwork || data.status === "PUBLISHED")) throw new WorkspaceError("Upload the WAV master before adding artwork or publishing.");
@@ -37,7 +38,7 @@ export async function mutateAdminTrack(request: Request, id?: string) {
       if (media.master) track.audio.master = media.master; track.audio.preview = media.preview; if (media.artwork) track.artwork = media.artwork; track.metadata.durationSeconds = media.durationSeconds;
     }
     track.title = data.title; track.description = data.description; track.metadata.bpm = data.bpm; track.metadata.musicalKey = data.musicalKey; track.metadata.genreId = data.genreId ? new mongoose.Types.ObjectId(data.genreId) : null; track.metadata.tags = data.tags; track.metadata.moodIds = data.moodIds.map(id=>new mongoose.Types.ObjectId(id)); track.metadata.instrumentIds = data.instrumentIds.map(id=>new mongoose.Types.ObjectId(id)); track.audio.previewStartSeconds = data.previewStartSeconds; track.audio.previewDurationSeconds = 30; track.status = data.status; track.visibility = data.visibility;
-    await track.save(); committed = true;
+    await saveTrackWithSlug(track); committed = true;
     await removeStoredAssets([...(oldArtwork && oldArtwork.key !== track.artwork?.key ? [oldArtwork] : []), ...(oldPreview && oldPreview.key !== track.audio.preview?.key ? [oldPreview] : [])]).catch(() => undefined);
     return json({ track: { ...(await serializeTracks([track]))[0], version: track.__v } }, id ? 200 : 201);
   } finally { if (!committed && written.length) await removeStoredAssets(written).catch(() => undefined); try { await cleanup?.(); } finally { release(); } }

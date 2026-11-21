@@ -4,6 +4,7 @@ import { ResourceManager, type ResourceConfig } from "@/components/admin/Resourc
 import { TableIdentity } from "@/components/ui/dynamic/DynamicTable";
 import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
 import { formatPersianDate } from "@/lib/date-time";
+import { trackHref } from "@/lib/marketplace/track-url";
 import type { BeatAnalytics } from "@/lib/analytics/types";
 
 export function BeatAnalyticsWorkspace({ admin = false }: { admin?: boolean }) {
@@ -15,7 +16,7 @@ export function BeatAnalyticsWorkspace({ admin = false }: { admin?: boolean }) {
       { id: "views", header: "Views", cell: track => track.views.toLocaleString("en-US") },
       { id: "visitors", header: "Unique visitors", cell: track => track.uniqueVisitors.toLocaleString("en-US") },
       { id: "lastViewed", header: "Last view", cell: track => track.lastViewedAt ? formatPersianDate(track.lastViewedAt) : "No views yet" },
-      { id: "open", header: "Open", cell: track => <NeumorphicLink href={track.status === "PUBLISHED" && track.visibility === "PUBLIC" ? `/tracks/${track.id}` : admin ? "/admin/beats" : "/studio/tracks"} size="sm" variant="quiet">{track.status === "PUBLISHED" && track.visibility === "PUBLIC" ? "View beat" : "Manage beat"}</NeumorphicLink> },
+      { id: "open", header: "Open", cell: track => <NeumorphicLink href={track.status === "PUBLISHED" && track.visibility === "PUBLIC" ? trackHref(track) : admin ? "/admin/beats" : "/studio/tracks"} size="sm" variant="quiet">{track.status === "PUBLISHED" && track.visibility === "PUBLIC" ? "View beat" : "Manage beat"}</NeumorphicLink> },
     ],
   };
   return <ResourceManager config={config} />;
