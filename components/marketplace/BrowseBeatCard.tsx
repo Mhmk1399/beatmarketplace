@@ -1,12 +1,17 @@
 "use client";
 
-import Image from "next/image";
+import { CoverImage } from "@/components/ui/CoverImage";
 import Link from "next/link";
 import { AudioFavoriteButton } from "@/components/audio/AudioFavoriteButton";
-import { useAudioActions, useAudioTransport } from "@/components/audio/AudioPlayerProvider";
-import { PlayerLoaderIcon, PlayerPauseIcon, PlayerPlayIcon } from "@/components/audio/PlayerIcons";
-import { LicensePrice } from "@/components/discounts/LicensePrice";
-import { DiscountCountdown } from "@/components/discounts/DiscountCountdown";
+import {
+  useAudioActions,
+  useAudioTransport,
+} from "@/components/audio/AudioPlayerProvider";
+import {
+  PlayerLoaderIcon,
+  PlayerPauseIcon,
+  PlayerPlayIcon,
+} from "@/components/audio/PlayerIcons";
 import { useDiscountActive } from "@/components/discounts/clock";
 import { ArrowRightIcon, MusicNoteIcon } from "@/components/ui/icons";
 import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
@@ -17,7 +22,11 @@ import { formatAudioTime } from "@/lib/audio/utils";
 import demoWaveforms from "@/lib/audio/demo-waveforms.json";
 
 const demoMetadata: Record<string, { durationSeconds: number }> = demoWaveforms;
-type Props = { beat?: MarketplaceTrack; demo?: AudioTrack; queue: AudioTrack[] };
+type Props = {
+  beat?: MarketplaceTrack;
+  demo?: AudioTrack;
+  queue: AudioTrack[];
+};
 
 export function BrowseBeatCard({ beat, demo, queue }: Props) {
   const audio = beat ? marketplaceAudioTrack(beat) : demo!;
@@ -26,27 +35,100 @@ export function BrowseBeatCard({ beat, demo, queue }: Props) {
   const current = transport.track?.id === audio.id;
   const playing = current && transport.playing;
   const buffering = current && transport.buffering;
-  const discount = beat?.discount ?? beat?.licenses.find((license) => license.discount)?.discount;
+  const discount =
+    beat?.discount ??
+    beat?.licenses.find((license) => license.discount)?.discount;
   const onSale = useDiscountActive(discount);
-  const cheapest = beat ? [...beat.licenses].sort((a, b) => Number(a.originalPrice ?? a.price) - Number(b.originalPrice ?? b.price))[0] : null;
-  const duration = beat?.durationSeconds || demoMetadata[audio.id]?.durationSeconds || 0;
-  const artwork = audio.coverUrl ? <>
-    <span className="browse-beat-art-backdrop" aria-hidden="true"><Image src={audio.coverUrl} alt="" fill unoptimized sizes="(max-width:699px) 46vw, (max-width:1099px) 25vw, 240px" draggable={false} /></span>
-    <Image className="browse-beat-cover" src={audio.coverUrl} alt="" fill unoptimized sizes="(max-width:699px) 46vw, (max-width:1099px) 25vw, 240px" draggable={false} />
-  </> : <MusicNoteIcon />;
-  return <article className="browse-beat" data-playing={playing} data-demo={Boolean(demo)} data-on-sale={onSale} data-track-id={audio.id}>
-    <div className="browse-beat-art">
-      {beat ? <Link href={`/tracks/${beat.id}`} className="browse-beat-art-link" aria-label={`View ${audio.title} and licenses`} prefetch={false}>{artwork}</Link> : <span className="browse-beat-art-link">{artwork}</span>}
-      <span className="browse-beat-duration">{duration ? formatAudioTime(duration) : "30s"}</span>
-      {onSale && discount && <span className="browse-beat-sale">{discount.percentage}% off</span>}
-      <NeumorphicButton variant="accent" className="browse-beat-play" disabled={!audio.src} aria-label={`${playing || buffering ? "Pause" : "Play"} ${audio.title}`} title={beat ? "Listen to the producer-selected 30-second preview" : "Listen to the full-length demo"} aria-pressed={playing || buffering} onClick={() => actions.toggle(audio, queue)}>{buffering ? <PlayerLoaderIcon className="audio-loading" /> : playing ? <PlayerPauseIcon /> : <PlayerPlayIcon />}</NeumorphicButton>
-    </div>
-    <div className="browse-beat-copy">
-      <h3>{beat ? <Link href={`/tracks/${beat.id}`} prefetch={false}>{audio.title}</Link> : audio.title}</h3>
-      <p className="browse-beat-meta">{beat ? `${beat.bpm} BPM · ${beat.musicalKey}` : "Full-length demo"}</p>
-      {beat && <Link href={`/tracks/${beat.id}`} className="browse-beat-price" prefetch={false}>{cheapest ? <LicensePrice license={cheapest} /> : "View licenses"}</Link>}
-      {onSale && discount && <DiscountCountdown discount={discount} compact />}
-    </div>
-    <div className="browse-beat-actions"><AudioFavoriteButton track={audio} className="browse-beat-save" />{beat ? <Link className="browse-beat-details" href={`/tracks/${beat.id}`} prefetch={false} aria-label={`Licenses and details for ${audio.title}`}><ArrowRightIcon /></Link> : <span className="browse-beat-demo-label">Demo</span>}</div>
-  </article>;
+  const duration =
+    beat?.durationSeconds || demoMetadata[audio.id]?.durationSeconds || 0;
+  const artwork = audio.coverUrl ? (
+    <CoverImage
+      className="browse-beat-cover"
+      src={audio.coverUrl}
+      alt=""
+      sizes="(max-width:699px) 46vw, (max-width:1099px) 25vw, 240px"
+    />
+  ) : (
+    <MusicNoteIcon />
+  );
+  return (
+    <article
+      className="browse-beat"
+      data-playing={playing}
+      data-demo={Boolean(demo)}
+      data-on-sale={onSale}
+      data-track-id={audio.id}
+    >
+      <div className="browse-beat-art">
+        {beat ? (
+          <Link
+            href={`/tracks/${beat.id}`}
+            className="browse-beat-art-link"
+            aria-label={`View ${audio.title} and licenses`}
+            prefetch={false}
+          >
+            {artwork}
+          </Link>
+        ) : (
+          <span className="browse-beat-art-link">{artwork}</span>
+        )}
+        <span className="browse-beat-duration">
+          {duration ? formatAudioTime(duration) : "30s"}
+        </span>
+        {onSale && discount && (
+          <span className="browse-beat-sale">{discount.percentage}% off</span>
+        )}
+        <NeumorphicButton
+          variant="accent"
+          className="browse-beat-play"
+          disabled={!audio.src}
+          aria-label={`${playing || buffering ? "Pause" : "Play"} ${audio.title}`}
+          title={
+            beat
+              ? "Listen to the producer-selected 30-second preview"
+              : "Listen to the full-length demo"
+          }
+          aria-pressed={playing || buffering}
+          onClick={() => actions.toggle(audio, queue)}
+        >
+          {buffering ? (
+            <PlayerLoaderIcon className="audio-loading" />
+          ) : playing ? (
+            <PlayerPauseIcon />
+          ) : (
+            <PlayerPlayIcon />
+          )}
+        </NeumorphicButton>
+      </div>
+      <div className="browse-beat-copy">
+        <h3>
+          {beat ? (
+            <Link href={`/tracks/${beat.id}`} prefetch={false}>
+              {audio.title}
+            </Link>
+          ) : (
+            audio.title
+          )}
+        </h3>
+        <p className="browse-beat-meta">
+          {beat ? `${beat.bpm} BPM · ${beat.musicalKey}` : "Full-length demo"}
+        </p>
+      </div>
+      <div className="browse-beat-actions">
+        <AudioFavoriteButton track={audio} className="browse-beat-save" />
+        {beat ? (
+          <Link
+            className="browse-beat-details"
+            href={`/tracks/${beat.id}`}
+            prefetch={false}
+            aria-label={`Licenses and details for ${audio.title}`}
+          >
+            <ArrowRightIcon />
+          </Link>
+        ) : (
+          <span className="browse-beat-demo-label">Demo</span>
+        )}
+      </div>
+    </article>
+  );
 }

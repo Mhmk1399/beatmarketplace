@@ -1,5 +1,11 @@
 # Storage and catalog capacity
 
+## Cover rendering
+
+Beat covers and category/mood/instrument thumbnails share `components/ui/CoverImage.tsx`. Its Next Image always fills a positioned parent with `object-fit: cover` and a centered focal position. The parent owns responsive geometry and clipping; it must have a stable aspect ratio or explicit size. Portrait, landscape and square uploads fill the same frame without stretching or letterbox bands. Some edges are cropped according to the frame ratio; an explicit `position` prop can retain an intentional focal point. A missing/failed image keeps a theme-derived placeholder inside the same bounds.
+
+The marketplace, producer beat catalog, home carousels, ordinary beat cards, search and mood/instrument directories use this primitive. Text overlays retain their existing bottom gradient. Animated genre artwork has a small clipped overscan so rotation and vertical movement never expose the card background. The marketplace uses one sharp cover image per card instead of a contained image plus a duplicated blurred background. This policy applies to existing stored images as well as new uploads; it requires no asset rewrite. Storage preparation below handles validation, orientation, WebP conversion and size limits. It preserves the full beat artwork so responsive frames can crop it at display time. Square artwork is recommended in the upload form, but other source proportions remain accepted.
+
 ## Implemented boundaries
 
 The app supports a private S3-compatible object store and a development/local-volume adapter. Files are stored separately from MongoDB. Public APIs return allowlisted metadata; original masters remain accessible only through paid buyer entitlements.

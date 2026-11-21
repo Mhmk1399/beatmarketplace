@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CoverImage } from "@/components/ui/CoverImage";
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import useSWR from "swr";
@@ -32,7 +32,7 @@ export function DiscoveryDirectory({ kind, initial }: { kind: DiscoveryKind; ini
   return <section aria-label={`Browse ${kind}`} aria-busy={isLoading}>
     {error && <RequestError message={error instanceof Error ? error.message : "Could not load these sounds."} retry={() => { void catalog.mutate(); }} />}
     {!data && isLoading ? <FrequencyLoader overlay={false} label={`Loading ${kind}…`} /> : <div className={styles.directoryGrid}>{data?.items.map(item => <Link key={item.id} href={discoveryHref(kind, item.slug)} prefetch={false} className={styles.card} style={item.color && /^#[0-9a-f]{6}$/i.test(item.color) ? { "--discovery-tint": item.color } as CSSProperties : undefined}>
-      {item.thumbnailUrl ? <Image src={item.thumbnailUrl} alt="" fill unoptimized sizes="(max-width:699px) 46vw, (max-width:1023px) 30vw, 320px" className={styles.cardImage} /> : <span className={styles.cardFallback} aria-hidden="true"><MusicNoteIcon /></span>}
+      {item.thumbnailUrl ? <CoverImage src={item.thumbnailUrl} alt="" sizes="(max-width:699px) 46vw, (max-width:1023px) 30vw, 320px" className={styles.cardImage} /> : <span className={styles.cardFallback} aria-hidden="true"><MusicNoteIcon /></span>}
       <span className={styles.cardCopy}><span>{kind === "moods" ? "SET THE MOOD" : item.family?.replaceAll("_", " ") || "IN THE SOUND"}</span><strong>{item.name}</strong><span>{item.description || `Explore ${item.name.toLowerCase()} beats.`}</span></span><span className={styles.cardArrow} aria-hidden="true"><ArrowRightIcon /></span>
     </Link>)}</div>}
     {!isLoading && !error && !data?.items.length && <div className={styles.empty}><MusicNoteIcon /><h2>A new way to find your sound.</h2><p>New {kind} will appear here as they are added to the catalog.</p><NeumorphicLink href="/marketplace" variant="accent">Explore all beats <ArrowRightIcon /></NeumorphicLink></div>}

@@ -292,7 +292,7 @@ export function TrackEditor({
               }}
               disabled={saving}
               existingUrl={track?.artworkUrl}
-              hint="Choose a clear cover for your beat. Required when publishing."
+              hint="Square artwork is recommended. Images automatically fill cover cards; edges may be cropped. Required when publishing."
             />
           </div>
           <div ref={uploadStatusRef}>

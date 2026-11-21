@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CoverImage } from "@/components/ui/CoverImage";
 import { AudioFavoriteButton } from "@/components/audio/AudioFavoriteButton";
 import { useLoopCarousel } from "@/components/ui/dynamic/useLoopCarousel";
 import { useId } from "react";
@@ -178,11 +178,9 @@ export function ListeningRoom() {
                   <div className="music-room-card-body">
                     <div className="music-room-artwork">
                       {track.coverUrl && (
-                        <Image
+                        <CoverImage
                           src={track.coverUrl}
                           alt={track.title + " cover artwork"}
-                          fill
-                          unoptimized
                           draggable={false}
                           sizes="(max-width:599px) 80vw, (max-width:999px) 280px, 240px"
                           className="object-cover"

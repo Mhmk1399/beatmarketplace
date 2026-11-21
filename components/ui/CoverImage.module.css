@@ -1,0 +1,2 @@
+.fallback { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; border-radius: inherit; color: var(--accent-text); pointer-events: none; }
+.fallback > svg { width: 32%; height: 32%; max-width: 80px; max-height: 80px; }

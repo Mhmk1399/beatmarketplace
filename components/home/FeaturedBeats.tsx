@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CoverImage } from "@/components/ui/CoverImage";
 import { HeroCarouselSlot } from "./HeroCarouselSlot";
 import { useHeroCarouselMotion } from "./useHeroCarouselMotion";
 import { AudioFavoriteButton } from "@/components/audio/AudioFavoriteButton";
@@ -67,11 +67,9 @@ function Cover({
   decorative?: boolean;
 }) {
   return audio.coverUrl ? (
-    <Image
+    <CoverImage
       src={audio.coverUrl}
       alt={decorative ? "" : `${audio.title} cover artwork`}
-      fill
-      unoptimized
       draggable={false}
       sizes="(max-width: 600px) 280px, 360px"
       className="hero-featured-cover-image"

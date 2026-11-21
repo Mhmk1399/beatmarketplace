@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { CoverImage } from "@/components/ui/CoverImage";
 import { AudioFavoriteButton } from "@/components/audio/AudioFavoriteButton";
 import {
   useAudioActions,
@@ -140,11 +141,9 @@ export function TrendingBeats() {
                 >
                   <div className="trending-track-cover">
                     {track.coverUrl && (
-                      <Image
+                      <CoverImage
                         src={track.coverUrl}
                         alt=""
-                        fill
-                        unoptimized
                         sizes="(max-width: 699px) 48px, 72px"
                         draggable={false}
                       />

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { CoverImage } from "@/components/ui/CoverImage";
 import {
   useEffect,
   useId,
@@ -259,11 +259,10 @@ export function GenreExplorer() {
                       aria-label={`Explore ${style.name} beats`}
                     >
                       <span className={`genre-art genre-art-${style.art}`}>
-                        <Image
+                        <CoverImage
                           src={style.thumbnailUrl ?? `/assets/genres/${style.art}.svg`}
                           alt=""
-                          fill
-                          unoptimized
+                          position="center 35%"
                           draggable={false}
                           sizes="(max-width:699px) 44vw, (max-width:999px) 30vw, 300px"
                         />

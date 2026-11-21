@@ -13,7 +13,7 @@
 .genre-column { display: grid; min-width: 0; gap: var(--genre-gap); scroll-snap-align: start; scroll-snap-stop: always; }
 .genre-card.neo-button { position: relative; isolation: isolate; display: block; min-width: 0; width: 100%; aspect-ratio: 1; padding: 0; overflow: hidden; border: 1px solid var(--genre-card-edge); border-radius: var(--radius-control); background: var(--genre-card-fill); box-shadow: var(--genre-card-shadow); color: var(--text); text-align: left; transition: transform 300ms var(--hero-slide-ease), border-color var(--motion-base), box-shadow var(--motion-base); }
 .genre-card::before { position: absolute; z-index: 1; inset: 0; background: var(--genre-card-scrim); pointer-events: none; content: ""; }
-.genre-art { position: absolute; z-index: 0; inset: 0; pointer-events: none; }
+.genre-art { position: absolute; z-index: 0; inset: -10px; pointer-events: none; }
 .genre-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; transform-origin: 50% 40%; animation: genre-art-float 8s ease-in-out infinite both paused; }
 [data-motion="running"] .genre-art img { animation-play-state: running; }
 .genre-column:nth-child(4n+2) .genre-art img { animation-delay: -2s; }

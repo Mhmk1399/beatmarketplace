@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { CoverImage } from "@/components/ui/CoverImage";
 import { ArrowRightIcon, MusicNoteIcon, PlayIcon } from "@/components/ui/icons";
 import { PlayerPauseIcon } from "@/components/audio/PlayerIcons";
 import { useMarketplace } from "@/components/marketplace/MarketplaceProvider";
@@ -22,7 +22,7 @@ export function TrackCard({ track, queue }: { track: MarketplaceTrack; queue?: M
     <article className="music-track-card group" data-playing={active || undefined}>
       <div className="music-track-cover">
         <Link href={`/tracks/${track.id}`} className="music-track-art-link" aria-label={`View ${track.title} and licenses`}>
-          {track.artworkUrl ? <Image src={track.artworkUrl} alt={`Artwork for ${track.title}`} fill unoptimized sizes="(max-width:640px) 90vw, (max-width:1024px) 45vw, 25vw" className="object-cover" /> : <div className="artwork-nocturne flex h-full items-center justify-center"><MusicNoteIcon className="size-20 text-accent-text" /></div>}
+          {track.artworkUrl ? <CoverImage src={track.artworkUrl} alt={`Artwork for ${track.title}`} sizes="(max-width:640px) 90vw, (max-width:1024px) 45vw, 25vw" /> : <div className="artwork-nocturne flex h-full items-center justify-center"><MusicNoteIcon className="size-20 text-accent-text" /></div>}
         </Link>
         <div className="music-track-shade" aria-hidden="true" />
         {onSale && discount && <span className="discount-artwork-badge"><span aria-hidden="true">✦</span> {discount.percentage}% OFF</span>}

@@ -39,6 +39,8 @@ The track listening hero fills the first viewport with an upright cover, linked 
 
 Track loading uses the same responsive layout and measured navbar spacing as the content, reserving the two-line title region. Loading shapes are noninteractive and respect reduced motion. Detail data uses account-scoped SWR caching with explicit stale/error feedback and mutation invalidation; accepted network responses alone align the discount clock. Preview glass remains a theme-owned static material with bounded blur and reduced-transparency fallbacks, not an animated filter.
 
+Beat, category, mood and instrument covers use the shared `CoverImage` primitive. The parent provides a positioned, clipped frame with a stable aspect ratio or explicit dimensions; the image fills it with a centered cover crop and preserves its proportions. Intentional focal positions can be passed explicitly. Letterboxing and duplicate blurred images behind a contained cover are not the cover-card pattern. Text uses the existing bottom scrim, and unavailable images retain a themed placeholder within the same frame.
+
 ## Elevation & Depth
 
 Use the shared `--fill-*`, `--shadow-*`, `--border-*`, and `--music-*` material tokens. Clay buttons use raised/pressed depth; music cards and player surfaces can layer bounded glass effects. Focus indicators must remain distinct from decorative glow.
@@ -59,6 +61,7 @@ Use `--radius-control`, `--radius-card`, `--radius-panel`, and `--radius-pill` f
 | Toast and loading | `components/ui/toast/ToastProvider.tsx`, `components/ui/dynamic/GlobalLoading.tsx` | Reuse the shared feedback systems. |
 | Scrollbar | `app/globals.css` and theme tokens | Global visible, operable scrollbar baseline with system forced-color behavior. |
 | Marketplace search | `components/search/GlobalSearch.tsx`, `SearchDialog.tsx`, `SearchResults.tsx` | Shared navbar entry, Enter/button submission, category navigation and separate result groups; behavior and cost bounds in `docs/SEARCH.md`. |
+| Cover images | `components/ui/CoverImage.tsx` | Fill the owner's bounded frame with a cover crop, explicit optional focal position, and a stable fallback for failed image delivery. |
 
 Existing workflow and data contracts are maintained in `docs/PERSIAN_DATE_TIME.md`, `docs/PRODUCER_ADMIN.md`, `docs/AUDIO_PLAYER.md`, and `docs/STORAGE_AND_SCALE.md`. New work extends these owners rather than adding screen-local alternatives.
 

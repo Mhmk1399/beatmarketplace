@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { CoverImage } from "@/components/ui/CoverImage";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { TrackDetailSkeleton } from "./TrackDetailSkeleton";
@@ -251,11 +252,9 @@ function TrackListeningHero({
           <div className="detail-art-stage">
             <div className="detail-album artwork-nocturne">
               {track.artworkUrl ? (
-                <Image
+                <CoverImage
                   src={track.artworkUrl}
                   alt={`Cover artwork for ${track.title}`}
-                  fill
-                  unoptimized
                   sizes="(max-width:767px) 42vw, 330px"
                   loading="eager"
                   fetchPriority="high"
