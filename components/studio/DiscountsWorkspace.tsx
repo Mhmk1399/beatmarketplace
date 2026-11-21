@@ -55,7 +55,7 @@ function DiscountEditor({ discount, onClose, onSaved }: { discount: ProducerDisc
   const [error, setError] = useState("");
   const close = useCallback(() => { if (!saving) onClose(); }, [saving, onClose]);
   const toast = useToast();
-  const timezone = "Asia/Tehran · تقویم شمسی، ساعت تهران";
+  const timezone = "Asia/Tehran · Jalali calendar, Tehran time";
   const base = track?.licenses.reduce<number | null>((min, license) => min === null ? Number(license.originalPrice ?? license.price) : Math.min(min, Number(license.originalPrice ?? license.price)), null);
   const previewPrice = base && Number.isInteger(percentage) && percentage >= 1 && percentage <= 90 ? computeDiscountedPrice(base, { percentage, isActive: true, startsAt: new Date(0).toISOString(), endsAt: new Date(8640000000000000).toISOString() }) : null;
 

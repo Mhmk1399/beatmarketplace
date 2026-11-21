@@ -14,13 +14,17 @@ import { producerBeatsSchema, producerDirectorySchema } from "./validation";
 export const producerImageUrl = (id: string, slot: "avatar" | "banner", key?: string) => key ? `/api/producers/${id}/images/${slot}?v=${encodeURIComponent(key)}` : null;
 export const producerHref = (user: Pick<UserDocument, "id" | "profile">) => `/producers/${user.profile?.username && !/^[a-f\d]{24}$/i.test(user.profile.username) ? user.profile.username : user.id}`;
 const nameOf = (user: Pick<UserDocument, "firstName" | "lastName" | "profile">) => (user.profile?.displayName || `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Independent producer").slice(0, 120);
-export function producerSettingsDto(profile: ProducerProfileDocument | null, user: UserDocument): ProducerSettings {
+export function producerSettingsDto(profile: ProducerProfileDocument | null, user: UserDocument, options: { privateMedia?: boolean } = {}): ProducerSettings {
+  const imageUrl = (slot: "avatar" | "banner", key?: string) => {
+    const url = producerImageUrl(user.id, slot, key);
+    return options.privateMedia && url ? `${url}&private=1` : url;
+  };
   return { producerId: user.id, stageName: profile?.stageName || nameOf(user), storefrontName: profile?.storefrontName || `${nameOf(user)} Studio`.slice(0, 120),
     bio: profile?.bio || "", tagline: profile?.tagline || "", location: profile?.location || "", website: profile?.website || "",
     socialLinks: Object.fromEntries(PRODUCER_SOCIALS.map(name => [name, profile?.socialLinks?.[name] || ""])) as ProducerSettings["socialLinks"],
     genreIds: (profile?.genreIds || []).map(String), featuredTrackIds: (profile?.featuredTrackIds || []).map(String),
     bannerPosition: profile?.bannerPosition || "center", layout: profile?.layout || "IMMERSIVE", version: profile?.__v ?? 0,
-    bannerUrl: producerImageUrl(user.id, "banner", profile?.banner?.key), avatarUrl: producerImageUrl(user.id, "avatar", user.profile?.avatar?.key), publicUrl: producerHref(user) };
+    bannerUrl: imageUrl("banner", profile?.banner?.key), avatarUrl: imageUrl("avatar", user.profile?.avatar?.key), publicUrl: producerHref(user) };
 }
 function cursorMatch(value?: string) {
   if (!value) return {};

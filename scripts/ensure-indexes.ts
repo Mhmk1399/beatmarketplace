@@ -15,6 +15,7 @@ async function main() {
     import("../models/PlatformSettings"),
     import("../models/Collection"),
     import("../models/TrackMetric"), import("../models/TrackVisitor"),
+    import("../models/PopularSearch"),
   ]);
   for (const name of mongoose.modelNames().sort()) {
     const model = mongoose.model(name);

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ProducerSummary } from "@/lib/producers/types";
+import { formatPersianYear } from "@/lib/date-time";
 import { ArrowRightIcon, MusicNoteIcon } from "@/components/ui/icons";
 import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
 import styles from "./producers.module.css";
@@ -31,6 +32,6 @@ export function ProducerHero({ producer, preview = false }: { producer: Producer
       <div className={styles.identityCopy}><p>{producer.storefrontName}</p><Name>{producer.stageName}</Name>{producer.tagline && <p className={styles.tagline}>{producer.tagline}</p>}<span className={styles.location}>{producer.username && <span>@{producer.username}</span>}{producer.location && <span>{producer.location}</span>}</span></div>
       {!preview && <NeumorphicLink href="#producer-catalog" variant="accent">Explore their beats <ArrowRightIcon className="size-4" /></NeumorphicLink>}
     </div>
-    {!preview && <div className={styles.stats}><span><strong>{producer.beatCount.toLocaleString("en-US")}</strong>Public beats</span><span><strong>{producer.genres.length}</strong>Music styles</span><span><strong>{new Date(producer.memberSince).getUTCFullYear()}</strong>Here since</span><div className={styles.chips}>{producer.genres.map(genre => <Link key={genre.id} href={`/marketplace?genre=${encodeURIComponent(genre.slug)}`} prefetch={false}>{genre.name}</Link>)}</div></div>}
+    {!preview && <div className={styles.stats}><span><strong>{producer.beatCount.toLocaleString("en-US")}</strong>Public beats</span><span><strong>{producer.genres.length}</strong>Music styles</span><span><strong>{formatPersianYear(producer.memberSince)}</strong>Here since</span><div className={styles.chips}>{producer.genres.map(genre => <Link key={genre.id} href={`/marketplace?genre=${encodeURIComponent(genre.slug)}`} prefetch={false}>{genre.name}</Link>)}</div></div>}
   </section>;
 }

@@ -1,4 +1,4 @@
-# Shared Persian date and time controls
+# Shared Jalali date and time controls
 
 Use the shared controls for every calendar or wall-clock input. They use the existing global clay materials, colors, controls and focus styles; no separate theme or calendar package is required.
 
@@ -6,22 +6,22 @@ Use the shared controls for every calendar or wall-clock input. They use the exi
 import { DynamicDateTimePicker, DynamicDatePicker, DynamicTimePicker } from "@/components/ui/dynamic";
 
 <DynamicDateTimePicker
-  label="زمان شروع"
+  label="Start time"
   name="startsAt"
   value={startsAt}
   onValueChange={setStartsAt}
   required
   showSeconds
 />
-<DynamicDatePicker label="تاریخ" value={day} onValueChange={setDay} />
-<DynamicTimePicker label="ساعت" value={clock} onValueChange={setClock} min="09:00" max="17:00" />
+<DynamicDatePicker label="Date" value={day} onValueChange={setDay} />
+<DynamicTimePicker label="Time" value={clock} onValueChange={setClock} min="09:00" max="17:00" />
 ```
 
 | Control | Controlled value and form submission | Display |
 | --- | --- | --- |
-| `DynamicDateTimePicker` | ISO instant with timezone, preferably UTC, e.g. `2026-11-18T09:00:00.000Z` | Persian calendar, Tehran wall-clock time |
-| `DynamicDatePicker` | Gregorian date-only `YYYY-MM-DD`, e.g. `2026-11-18` | Persian calendar date |
-| `DynamicTimePicker` | 24-hour `HH:mm`, or `HH:mm:ss` with `showSeconds` | Persian digits |
+| `DynamicDateTimePicker` | ISO instant with timezone, preferably UTC, e.g. `2026-11-18T09:00:00.000Z` | `27 ABAN 1405 · 12:30`, Tehran time |
+| `DynamicDatePicker` | Gregorian date-only `YYYY-MM-DD`, e.g. `2026-11-18` | `27 ABAN 1405` |
+| `DynamicTimePicker` | 24-hour `HH:mm`, or `HH:mm:ss` with `showSeconds` | Latin digits, e.g. `09:30` |
 
 All controls are controlled components: use `""` for an empty value. `min` and `max` use the same representation as `value`, and are inclusive. Optional fields can be cleared. `required`, `disabled` (including a parent fieldset), `readOnly`, `error`, `hint`, `id`, `name` and ARIA labels are supported. `name` participates in native `FormData`; native form validation focuses the visible control and displays an accessible error. Server validation remains necessary for all submitted values.
 
@@ -29,13 +29,13 @@ All controls are controlled components: use `""` for an empty value. `min` and `
 
 Date selection is a draft until confirmed. Closing, Escape, backdrop and Cancel discard it. The native modal keeps keyboard focus contained and restores it to the invoking field, including inside `DynamicModal`. It adapts to small screens and the mobile visual viewport/keyboard. Inputs use at least 16px text. The calendar panel loads on demand, with no listeners or day grids mounted for closed fields.
 
-Weeks start on Saturday. The calendar supports previous/next month, month and year selectors, Today, arrow-key day movement (right moves to the previous day in RTL), Home/End for week boundaries, Page Up/Down for months, and Shift + Page Up/Down for years. Enter/Space selects a focused day. The clock accepts Persian, Arabic and Latin digits, 24-hour hours, optional seconds and keyboard/touch increment controls.
+All labels, validation messages, month names and digits are English/Latin. Dates keep the Jalali calendar with uppercase transliterated month names (`FARVARDIN` through `ESFAND`), in day–month–year order. The panel uses left-to-right navigation and weeks start on Saturday. It supports previous/next month, month and year selectors, Today, arrow-key day movement (right advances one day), Home/End for week boundaries, Page Up/Down for months, and Shift + Page Up/Down for years. Enter/Space selects a focused day. The clock accepts Persian, Arabic and Latin input digits, normalizes them to Latin digits, and supports 24-hour hours, optional seconds and keyboard/touch increment controls.
 
 `DynamicSelect` accepts an optional `portalContainer`. The calendar uses its native dialog as that container so month/year menus stay interactive in the browser's modal top layer. Other selectors keep their existing document-body portal.
 
 ## Display and persistence
 
-Use `formatPersianDate`, `formatPersianDateTime` and `formatPersianTime` from `@/lib/date-time` for rendered dates and timestamps. Invalid or absent dates render an em dash. These functions pin both calendar and timezone, so server rendering and clients in different timezones produce the same text.
+Use `formatPersianDate`, `formatPersianDateTime` and `formatPersianTime` from `@/lib/date-time` for rendered dates and timestamps, and `formatPersianYear` for year-only labels. Their names describe the calendar; their output uses English month names and Latin digits. For example, `2026-11-14T08:30:00Z` displays as `23 ABAN 1405 · 12:00`. Invalid or absent dates render an em dash. These functions pin both calendar and timezone, so server rendering and clients in different timezones produce the same text.
 
 Scheduling forms keep ISO instants in state and send UTC to the existing APIs. They never parse a Persian display string or reinterpret a naive datetime in the browser's timezone. Confirming an existing value without changing its date/time preserves its original ISO string and precision, including milliseconds. Native clock offsets are resolved through `Asia/Tehran` rather than a hard-coded offset; invalid historical DST wall-clock times are rejected.
 

@@ -10,6 +10,7 @@ import {
   type DynamicFormField,
 } from "@/components/ui/dynamic/DynamicForm";
 import { NeumorphicSurface } from "@/components/ui/neumorphic/Surface";
+import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
 import { useToast } from "@/components/ui/toast/ToastProvider";
 import {
   ApiRequestError,
@@ -104,6 +105,7 @@ function EditableForm({
     [reload, setReload] = useState(0);
   const avatarUpload = useFileUpload();
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarInputRevision, setAvatarInputRevision] = useState(0);
   const [ready, setReady] = useState(false),
     [avatar, setAvatar] = useState<string | null>(null),
     toast = useToast(),
@@ -201,8 +203,34 @@ function EditableForm({
         form,
       );
       setAvatar(data.user.avatarUrl);
+      setAvatarFile(null);
       setVersion(data.user.version);
       toast.success("Profile image saved");
+      await auth.refresh();
+      router.refresh();
+      onIdentitySaved?.();
+    } catch (error) {
+      setError(errorMessage(error));
+    } finally {
+      setSaving(false);
+    }
+  }
+  async function removeAvatar() {
+    if (saving || !avatar) return;
+    setSaving(true);
+    setError("");
+    setAvatarInputRevision(value => value + 1);
+    setAvatarFile(null);
+    avatarUpload.reset();
+    try {
+      const data = await apiRequest<{ user: WorkspaceUser }>("/api/account/avatar", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expectedVersion: version }),
+      });
+      setAvatar(data.user.avatarUrl);
+      setVersion(data.user.version);
+      toast.success("Profile image removed");
       await auth.refresh();
       router.refresh();
       onIdentitySaved?.();
@@ -230,6 +258,7 @@ function EditableForm({
           {objectKey === "user" && (
             <div className="mb-7">
               <DynamicFileInput
+                key={avatarInputRevision}
                 label="Profile image"
                 name="avatar"
                 kind="image"
@@ -254,6 +283,7 @@ function EditableForm({
                     : undefined
                 }
               />
+              {avatar && <NeumorphicButton className="mt-3" disabled={saving} onClick={() => { void removeAvatar(); }}>Remove profile image</NeumorphicButton>}
             </div>
           )}
           <DynamicForm

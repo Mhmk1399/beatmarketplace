@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from "react";
 import { SWRConfig, useSWRConfig } from "swr";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { isTableCacheKey, subscribeToTableMutations, tableAffectedByMutation, tableCacheScope, type TableMutation } from "@/lib/workspace/table-cache";
+import { detailAffectedByMutation, isTrackDetailKey } from "@/lib/marketplace/detail-cache";
 
 // One in-memory cache per document. Navigation preserves it; a browser reload recreates it.
 const configuration = { provider: () => new Map() };
@@ -24,9 +25,9 @@ function CacheLifecycle() {
 
   useEffect(() => {
     // Retire old account/role keys through SWR so pre-logout requests cannot repopulate them.
-    void mutate(key => isTableCacheKey(key) && key[1] !== scope, undefined, { revalidate: false });
+    void mutate(key => (isTableCacheKey(key) && key[1] !== scope) || (isTrackDetailKey(key) && key[1] !== (scope ?? "guest")), undefined, { revalidate: false });
     if (!scope) return;
-    const invalidate = (mutation: TableMutation) => mutate(key => tableAffectedByMutation(key, mutation, scope), undefined, { revalidate: true, throwOnError: false });
+    const invalidate = (mutation: TableMutation) => mutate(key => tableAffectedByMutation(key, mutation, scope) || detailAffectedByMutation(key, mutation, scope), undefined, { revalidate: true, throwOnError: false });
     let channel: BroadcastChannel | undefined;
     try { if (typeof BroadcastChannel !== "undefined") channel = new BroadcastChannel("beatmarketplace-table-writes"); } catch { /* Cache works without cross-tab messaging. */ }
     if (channel) channel.onmessage = event => {

@@ -5,6 +5,7 @@ import { TaxonomyWorkspace } from "@/components/admin/TaxonomyWorkspace";
 import { HeroWorkspace } from "@/components/admin/HeroWorkspace";
 import { ContactInbox } from "@/components/admin/ContactInbox";
 import { UsersWorkspace } from "@/components/admin/UsersWorkspace";
+import { ProducersWorkspace } from "@/components/admin/ProducersWorkspace";
 import { BeatsWorkspace } from "@/components/dashboard/BeatsWorkspace";
 import { OrdersWorkspace } from "@/components/dashboard/OrdersWorkspace";
 import { ProfileWorkspace, SettingsWorkspace } from "@/components/dashboard/AccountForms";
@@ -18,6 +19,7 @@ export default async function AdminSectionPage({ params }: { params: Promise<{ s
   const { section } = await params;
   if (section === "analytics") return <BeatAnalyticsWorkspace admin />;
   if (section === "users") return <UsersWorkspace />;
+  if (section === "producers") return <ProducersWorkspace />;
   if (section === "system") return <SystemWorkspace />;
   if (section === "beats") return <BeatsWorkspace admin />;
   if (section === "orders") return <OrdersWorkspace scope="admin" />;

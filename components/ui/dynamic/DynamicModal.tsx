@@ -3,7 +3,6 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
-import { CloseIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
 import { useSheetGesture } from "./useSheetGesture";
 import styles from "./DynamicModal.module.css";
@@ -28,25 +27,57 @@ const sizeClasses = {
   xl: "max-w-5xl",
 };
 
-export function DynamicModal({ children, className, closeOnBackdrop = true, description, footer, onClose, open, presentation = "dialog", size = "md", title }: DynamicModalProps) {
+export function DynamicModal({
+  children,
+  className,
+  closeOnBackdrop = true,
+  description,
+  footer,
+  onClose,
+  open,
+  presentation = "dialog",
+  size = "md",
+  title,
+}: DynamicModalProps) {
   const titleId = useId();
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLButtonElement>(null);
   const sheet = presentation === "sheet";
-  const { requestClose, dragHandlers } = useSheetGesture({ enabled: sheet, open, panelRef, backdropRef, onClose });
+  const { requestClose, dragHandlers } = useSheetGesture({
+    enabled: sheet,
+    open,
+    panelRef,
+    backdropRef,
+    onClose,
+  });
 
   useEffect(() => {
     if (!open) return;
-    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    const focusable = Array.from(panelRef.current?.querySelectorAll<HTMLElement>("[data-autofocus], button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])") ?? []).find(element => element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1);
-    focusable?.focus({ preventScroll: true });
+    function controls() {
+      return Array.from(panelRef.current?.querySelectorAll<HTMLElement>(
+        "button, a[href], input, select, textarea, [tabindex]",
+      ) ?? []).filter(element =>
+        !element.matches(":disabled") &&
+        !element.closest("[inert], [hidden], [aria-hidden='true']") &&
+        element.tabIndex >= 0 && element.getClientRects().length > 0,
+      );
+    }
+    const initialControls = controls();
+    (initialControls.find(element => element.hasAttribute("data-autofocus")) ?? initialControls[0] ?? panelRef.current)?.focus({ preventScroll: true });
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.defaultPrevented) return;
+      // A native picker in the top layer owns keyboard focus until it closes.
+      const nativeDialog = event.target instanceof Element ? event.target.closest("dialog[open]") : null;
+      if (nativeDialog && !panelRef.current?.contains(nativeDialog)) return;
       if (event.key === "Escape") {
         event.preventDefault();
         requestClose();
@@ -54,10 +85,14 @@ export function DynamicModal({ children, className, closeOnBackdrop = true, desc
       }
       if (event.key !== "Tab" || !panelRef.current) return;
 
-      const controls = Array.from(panelRef.current.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])")).filter(element => element.getAttribute("aria-hidden") !== "true" && element.tabIndex !== -1);
-      const first = controls[0];
-      const last = controls.at(-1);
-      if (event.shiftKey && document.activeElement === first) {
+      const available = controls();
+      const first = available[0];
+      const last = available.at(-1);
+      if (!available.length || !panelRef.current.contains(document.activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first)?.focus();
+        if (!available.length) panelRef.current.focus();
+      } else if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
         last?.focus();
       } else if (!event.shiftKey && document.activeElement === last) {
@@ -77,31 +112,103 @@ export function DynamicModal({ children, className, closeOnBackdrop = true, desc
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className={cn("fixed inset-0 z-[100] flex items-end justify-center p-0 sm:p-5", !sheet && "sm:items-center")} role="presentation">
-      <button ref={backdropRef} type="button" tabIndex={-1} aria-hidden="true" className="absolute inset-0 bg-ink/72 backdrop-blur-[3px]" style={sheet ? { opacity: 0 } : undefined} onClick={closeOnBackdrop ? requestClose : undefined} />
+    <div
+      className={cn(
+        "fixed inset-0 z-[100] flex items-end justify-center p-0 sm:p-5",
+        !sheet && "sm:items-center",
+      )}
+      role="presentation"
+    >
+      <button
+        ref={backdropRef}
+        type="button"
+        tabIndex={-1}
+        aria-hidden="true"
+        className="absolute inset-0 bg-ink/72 backdrop-blur-[3px]"
+        style={sheet ? { opacity: 0 } : undefined}
+        onClick={closeOnBackdrop ? requestClose : undefined}
+      />
       <div
         ref={panelRef}
         role="dialog"
+        tabIndex={-1}
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descriptionId : undefined}
-        style={sheet ? { transform: "translate3d(0, calc(100% + 32px), 0)" } : undefined}
-        className={cn("neo-raised-strong relative z-10 flex max-h-[min(90dvh,54rem)] w-full flex-col overflow-hidden rounded-t-[var(--radius-panel)] sm:rounded-[var(--radius-panel)]", sizeClasses[size], sheet && styles.sheet, className)}
+        style={
+          sheet
+            ? { transform: "translate3d(0, calc(100% + 32px), 0)" }
+            : undefined
+        }
+        className={cn(
+          "neo-raised-strong relative z-10 flex max-h-[min(90dvh,54rem)] w-full flex-col overflow-hidden rounded-t-[var(--radius-panel)] sm:rounded-[var(--radius-panel)]",
+          sizeClasses[size],
+          sheet && styles.sheet,
+          className,
+        )}
       >
-        <div className={sheet ? styles.dragRegion : undefined} {...dragHandlers}>
-        {sheet && <button type="button" data-sheet-handle className={styles.handle} onClick={requestClose} aria-label="Close player panel" title="Drag down or tap to close"><span aria-hidden="true" /></button>}
-        <header className={cn("flex items-start gap-4 border-b border-divider px-5 py-5 sm:px-6", sheet && styles.header)}>
-          <div className="min-w-0 flex-1">
-            <h2 id={titleId} className="text-xl font-black tracking-[-0.03em] text-foreground">{title}</h2>
-            {description && <p id={descriptionId} className="mt-2 text-sm leading-6 text-muted">{description}</p>}
-          </div>
-          <button data-autofocus type="button" onClick={requestClose} aria-label="Close modal" className="neo-icon-button inline-flex size-10 shrink-0 items-center justify-center rounded-xl">
-            <CloseIcon className="size-5" />
-          </button>
-        </header>
+        <div
+          className={sheet ? styles.dragRegion : undefined}
+          {...dragHandlers}
+        >
+          {sheet && (
+            <button
+              type="button"
+              data-sheet-handle
+              className={styles.handle}
+              onClick={requestClose}
+              aria-label="Close player panel"
+              title="Drag down or tap to close"
+            >
+              <span aria-hidden="true" />
+            </button>
+          )}
+          <header
+            className={cn(
+              "flex items-start gap-4 border-b border-divider px-5 py-5 sm:px-6",
+              sheet && styles.header,
+            )}
+          >
+            <div className="min-w-0 flex-1">
+              <h2
+                id={titleId}
+                className="text-xl font-black tracking-[-0.03em] text-foreground"
+              >
+                {title}
+              </h2>
+              {description && (
+                <p
+                  id={descriptionId}
+                  className="mt-2 text-sm leading-6 text-muted"
+                >
+                  {description}
+                </p>
+              )}
+            </div>
+            {/* <button
+              data-autofocus
+              type="button"
+              onClick={requestClose}
+              aria-label="Close modal"
+              className="neo-icon-button mt-3 inline-flex size-10 shrink-0 items-center justify-center rounded-xl"
+            >
+              <CloseIcon className="size-5" />
+            </button> */}
+          </header>
         </div>
-        <div className={cn("min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6 sm:py-6", sheet && styles.body)}>{children}</div>
-        {footer && <footer className="flex flex-col-reverse gap-3 border-t border-divider px-5 py-4 sm:flex-row sm:justify-end sm:px-6">{footer}</footer>}
+        <div
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6 sm:py-6",
+            sheet && styles.body,
+          )}
+        >
+          {children}
+        </div>
+        {footer && (
+          <footer className="flex flex-col-reverse gap-3 border-t border-divider px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+            {footer}
+          </footer>
+        )}
       </div>
     </div>,
     document.body,

@@ -2,6 +2,7 @@ import mongoose, { type HydratedDocument, type Model, Schema } from "mongoose";
 
 import { objectStorageAssetSchema, type ObjectStorageAsset, transformMongoDocument } from "@/models/schemas/shared";
 import { MUSICAL_KEYS, normalizeMusicalKey } from "@/lib/music/keys";
+import { installTrackSearch } from "@/lib/search/track-index";
 
 export type TrackStatus = "DRAFT" | "SCHEDULED" | "PUBLISHED" | "ARCHIVED";
 export type TrackVisibility = "PUBLIC" | "PRIVATE";
@@ -173,6 +174,7 @@ trackSchema.pre("save", function setPublishedAt() {
 });
 
 trackSchema.set("optimisticConcurrency", true);
+installTrackSearch(trackSchema);
 trackSchema.index({ createdAt: -1, _id: -1 });
 trackSchema.index({ visibility: 1, status: 1, releaseDate: -1 });
 trackSchema.index({ producerId: 1, status: 1, createdAt: -1 });
@@ -189,6 +191,12 @@ trackSchema.index({ producerId: 1, createdAt: -1, _id: -1 });
 trackSchema.index({ "audio.preview.key": 1 }, { sparse: true });
 trackSchema.index({ "artwork.key": 1 }, { sparse: true });
 
+// A retained development model cannot acquire middleware through schema.add().
+// Recompile its in-memory definition once when introducing the derived search fields.
+// Existing records, connections and indexes remain untouched.
+if (process.env.NODE_ENV !== "production" && mongoose.models.Track && !mongoose.models.Track.schema.path("search.tokens")) {
+  mongoose.deleteModel("Track");
+}
 const TrackModel = (mongoose.models.Track as Model<TrackFields> | undefined) ?? mongoose.model<TrackFields>("Track", trackSchema);
 
 export default TrackModel;

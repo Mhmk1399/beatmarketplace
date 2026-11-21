@@ -55,7 +55,7 @@ export function OrdersWorkspace({
       {
         id: "amount",
         header: "Amount",
-        cell: (order) => `${order.total.toLocaleString()} Toman`,
+        cell: (order) => `${order.total.toLocaleString("en-US")} Toman`,
       },
       {
         id: "status",
@@ -78,7 +78,7 @@ export function OrdersWorkspace({
         <p className="text-sm">
           {order.status}
           {order.gatewayMode === "sandbox" ? " · Test transaction" : ""} ·{" "}
-          {order.total.toLocaleString()} Toman
+          {order.total.toLocaleString("en-US")} Toman
         </p>
         {order.buyer && (
           <p className="text-sm text-muted">
@@ -92,7 +92,7 @@ export function OrdersWorkspace({
           >
             <h3 className="font-bold">{item.title}</h3>
             <p className="text-sm text-muted">
-              {item.licenseTitle} · {item.price.toLocaleString()} Toman
+              {item.licenseTitle} · {item.price.toLocaleString("en-US")} Toman
             </p>
             {item.terms && (
               <details>

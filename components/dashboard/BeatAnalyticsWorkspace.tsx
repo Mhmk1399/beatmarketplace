@@ -12,8 +12,8 @@ export function BeatAnalyticsWorkspace({ admin = false }: { admin?: boolean }) {
     endpoint: "/api/workspace/track-analytics", query: `scope=${admin ? "admin" : "producer"}`, label: track => track.title,
     columns: [
       { id: "beat", header: "Beat", cell: track => <TableIdentity image={track.artworkUrl} title={track.title} subtitle={`${track.status} · ${track.visibility}`} /> },
-      { id: "views", header: "Views", cell: track => track.views.toLocaleString() },
-      { id: "visitors", header: "Unique visitors", cell: track => track.uniqueVisitors.toLocaleString() },
+      { id: "views", header: "Views", cell: track => track.views.toLocaleString("en-US") },
+      { id: "visitors", header: "Unique visitors", cell: track => track.uniqueVisitors.toLocaleString("en-US") },
       { id: "lastViewed", header: "Last view", cell: track => track.lastViewedAt ? formatPersianDate(track.lastViewedAt) : "No views yet" },
       { id: "open", header: "Open", cell: track => <NeumorphicLink href={track.status === "PUBLISHED" && track.visibility === "PUBLIC" ? `/tracks/${track.id}` : admin ? "/admin/beats" : "/studio/tracks"} size="sm" variant="quiet">{track.status === "PUBLISHED" && track.visibility === "PUBLIC" ? "View beat" : "Manage beat"}</NeumorphicLink> },
     ],

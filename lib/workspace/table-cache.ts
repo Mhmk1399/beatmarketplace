@@ -22,6 +22,7 @@ export function isTableCacheKey(key: unknown, scope?: string): key is TableCache
 
 function family(path: string) {
   if (path === "/api/workspace/track-analytics") return "track-analytics";
+  if (/^\/api\/admin\/producers(?:\/|$)/.test(path)) return "producers";
   if (/^\/api\/(admin\/)?users(?:\/|$)/.test(path)) return "users";
   if (/^\/api\/(admin\/)?tracks(?:\/|$)/.test(path) || path.startsWith("/api/studio/tracks/")) return "tracks";
   if (/^\/api\/(admin\/)?contact(?:\/|$)/.test(path)) return "contact";
@@ -36,9 +37,9 @@ export function tableAffectedByMutation(key: unknown, mutation: TableMutation, s
   const changed = new URL(mutation.url, "https://workspace.invalid"), cached = new URL(key[2], "https://workspace.invalid");
   const source = family(changed.pathname), target = family(cached.pathname);
   const dependencies: Record<string, readonly string[]> = {
-    users: ["users", "tracks", "hero", "orders", "collections"],
-    account: ["users", "tracks", "hero", "orders"],
-    producers: ["users", "tracks", "hero"],
+    users: ["users", "producers", "tracks", "hero", "orders", "collections"],
+    account: ["users", "producers", "tracks", "hero", "orders"],
+    producers: ["users", "producers", "tracks", "hero"],
     tracks: ["tracks", "contracts", "discounts", "hero", "collections", "track-analytics"],
     contracts: ["contracts", "tracks", "hero"],
     discounts: ["discounts", "tracks", "hero"],

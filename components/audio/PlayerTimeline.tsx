@@ -11,6 +11,10 @@ import demoPlayerWaveforms from "@/lib/audio/demo-player-waveforms.json";
 type TimelineProps = {
   player: AudioPlayerContextValue;
   large?: boolean;
+  className?: string;
+  trackId?: string;
+  disabled?: boolean;
+  seekLabel?: string;
   /** The dock keeps its seek layout while its covered canvas is unmounted. */
   visualize?: boolean;
 };
@@ -23,13 +27,16 @@ const frozenFrames = new WeakMap<AudioAnalyser["getAnalyser"], SpectrumSnapshot>
 const demoEnvelopes: Record<string, number[]> = demoPlayerWaveforms;
 
 /** A live frequency spectrum attached to the seek rail, rather than invented song samples. */
-function TimelineWaveform({ progress, large }: { progress: number; large: boolean }) {
+function TimelineWaveform({ progress, large, requestedTrackId }: { progress: number; large: boolean; requestedTrackId?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const progressRef = useRef(progress);
   const redrawRef = useRef<(() => void) | null>(null);
   const { getAnalyser } = useAudioAnalyser();
-  const { track, playing } = useAudioTransport();
-  const trackId = track?.id ?? "";
+  const transport = useAudioTransport();
+  const activeTrackId = transport.track?.id ?? "";
+  const trackId = requestedTrackId ?? activeTrackId;
+  const ownsSignal = trackId === activeTrackId;
+  const playing = ownsSignal && transport.playing;
 
   // Timeline updates recolor the existing columns without rebuilding the canvas or FFT loop.
   useEffect(() => {
@@ -46,7 +53,7 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
     let reducedMotion = motion.matches;
     const device = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
     const lowPower = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768 || Boolean(device.connection?.saveData) || (device.deviceMemory ?? 8) <= 4 || navigator.hardwareConcurrency <= 4;
-    if (frozenFrames.get(getAnalyser)?.trackId !== trackId) frozenFrames.delete(getAnalyser);
+    if (frozenFrames.get(getAnalyser)?.trackId !== activeTrackId) frozenFrames.delete(getAnalyser);
     const interval = 1000 / (lowPower ? 24 : 30);
     const envelope = demoEnvelopes[trackId];
     const profileAt = (index: number, count: number) => {
@@ -201,12 +208,12 @@ function TimelineWaveform({ progress, large }: { progress: number; large: boolea
       motion.removeEventListener("change", preference);
       window.removeEventListener("resize", resize);
     };
-  }, [getAnalyser, large, playing, trackId]);
+  }, [activeTrackId, getAnalyser, large, ownsSignal, playing, trackId]);
 
   return <canvas ref={canvasRef} className="audio-waveform-canvas" aria-hidden="true" />;
 }
 
-export function PlayerTimeline({ player, large = false, visualize = true }: TimelineProps) {
+export function PlayerTimeline({ player, large = false, visualize = true, className, trackId, disabled = false, seekLabel = "Playback position" }: TimelineProps) {
   const id = useId();
   const duration = Number.isFinite(player.duration) ? Math.max(0, player.duration) : 0;
   const elapsed = clamp(player.elapsed, 0, duration);
@@ -214,13 +221,13 @@ export function PlayerTimeline({ player, large = false, visualize = true }: Time
   const buffered = duration ? clamp(player.buffered, 0, duration) / duration * 100 : 0;
   const style = { "--audio-progress": `${progress}%`, "--audio-buffered": `${buffered}%` } as CSSProperties;
 
-  return <div className={cn("audio-timeline", large && "audio-timeline-large")}>
-    <label htmlFor={id} className="sr-only">Playback position</label>
+  return <div className={cn("audio-timeline", large && "audio-timeline-large", className)}>
+    <label htmlFor={id} className="sr-only">{seekLabel}</label>
     <span className="audio-time audio-time-elapsed" aria-hidden="true">{formatAudioTime(elapsed)}</span>
     <div className="audio-seek" style={style}>
-      {visualize && <TimelineWaveform progress={progress} large={large} />}
+      {visualize && <TimelineWaveform progress={progress} large={large} requestedTrackId={trackId} />}
       <div className="audio-seek-rail" aria-hidden="true"><span className="audio-seek-buffered" /><span className="audio-seek-progress" /></div>
-      <input id={id} type="range" min={0} max={duration || 1} step={.1} value={elapsed} disabled={!duration} onChange={(event) => player.seek(Number(event.target.value))} aria-valuetext={`${formatAudioTime(elapsed)} of ${formatAudioTime(duration)}`} />
+      <input id={id} type="range" min={0} max={duration || 1} step={.1} value={elapsed} disabled={disabled || !duration} onChange={(event) => player.seek(Number(event.target.value))} aria-valuetext={`${formatAudioTime(elapsed)} of ${formatAudioTime(duration)}`} />
     </div>
     <span className="audio-time audio-time-duration" aria-hidden="true">{duration ? formatAudioTime(duration) : "–:––"}</span>
   </div>;

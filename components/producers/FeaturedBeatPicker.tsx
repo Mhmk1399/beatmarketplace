@@ -5,28 +5,28 @@ import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
 import { apiRequest, controlClass, errorMessage } from "@/components/studio/shared";
 import type { MarketplaceTrack } from "@/lib/marketplace/types";
 
-export function FeaturedBeatPicker({ producerId, value, onChange, disabled }: { producerId: string; value: string[]; onChange: (value: string[]) => void; disabled: boolean }) {
+export function FeaturedBeatPicker({ producerId, endpoint, lookupEndpoint = "/api/studio/tracks/lookup", value, onChange, disabled }: { producerId: string; endpoint?: string; lookupEndpoint?: string; value: string[]; onChange: (value: string[]) => void; disabled: boolean }) {
   const [search, setSearch] = useState(""), [cursor, setCursor] = useState(""), [next, setNext] = useState<string | null>(null);
   const [beats, setBeats] = useState<MarketplaceTrack[]>([]), [names, setNames] = useState<Record<string, string>>({}), [error, setError] = useState(""), [loading, setLoading] = useState(false);
   const ids = value.join(",");
   useEffect(() => {
     if (!ids) return;
     const controller = new AbortController();
-    void apiRequest<{ items: { id: string; title: string }[] }>(`/api/studio/tracks/lookup?ids=${ids}`, { signal: controller.signal, quiet: true }).then(data => setNames(current => ({ ...current, ...Object.fromEntries(data.items.map(beat => [beat.id, beat.title])) }))).catch(() => undefined);
+    void apiRequest<{ items: { id: string; title: string }[] }>(`${lookupEndpoint}?ids=${encodeURIComponent(ids)}`, { signal: controller.signal, quiet: true }).then(data => { if (!controller.signal.aborted) setNames(current => ({ ...current, ...Object.fromEntries(data.items.map(beat => [beat.id, beat.title])) })); }).catch(() => undefined);
     return () => controller.abort();
-  }, [ids]);
+  }, [ids, lookupEndpoint]);
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const data = await apiRequest<{ tracks: MarketplaceTrack[]; nextCursor: string | null }>(`/api/producers/${producerId}/beats?limit=24&q=${encodeURIComponent(search)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { quiet: true, signal: controller.signal });
+        const data = await apiRequest<{ tracks: MarketplaceTrack[]; nextCursor: string | null }>(`${endpoint ?? `/api/producers/${producerId}/beats`}?limit=24&q=${encodeURIComponent(search)}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { quiet: true, signal: controller.signal });
         if (!controller.signal.aborted) { setBeats(data.tracks); setNext(data.nextCursor); setNames(current => ({ ...current, ...Object.fromEntries(data.tracks.map(beat => [beat.id, beat.title])) })); setError(""); }
       } catch (error) { if (!controller.signal.aborted) setError(errorMessage(error)); }
       finally { if (!controller.signal.aborted) setLoading(false); }
     }, 250);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [producerId, search, cursor]);
+  }, [producerId, endpoint, search, cursor]);
   function reorder(index: number, step: number) { const updated = [...value]; [updated[index], updated[index + step]] = [updated[index + step], updated[index]]; onChange(updated); }
   return <fieldset className="neo-inset min-w-0 space-y-4 rounded-[var(--radius-control)] p-4" disabled={disabled}>
     <legend className="px-2 text-sm font-bold">Featured beats · {value.length}/6</legend>

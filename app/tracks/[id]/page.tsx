@@ -9,9 +9,9 @@ export default async function TrackPage({
   const { id } = await params;
   if (!/^[a-f\d]{24}$/i.test(id)) notFound();
   return (
-    <PublicShell>
-      <div className="mx-auto max-w-7xl px-5 py-7 sm:py-10">
-        <TrackDetail id={id} />
+    <PublicShell overlayNavbar>
+      <div className="track-detail-route">
+        <TrackDetail key={id} id={id} />
       </div>
     </PublicShell>
   );

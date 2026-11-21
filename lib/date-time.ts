@@ -1,18 +1,15 @@
-/** Calendar UI is Persian; instants sent to the API remain ISO UTC. */
+/** Jalali calendar with English labels and Latin digits; API instants remain ISO UTC. */
 export const DATE_TIME_ZONE = "Asia/Tehran";
-export const PERSIAN_MONTHS = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"] as const;
-export const PERSIAN_WEEKDAYS = ["شنبه", "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنجشنبه", "جمعه"] as const;
+export const PERSIAN_MONTHS = ["FARVARDIN", "ORDIBEHESHT", "KHORDAD", "TIR", "MORDAD", "SHAHRIVAR", "MEHR", "ABAN", "AZAR", "DEY", "BAHMAN", "ESFAND"] as const;
+export const PERSIAN_WEEKDAYS = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] as const;
 export type CalendarDate = { year: number; month: number; day: number };
 export type DateTimeMode = "date" | "time" | "datetime";
 const DAY = 86_400_000;
 const calendar = new Intl.DateTimeFormat("en-US-u-ca-persian-nu-latn", { timeZone: "UTC", year: "numeric", month: "numeric", day: "numeric" });
 const wallClock = new Intl.DateTimeFormat("en-US-u-ca-gregory-nu-latn", { timeZone: DATE_TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
-const dateFormatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian", { timeZone: DATE_TIME_ZONE, dateStyle: "medium" });
-const dateTimeFormatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian", { timeZone: DATE_TIME_ZONE, dateStyle: "medium", timeStyle: "short", hourCycle: "h23" });
-const fullDateFormatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian", { timeZone: "UTC", dateStyle: "full" });
-const timeFormatter = new Intl.DateTimeFormat("fa-IR", { timeZone: DATE_TIME_ZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+const dateFormatter = new Intl.DateTimeFormat("en-US-u-ca-persian-nu-latn", { timeZone: DATE_TIME_ZONE, year: "numeric", month: "numeric", day: "numeric" });
+const timeFormatter = new Intl.DateTimeFormat("en-GB-u-nu-latn", { timeZone: DATE_TIME_ZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 export const padDatePart = (value: number) => String(value).padStart(2, "0");
-export function toPersianDigits(value: string | number) { return String(value).replace(/\d/g, digit => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]); }
 export function toLatinDigits(value: string) { return value.replace(/[۰-۹٠-٩]/g, digit => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit) >= 0 ? "۰۱۲۳۴۵۶۷۸۹".indexOf(digit) : "٠١٢٣٤٥٦٧٨٩".indexOf(digit))); }
 function numericParts(formatter: Intl.DateTimeFormat, date: Date) {
   return Object.fromEntries(formatter.formatToParts(date).filter(part => part.type !== "literal").map(part => [part.type, Number(part.value)])) as Record<string, number>;
@@ -22,8 +19,10 @@ function safeDate(value: string | number | Date | null | undefined) {
   const date = new Date(value);
   return Number.isFinite(date.getTime()) ? date : null;
 }
-export function formatPersianDate(value: string | number | Date | null | undefined) { const date = safeDate(value); return date ? dateFormatter.format(date) : "—"; }
-export function formatPersianDateTime(value: string | number | Date | null | undefined) { const date = safeDate(value); return date ? dateTimeFormatter.format(date) : "—"; }
+function calendarDateLabel(parts: Record<string, number>) { return `${parts.day} ${PERSIAN_MONTHS[parts.month - 1]} ${parts.year}`; }
+export function formatPersianDate(value: string | number | Date | null | undefined) { const date = safeDate(value); return date ? calendarDateLabel(numericParts(dateFormatter, date)) : "—"; }
+export function formatPersianDateTime(value: string | number | Date | null | undefined) { const date = safeDate(value); return date ? `${calendarDateLabel(numericParts(dateFormatter, date))} · ${timeFormatter.format(date)}` : "—"; }
+export function formatPersianYear(value: string | number | Date | null | undefined) { const date = safeDate(value); return date ? String(numericParts(dateFormatter, date).year) : "—"; }
 export function formatPersianTime(value: string | number | Date | null | undefined) { const date = safeDate(value); return date ? timeFormatter.format(date) : "—"; }
 export function isGregorianDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -56,7 +55,11 @@ export function calendarMonth(year: number, month: number) {
   const start = addCalendarDays(first, -((new Date(`${first}T12:00:00Z`).getUTCDay() + 1) % 7));
   return Array.from({ length: 42 }, (_, index) => { const date = addCalendarDays(start, index); return { date, ...persianDateParts(date) }; });
 }
-export function persianCalendarLabel(date: string) { return isGregorianDate(date) ? fullDateFormatter.format(new Date(`${date}T12:00:00Z`)) : ""; }
+export function persianCalendarLabel(date: string) {
+  if (!isGregorianDate(date)) return "";
+  const value = new Date(`${date}T12:00:00Z`);
+  return `${PERSIAN_WEEKDAYS[(value.getUTCDay() + 1) % 7]}, ${calendarDateLabel(numericParts(calendar, value))}`;
+}
 export function tehranDateTime(value: string | number | Date) {
   const date = safeDate(value);
   if (!date) return null;
@@ -83,17 +86,18 @@ export function validPickerValue(value: string, mode: DateTimeMode) {
   return /^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/.test(value) && isGregorianDate(value.slice(0, 10)) && safeDate(value) !== null;
 }
 export function pickerValueError(value: string, mode: DateTimeMode, min?: string, max?: string, required = false) {
-  if (!value) return required ? "لطفاً تاریخ یا ساعت را انتخاب کنید." : "";
-  if (!validPickerValue(value, mode)) return "تاریخ یا ساعت معتبر نیست.";
+  if (!value) return required ? "Choose a date or time." : "";
+  if (!validPickerValue(value, mode)) return "Enter a valid date or time.";
   const comparable = (item: string) => mode === "datetime" ? Date.parse(item) : mode === "time" ? `${item}:00`.slice(0, 8) : item;
-  if (min && validPickerValue(min, mode) && comparable(value) < comparable(min)) return "مقدار انتخاب‌شده زودتر از حد مجاز است.";
-  if (max && validPickerValue(max, mode) && comparable(value) > comparable(max)) return "مقدار انتخاب‌شده دیرتر از حد مجاز است.";
+  if (min && validPickerValue(min, mode) && comparable(value) < comparable(min)) return "Choose a value on or after the minimum.";
+  if (max && validPickerValue(max, mode) && comparable(value) > comparable(max)) return "Choose a value on or before the maximum.";
   return "";
 }
 export function formatPickerValue(value: string, mode: DateTimeMode, showSeconds = false) {
   if (!validPickerValue(value, mode)) return "";
   if (mode === "date") return formatPersianDate(`${value}T12:00:00Z`);
-  if (mode === "time") return toPersianDigits(showSeconds ? `${value}:00`.slice(0, 8) : value.slice(0, 5));
+  if (mode === "time") return showSeconds ? `${value}:00`.slice(0, 8) : value.slice(0, 5);
   const formatted = formatPersianDateTime(value);
-  return showSeconds ? `${formatPersianDate(value)}، ${toPersianDigits(Object.values(tehranDateTime(value)!).slice(1).join(":"))}` : formatted;
+  const clock = tehranDateTime(value)!;
+  return showSeconds ? `${formatPersianDate(value)} · ${clock.hour}:${clock.minute}:${clock.second}` : formatted;
 }

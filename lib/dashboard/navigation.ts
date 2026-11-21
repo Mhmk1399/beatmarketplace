@@ -68,7 +68,7 @@ const navigationByWorkspace: Record<WorkspaceId, readonly NavigationSection[]> =
     { label: "Homepage", items: [{ label: "Hero placements", href: "/admin/hero", icon: "store", description: "Select and schedule sponsored beats for the homepage hero." }] },
     {
       label: "Platform",
-      items: [{ label: "Users", href: "/admin/users", icon: "users", description: "Manage user profiles, roles and account status." }, { label: "Beats", href: "/admin/beats", icon: "tracks", description: "Manage the complete beat catalog." }, { label: "Beat audience", href: "/admin/analytics", icon: "overview", description: "View page visits and unique browsers for every beat." }, { label: "Orders", href: "/admin/orders", icon: "contracts", description: "Inspect verified payment records." }, { label: "Reports", href: "/admin/reports", icon: "overview", description: "Live catalog and transaction reports." }],
+      items: [{ label: "Users", href: "/admin/users", icon: "users", description: "Manage user profiles, roles and account status." }, { label: "Producers", href: "/admin/producers", icon: "store", description: "Manage producer accounts and their public studio profiles." }, { label: "Beats", href: "/admin/beats", icon: "tracks", description: "Manage the complete beat catalog." }, { label: "Beat audience", href: "/admin/analytics", icon: "overview", description: "View page visits and unique browsers for every beat." }, { label: "Orders", href: "/admin/orders", icon: "contracts", description: "Inspect verified payment records." }, { label: "Reports", href: "/admin/reports", icon: "overview", description: "Live catalog and transaction reports." }],
     },
     {
       label: "Catalog",

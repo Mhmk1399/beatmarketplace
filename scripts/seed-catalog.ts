@@ -19,48 +19,48 @@ import ContactMessageModel from "../models/ContactMessage";
 
 const BATCH = "sample-catalog-v1";
 const genres = [
-  ["hip-hop", "Hip Hop", "ریتم‌های شهری، درام‌های کوبنده و ملودی‌های مناسب رپ.", ""],
-  ["trap", "Trap", "بیس ۸۰۸، های‌هت‌های سریع و فضای مدرن و پرانرژی.", "hip-hop"],
-  ["drill", "Drill", "بیس‌های لغزنده، ریتم شکسته و حال‌وهوای تاریک شهری.", "hip-hop"],
-  ["rnb", "R&B", "آکوردهای گرم و ریتم‌های نرم برای وکال و ترانه.", ""],
-  ["afro", "Afro", "پرکاشن‌های زنده، گیتارهای گرم و گرووهای آفروبیت.", ""],
-  ["pop", "Pop", "ملودی‌های به‌یادماندنی و تنظیم‌های مناسب ترانه و انتشار.", ""],
-  ["lo-fi", "Lo-Fi", "بافت‌های آنالوگ و ریتم‌های آرام برای نوشتن و استراحت.", "hip-hop"],
-  ["edm", "EDM", "سینتی‌سایزرهای پرقدرت، دراپ و ریتم‌های الکترونیک.", ""],
-  ["house", "House", "کیک چهارضرب و بیس‌لاین‌های روان و رقص‌پذیر.", "edm"],
-  ["boom-bap", "Boom Bap", "درام‌های کلاسیک و فضای سمپل‌محور برای رپ.", "hip-hop"],
-  ["persian-fusion", "Persian Fusion", "ترکیب رنگ سازهای ایرانی با تنظیم و ریتم مدرن.", ""],
-  ["ambient", "Ambient", "پدهای فضاساز و بافت‌های سینمایی برای روایت تصویری.", ""],
+  ["hip-hop", "Hip Hop", "Urban rhythms, punchy drums, and melodies built for rap.", ""],
+  ["trap", "Trap", "Deep 808 bass, rapid hi-hats, and a modern, high-energy sound.", "hip-hop"],
+  ["drill", "Drill", "Sliding bass, syncopated rhythms, and a dark urban atmosphere.", "hip-hop"],
+  ["rnb", "R&B", "Warm chords and smooth rhythms for vocals and songwriting.", ""],
+  ["afro", "Afro", "Lively percussion, warm guitars, and flowing Afrobeat grooves.", ""],
+  ["pop", "Pop", "Memorable melodies and polished arrangements for your next release.", ""],
+  ["lo-fi", "Lo-Fi", "Analog textures and laid-back rhythms for writing and unwinding.", "hip-hop"],
+  ["edm", "EDM", "Powerful synthesizers, energetic drops, and electronic rhythms.", ""],
+  ["house", "House", "Four-on-the-floor kicks and fluid, danceable basslines.", "edm"],
+  ["boom-bap", "Boom Bap", "Classic drums and sample-driven arrangements for rap.", "hip-hop"],
+  ["persian-fusion", "Persian Fusion", "The character of Persian instruments blended with modern arrangements and rhythms.", ""],
+  ["ambient", "Ambient", "Atmospheric pads and cinematic textures for visual storytelling.", ""],
 ] as const;
 const moods = [
-  ["dark", "Dark", "تاریک و عمیق"], ["dreamy", "Dreamy", "رویاگونه و شناور"],
-  ["energetic", "Energetic", "پرانرژی و پرتحرک"], ["melancholic", "Melancholic", "احساسی و اندوهگین"],
-  ["aggressive", "Aggressive", "خشن و کوبنده"], ["chill", "Chill", "آرام و رها"],
-  ["uplifting", "Uplifting", "روشن و انگیزه‌بخش"], ["romantic", "Romantic", "عاشقانه و گرم"],
-  ["mysterious", "Mysterious", "مرموز و پرتعلیق"], ["cinematic", "Cinematic", "تصویری و سینمایی"],
-  ["soulful", "Soulful", "پرروح و عاطفی"], ["nostalgic", "Nostalgic", "خاطره‌انگیز و قدیمی"],
-  ["confident", "Confident", "مطمئن و جسور"], ["atmospheric", "Atmospheric", "فضاساز و گسترده"],
-  ["hopeful", "Hopeful", "امیدوار و رو به جلو"], ["playful", "Playful", "بازیگوش و سرزنده"],
+  ["dark", "Dark", "Deep, shadowy sounds with an intense atmosphere."], ["dreamy", "Dreamy", "Floating textures and a dreamlike atmosphere."],
+  ["energetic", "Energetic", "High-energy sounds full of movement and momentum."], ["melancholic", "Melancholic", "Emotional melodies with a reflective, bittersweet feel."],
+  ["aggressive", "Aggressive", "Hard-hitting rhythms with a raw, forceful edge."], ["chill", "Chill", "Relaxed rhythms and an easygoing feel."],
+  ["uplifting", "Uplifting", "Bright, inspiring sounds that lift the mood."], ["romantic", "Romantic", "Warm melodies with a tender, romantic feel."],
+  ["mysterious", "Mysterious", "Intriguing textures filled with tension and suspense."], ["cinematic", "Cinematic", "Vivid, film-inspired sounds for storytelling."],
+  ["soulful", "Soulful", "Rich, expressive sounds with warmth and emotion."], ["nostalgic", "Nostalgic", "Timeless textures that bring back memories."],
+  ["confident", "Confident", "Bold, assured sounds with a strong presence."], ["atmospheric", "Atmospheric", "Spacious textures that create an immersive atmosphere."],
+  ["hopeful", "Hopeful", "Optimistic melodies with a forward-looking spirit."], ["playful", "Playful", "Lively, lighthearted sounds full of character."],
 ] as const;
 const instruments = [
-  ["808-bass", "808 Bass", "BASS", "بیس عمیق و کوبندهٔ ۸۰۸"], ["sub-bass", "Sub Bass", "BASS", "بیس ساب نرم و کنترل‌شده"],
-  ["acoustic-drums", "Acoustic Drums", "DRUMS", "کیت درام آکوستیک"], ["drum-machine", "Drum Machine", "DRUMS", "درام‌های الکترونیک و برنامه‌ریزی‌شده"],
-  ["hi-hats", "Hi-Hats", "DRUMS", "های‌هت و ریزه‌کاری ریتم"], ["hand-percussion", "Hand Percussion", "PERCUSSION", "پرکاشن دستی و گروو زنده"],
-  ["piano", "Piano", "KEYS", "پیانو آکوستیک"], ["electric-piano", "Electric Piano", "KEYS", "پیانوی الکتریک و آکوردهای گرم"],
-  ["synth-lead", "Synth Lead", "SYNTH", "ملودی اصلی سینتی‌سایزر"], ["synth-pad", "Synth Pad", "SYNTH", "پدهای نرم و فضاساز"],
-  ["electric-guitar", "Electric Guitar", "GUITAR", "گیتار الکتریک و بافت‌های آمپ"], ["acoustic-guitar", "Acoustic Guitar", "GUITAR", "گیتار آکوستیک و ملودی‌های طبیعی"],
-  ["strings", "String Section", "STRINGS", "بخش زهی و تنظیم ارکسترال"], ["brass", "Brass", "BRASS", "سازهای بادی برنجی"],
-  ["saxophone", "Saxophone", "WOODWIND", "ساکسوفون و جمله‌های جز"], ["vocal-chops", "Vocal Chops", "VOCAL", "برش‌ها و بافت‌های وکال"],
-  ["ney", "Ney", "WOODWIND", "نی و رنگ موسیقی ایرانی"], ["santur", "Santur", "STRINGS", "سنتور و الگوهای ملودیک ایرانی"],
-  ["setar", "Setar", "STRINGS", "سه‌تار و جمله‌های ظریف"], ["texture-fx", "Texture FX", "FX", "بافت، نویز و افکت‌های فضاساز"],
+  ["808-bass", "808 Bass", "BASS", "Deep, punchy 808 bass tones."], ["sub-bass", "Sub Bass", "BASS", "Smooth, controlled low-end bass."],
+  ["acoustic-drums", "Acoustic Drums", "DRUMS", "Natural acoustic drum kits."], ["drum-machine", "Drum Machine", "DRUMS", "Programmed drums and electronic rhythms."],
+  ["hi-hats", "Hi-Hats", "DRUMS", "Hi-hat patterns and detailed rhythmic accents."], ["hand-percussion", "Hand Percussion", "PERCUSSION", "Hand-played percussion and lively grooves."],
+  ["piano", "Piano", "KEYS", "Expressive acoustic piano tones."], ["electric-piano", "Electric Piano", "KEYS", "Electric piano textures and warm chords."],
+  ["synth-lead", "Synth Lead", "SYNTH", "Distinctive lead synthesizer melodies."], ["synth-pad", "Synth Pad", "SYNTH", "Soft, atmospheric synthesizer pads."],
+  ["electric-guitar", "Electric Guitar", "GUITAR", "Electric guitar riffs and amplified textures."], ["acoustic-guitar", "Acoustic Guitar", "GUITAR", "Acoustic guitar tones and natural melodies."],
+  ["strings", "String Section", "STRINGS", "String ensembles and orchestral arrangements."], ["brass", "Brass", "BRASS", "Warm, powerful brass instruments."],
+  ["saxophone", "Saxophone", "WOODWIND", "Expressive saxophone tones and jazz phrases."], ["vocal-chops", "Vocal Chops", "VOCAL", "Chopped vocals and layered vocal textures."],
+  ["ney", "Ney", "WOODWIND", "Ney flute tones with a Persian character."], ["santur", "Santur", "STRINGS", "Santur textures and Persian melodic patterns."],
+  ["setar", "Setar", "STRINGS", "Delicate setar melodies and phrases."], ["texture-fx", "Texture FX", "FX", "Atmospheric textures, noise, and sound effects."],
 ] as const;
 const producers = [
-  { key: "nava", name: "Nava", first: "Nima", last: "Rad", city: "Tehran", genres: ["trap", "hip-hop"], bio: "بیت‌های ترپ و هیپ‌هاپ با بیس عمیق، فضای شبانه و جای کافی برای وکال.", basePrice: 450000 },
-  { key: "orbit", name: "Orbit", first: "Arman", last: "Nouri", city: "Tabriz", genres: ["drill", "boom-bap"], bio: "درام‌های کوبنده، بیس‌های لغزنده و رنگ کلاسیک سمپل در تنظیم‌های رپ.", basePrice: 550000 },
-  { key: "saye", name: "Saye", first: "Sara", last: "Mehr", city: "Shiraz", genres: ["rnb", "lo-fi"], bio: "آکوردهای گرم آراندبی و بافت‌های لوفای برای قصه‌های آرام و احساسی.", basePrice: 350000 },
-  { key: "arka", name: "Arka", first: "Kian", last: "Parsa", city: "Isfahan", genres: ["afro", "persian-fusion"], bio: "گروو آفرو و رنگ سازهای ایرانی در کنار ریتم‌ها و بیس مدرن.", basePrice: 600000 },
-  { key: "pulse", name: "Pulse", first: "Pouya", last: "Shayan", city: "Mashhad", genres: ["edm", "house"], bio: "موسیقی الکترونیک با بیس‌لاین روان، دراپ‌های پرانرژی و ملودی روشن.", basePrice: 750000 },
-  { key: "mira", name: "Mira", first: "Mina", last: "Raha", city: "Rasht", genres: ["pop", "ambient"], bio: "ملودی‌های پاپ و فضای امبینت برای ترانه، تصویر و روایت شخصی.", basePrice: 500000 },
+  { key: "nava", name: "Nava", first: "Nima", last: "Rad", city: "Tehran", genres: ["trap", "hip-hop"], bio: "Trap and hip-hop beats with deep bass, late-night atmosphere, and room for your vocals.", basePrice: 450000 },
+  { key: "orbit", name: "Orbit", first: "Arman", last: "Nouri", city: "Tabriz", genres: ["drill", "boom-bap"], bio: "Punchy drums, sliding bass, and classic sample textures in rap-ready arrangements.", basePrice: 550000 },
+  { key: "saye", name: "Saye", first: "Sara", last: "Mehr", city: "Shiraz", genres: ["rnb", "lo-fi"], bio: "Warm R&B chords and lo-fi textures for intimate, emotional stories.", basePrice: 350000 },
+  { key: "arka", name: "Arka", first: "Kian", last: "Parsa", city: "Isfahan", genres: ["afro", "persian-fusion"], bio: "Afro grooves and Persian instruments blended with modern rhythms and bass.", basePrice: 600000 },
+  { key: "pulse", name: "Pulse", first: "Pouya", last: "Shayan", city: "Mashhad", genres: ["edm", "house"], bio: "Electronic music with flowing basslines, energetic drops, and bright melodies.", basePrice: 750000 },
+  { key: "mira", name: "Mira", first: "Mina", last: "Raha", city: "Rasht", genres: ["pop", "ambient"], bio: "Pop melodies and ambient soundscapes for songs, visuals, and personal stories.", basePrice: 500000 },
 ];
 // producer, title, genre, BPM, key, moods, instruments; the fourth beat of each producer stays a draft.
 const beats = [
@@ -152,7 +152,7 @@ async function main() {
     let credential = accounts.find(item => item.email === email);
     if (!credential) { credential = { email, password: randomBytes(18).toString("base64url"), role, name: displayName }; accounts.push(credential); }
     return ensure("users", { email }, { email, firstName, lastName, passwordHash: await hash(credential.password, 12), roles: role === "PRODUCER" ? ["USER", "PRODUCER"] : ["USER"], status: "ACTIVE", isEmailVerified: false, isPhoneVerified: false,
-      profile: { username, displayName, bio: `${bio}\nپروفایل نمونهٔ کاتالوگ؛ نام و اطلاعات آن قابل ویرایش است.`, location: { city, countryCode: "IR" }, socialLinks: {} }, preferences: { emailNotifications: false, showActivity: false } });
+      profile: { username, displayName, bio: `${bio}\nSample catalog profile. Its name and details can be edited.`, location: { city, countryCode: "IR" }, socialLinks: {} }, preferences: { emailNotifications: false, showActivity: false } });
   }
   const producerMap = new Map<string, Row>();
   for (const producer of producers) {
@@ -166,7 +166,7 @@ async function main() {
     const slug = `sample-${producerKey}-${title.toLowerCase().replaceAll(" ", "-")}`;
     const publish = index % 4 !== 3 && category.isActive === true && producer.status === "ACTIVE";
     const track = await ensure("tracks", { slug }, { producerId: oid(producer), title, slug,
-      description: `${title} یک بیت ${category.name} با تمپوی ${bpm} و گام ${musicalKey} است؛ تنظیمی با فضای کافی برای وکال و ایده‌پردازی.\nنمونهٔ کاتالوگ: کاور، فایل اصلی و پیش‌نمایش بعداً توسط مدیر اضافه می‌شوند.`,
+      description: `${title}: ${category.name} at ${bpm} BPM in ${musicalKey}, with space for vocals and new ideas.\nSample catalog beat. Artwork, the master file, and the preview will be added by the administrator.`,
       metadata: { musicalKey, bpm, genreId: oid(category), moodIds: moodSlugs.map(key => oid(moodMap.get(key)!)), instrumentIds: instrumentSlugs.map(key => oid(instrumentMap.get(key)!)), tags: [genre, ...moodSlugs, "sample-catalog"], durationSeconds: 130 + index * 4, isExplicit: false },
       audio: { stems: [], previewStartSeconds: 0, previewDurationSeconds: 30 }, visibility: "PUBLIC", status: "DRAFT", releaseDate: null, publishedAt: null, collaborators: [],
     }, publish);
@@ -178,7 +178,7 @@ async function main() {
   for (const [index, producer] of producers.entries()) {
     const owner = producerMap.get(producer.key)!, tracks = producerTracks.get(producer.key)!;
     for (const tier of tiers) await ensure("licenses", { producerId: oid(owner), title: tier.title }, {
-      producerId: oid(owner), title: tier.title, description: `لایسنس نمونهٔ ${tier.title} برای کاتالوگ ${producer.name}. پس از تکمیل فایل‌ها، شرایط و قیمت را بررسی و فعال کنید.`,
+      producerId: oid(owner), title: tier.title, description: `Sample ${tier.title} license for the ${producer.name} catalog. Review the terms and price before activating it once the files are ready.`,
       price: mongoose.Types.Decimal128.fromString(String(producer.basePrice * tier.factor)), currency: "IRT", offerable: false, minimumOfferPrice: null,
       trackIds: tracks.map(oid), filesToDeliver: [{ format: "WAV", label: "Full-quality WAV master", required: true }],
       territory: { worldwide: true, includedCountries: [], excludedCountries: [] },
@@ -193,15 +193,15 @@ async function main() {
     const track = producerTracks.get(producer.key)![0], label = "Sample featured beat";
     await ensure("placements", { trackId: oid(track), label }, { trackId: oid(track), label, position, startsAt: new Date(now.getTime() + 14 * 86400000), endsAt: new Date(now.getTime() + 21 * 86400000), isActive: false, agreedFeeToman: 0, paymentStatus: "PENDING", paymentReference: "", createdBy: admin._id, updatedBy: admin._id, version: 1 });
   }
-  const customers = [await account("darya", "Darya", "Kazemi", "Darya", "USER", "در جستجوی بیت برای نوشتن و ضبط ترانه.", "Tehran"), await account("raha", "Raha", "Farzan", "Raha", "USER", "انتخاب ایده‌های تازه برای پروژه‌های موسیقی و تصویر.", "Shiraz")];
+  const customers = [await account("darya", "Darya", "Kazemi", "Darya", "USER", "Looking for beats to write and record songs.", "Tehran"), await account("raha", "Raha", "Farzan", "Raha", "USER", "Discovering fresh ideas for music and visual projects.", "Shiraz")];
   for (const [index, user] of customers.entries()) {
     for (const track of publicTracks.slice(index * 6, index * 6 + 6)) await ensure("favorites", { userId: oid(user), trackId: oid(track) }, { userId: oid(user), trackId: oid(track) });
-    for (const [group, name] of ["Night Sessions", "Writing Room", "Release Ideas"].entries()) await ensure("collections", { userId: oid(user), name }, { userId: oid(user), name, description: "مجموعهٔ شخصی نمونه برای مرتب‌سازی ایده‌ها و بیت‌های منتخب.", trackIds: publicTracks.slice((index * 3 + group * 4) % 12, (index * 3 + group * 4) % 12 + 4).map(oid), version: 1 });
+    for (const [group, name] of ["Night Sessions", "Writing Room", "Release Ideas"].entries()) await ensure("collections", { userId: oid(user), name }, { userId: oid(user), name, description: "A sample personal collection for organizing ideas and favorite beats.", trackIds: publicTracks.slice((index * 3 + group * 4) % 12, (index * 3 + group * 4) % 12 + 4).map(oid), version: 1 });
   }
   for (const [index, subject] of ["general", "licensing", "technical"].entries()) {
     const bytes = createHash("sha1").update(`${BATCH}:message:${index}`).digest().subarray(0, 16); bytes[6] = (bytes[6] & 15) | 80; bytes[8] = (bytes[8] & 63) | 128;
     const hex = bytes.toString("hex"), id = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
-    const payload = { name: "پیام نمونهٔ کاتالوگ", email: "darya@demo.beatmarketplace.test", subject, message: `این پیام نمونه برای تست صندوق پشتیبانی است (${subject}). پس از بررسی نمایش و تغییر وضعیت، می‌توانید آن را ببندید.` };
+    const payload = { name: "Sample catalog message", email: "darya@demo.beatmarketplace.test", subject, message: `This is a sample message for testing the support inbox (${subject}). You can close it after checking its display and status updates.` };
     await ensure("messages", { _id: id }, { _id: id, ...payload, payloadHash: createHash("sha256").update(JSON.stringify(payload)).digest("hex"), status: ["NEW", "READ", "CLOSED"][index], version: 1, updatedBy: null });
   }
   const created = Object.fromEntries(Object.keys(models).map(kind => [kind, planned.filter(item => item.kind === kind).length]));

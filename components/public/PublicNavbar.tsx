@@ -11,6 +11,7 @@ import { PublicAccountMenu } from "@/components/public/PublicAccountMenu";
 import { CartIcon, DiscIcon, MenuIcon, TagIcon } from "@/components/ui/icons";
 import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
 import { useMarketplace } from "@/components/marketplace/MarketplaceProvider";
+import { GlobalSearch } from "@/components/search/GlobalSearch";
 
 export function PublicNavbar({ overlay = false }: { overlay?: boolean }) {
   const { status, user } = useAuth();
@@ -38,9 +39,10 @@ export function PublicNavbar({ overlay = false }: { overlay?: boolean }) {
         </div>
 
         <div className="music-nav-actions">
-          <Link href="/cart" className="music-nav-cart" aria-label={`View cart, ${cart.length} ${cart.length === 1 ? "item" : "items"}`} aria-current={pathname === "/cart" ? "page" : undefined}>
+          <GlobalSearch />
+          <NeumorphicLink href="/cart" variant={pathname === "/cart" ? "accent" : "default"} size="sm" className="music-nav-cart" aria-label={`View cart, ${cart.length} ${cart.length === 1 ? "item" : "items"}`} aria-current={pathname === "/cart" ? "page" : undefined}>
             <CartIcon className="size-5" />{cart.length > 0 && <span aria-hidden="true">{cart.length}</span>}
-          </Link>
+          </NeumorphicLink>
         <div className="music-nav-account">
           {status === "loading" ? (
             <div className="neo-inset h-11 w-20 animate-pulse rounded-[var(--radius-control)]" aria-label="Loading session" />

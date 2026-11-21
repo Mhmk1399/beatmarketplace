@@ -42,7 +42,7 @@ export function DynamicDateTimePicker({ mode = "datetime", showSeconds = false, 
   const [validation, setValidation] = useState("");
   const error = props.error || validation;
   const messageId = `${id}-message`;
-  const placeholder = props.placeholder ?? (mode === "time" ? "انتخاب ساعت" : mode === "date" ? "انتخاب تاریخ شمسی" : "انتخاب تاریخ و ساعت");
+  const placeholder = props.placeholder ?? (mode === "time" ? "Choose time" : mode === "date" ? "Choose Jalali date" : "Choose date and time");
   const describedBy = [props["aria-describedby"], error || props.hint ? messageId : undefined].filter(Boolean).join(" ") || undefined;
 
   useEffect(() => { native.current?.setCustomValidity(pickerValueError(props.value, mode, props.min, props.max, props.required)); }, [props.value, mode, props.min, props.max, props.required]);
@@ -56,7 +56,7 @@ export function DynamicDateTimePicker({ mode = "datetime", showSeconds = false, 
   return <div className={styles.field}>
     {props.label && <label htmlFor={id} className={styles.label}>{props.label}{props.required && <span aria-hidden="true"> *</span>}</label>}
     <input ref={native} type="text" className={styles.native} tabIndex={-1} aria-hidden="true" name={props.name} value={props.value} onChange={() => {}} readOnly={props.readOnly} required={props.required} disabled={props.disabled} onFocus={() => trigger.current?.focus()} onInvalid={event => { event.preventDefault(); setValidation(pickerValueError(props.value, mode, props.min, props.max, props.required)); trigger.current?.focus(); }} />
-    <button ref={trigger} id={id} type="button" role="combobox" className={cn("neo-input-wrap", styles.trigger, (error || props["aria-invalid"]) && "neo-input-error", props.className)} dir="rtl" lang="fa" disabled={props.disabled} autoFocus={props.autoFocus} aria-label={props["aria-label"]} aria-describedby={describedBy} aria-invalid={Boolean(error || props["aria-invalid"])} aria-required={props.required} aria-readonly={props.readOnly || undefined} aria-haspopup="dialog" aria-expanded={open} aria-controls={open ? `${id}-dialog` : undefined} onClick={show} onKeyDown={event => { if (event.key === "ArrowDown" && !props.readOnly) { event.preventDefault(); show(); } }}>
+    <button ref={trigger} id={id} type="button" role="combobox" className={cn("neo-input-wrap", styles.trigger, (error || props["aria-invalid"]) && "neo-input-error", props.className)} dir="ltr" lang="en" disabled={props.disabled} autoFocus={props.autoFocus} aria-label={props["aria-label"]} aria-describedby={describedBy} aria-invalid={Boolean(error || props["aria-invalid"])} aria-required={props.required} aria-readonly={props.readOnly || undefined} aria-haspopup="dialog" aria-expanded={open} aria-controls={open ? `${id}-dialog` : undefined} onClick={show} onKeyDown={event => { if (event.key === "ArrowDown" && !props.readOnly) { event.preventDefault(); show(); } }}>
       {mode === "time" ? <ClockIcon /> : <CalendarIcon />}
       <span className={!props.value ? styles.placeholder : undefined}>{formatPickerValue(props.value, mode, showSeconds) || placeholder}</span>
       {mode === "datetime" && <ClockIcon className={styles.trailing} />}

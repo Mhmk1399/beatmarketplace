@@ -280,21 +280,10 @@
 }
 .music-nav-cart {
   position: relative;
-  display: inline-flex;
   flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid var(--music-border);
-  border-radius: var(--radius-pill);
-  color: var(--text-secondary);
-  background: var(--music-soft-light);
-}
-.music-nav-cart:hover,
-.music-nav-cart[aria-current="page"] {
-  color: var(--accent-text);
-  background: var(--accent-soft);
+  padding: 0;
 }
 .music-nav-cart > span {
   position: absolute;
@@ -311,6 +300,12 @@
   font-size: 0.6rem;
   font-weight: 800;
 }
+@media (max-width: 639px) {
+  .music-nav-actions { gap: .35rem; }
+  .music-nav-account { max-width: max(44px, calc(100vw - 260px)); }
+  .music-nav-account button[aria-haspopup="menu"] { max-width: 100%; padding-inline: 8px; }
+}
+@media (max-width: 359px) { .music-nav-brand > span:last-child { display: none; } }
 .music-nav-avatar {
   width: 2.25rem;
   height: 2.25rem;

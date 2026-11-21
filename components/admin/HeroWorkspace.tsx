@@ -458,7 +458,7 @@ function PlacementEditor({
           <p className="text-xs leading-6 text-muted">
             Timezone:{" "}
             <strong className="text-secondary">
-              Asia/Tehran · تقویم شمسی، ساعت تهران
+              Asia/Tehran · Jalali calendar, Tehran time
             </strong>
             . Bookings may run for up to {MAX_HERO_WINDOW_DAYS} days.
           </p>

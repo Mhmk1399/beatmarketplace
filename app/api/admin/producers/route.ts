@@ -1,0 +1,24 @@
+import UserModel from "@/models/User";
+import { resourceQuerySchema } from "@/lib/workspace/validation";
+import { cursorFilter, escapeRegex, json, requireUser, resourcePage, userDto, workspaceError } from "@/lib/workspace/server";
+
+export const runtime = "nodejs";
+const querySchema = resourceQuerySchema.omit({ role: true });
+
+export async function GET(request: Request) {
+  try {
+    const auth = await requireUser(request, "ADMIN");
+    if (!auth.ok) return auth.response;
+    const query = querySchema.parse(Object.fromEntries(new URL(request.url).searchParams));
+    const match: Record<string, unknown> = { roles: "PRODUCER", ...(query.status ? { status: query.status } : {}) };
+    if (query.q) {
+      const expression = { $regex: escapeRegex(query.q), $options: "i" };
+      match.$or = [{ firstName: expression }, { lastName: expression }, { email: expression }, { "profile.displayName": expression }, { "profile.username": expression }];
+    }
+    const records = await UserModel.find({ $and: [match, cursorFilter(query.cursor)] }).sort({ createdAt: -1, _id: -1 }).limit(query.limit + 1);
+    const page = resourcePage(records, query.limit);
+    return json({ items: page.page.map(userDto), hasMore: page.hasMore, nextCursor: page.nextCursor });
+  } catch (error) {
+    return workspaceError(error);
+  }
+}

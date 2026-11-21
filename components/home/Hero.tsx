@@ -1,5 +1,5 @@
 import { FeaturedBeats } from "@/components/home/FeaturedBeats";
-import { HeroSearch } from "./HeroSearch";
+import { HeroActions } from "./HeroActions";
 import {
   DiscIcon,
   ShieldIcon,
@@ -29,7 +29,7 @@ export function Hero() {
               Original beats for your next release. Preview the sound, choose
               your license, and pay in toman.
             </p>
-            <HeroSearch />
+            <HeroActions />
           </div>
           <FeaturedBeats fallbackDemos={demoTracks} />
         </div>
