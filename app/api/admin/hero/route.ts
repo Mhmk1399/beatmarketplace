@@ -1,3 +1,4 @@
+import { readSecureJson } from "@/lib/security/request";
 import { NextResponse } from "next/server";
 import { heroCreateSchema, heroQuerySchema, validateHeroBooking } from "@/lib/hero/validation";
 import { requireEligibleHeroTrack, serializeAdminHeroPlacements } from "@/lib/hero/server";
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
   try {
     const auth = await requireMarketplaceRole(request, "ADMIN");
     if (!auth.ok) return auth.response;
-    const data = heroCreateSchema.parse(await request.json());
+    const data = heroCreateSchema.parse(await readSecureJson(request));
     const values = { ...data, startsAt: new Date(data.startsAt), endsAt: new Date(data.endsAt) };
     const issue = validateHeroBooking(values);
     if (issue) throw new MarketplaceError(issue);

@@ -112,7 +112,7 @@ export function TrendingBeats() {
               <span>next vibe.</span>
             </h2>
             <p className="trending-description">
-              A handpicked listening selection. Full-length demos to explore the
+              A handpicked listening selection. 30-second demos to explore the
               player, not offered for sale.
             </p>
           </header>
@@ -152,7 +152,7 @@ export function TrendingBeats() {
                   <div className="trending-track-copy">
                     <h3>{track.title}</h3>
                     <p>
-                      Full-length demo <span aria-hidden="true">·</span> MP3
+                      30-second demo <span aria-hidden="true">·</span> MP3
                     </p>
                   </div>
                   <Waveform

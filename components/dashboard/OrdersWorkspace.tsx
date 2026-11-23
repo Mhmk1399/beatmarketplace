@@ -1,5 +1,6 @@
 "use client";
 
+import { conditionRows, licenseConditions } from "@/lib/licensing/conditions";
 import { formatPersianDate } from "@/lib/date-time";
 import {
   ResourceManager,
@@ -20,26 +21,33 @@ type Order = {
     price: number;
     terms?: string;
     downloadUrl: string | null;
+    agreementUrl?: string | null;
   }[];
 };
 export function OrdersWorkspace({
   scope = "personal",
+  downloads = false,
 }: {
   scope?: "admin" | "producer" | "personal";
+  downloads?: boolean;
 }) {
   const config: ResourceConfig<Order> = {
     title:
       scope === "producer"
         ? "Sales"
-        : scope === "personal"
+        : downloads
+          ? "Downloads"
+          : scope === "personal"
           ? "Purchases & licenses"
           : "Orders & payments",
     description:
       scope === "producer"
         ? "Sales of your beats. Amounts are gross sales before any settlement or platform fees."
+        : downloads
+          ? "Paid purchases with their full-quality WAV files and saved license agreements."
         : "Verified payment status and order records. Test transactions are labeled separately.",
     endpoint: "/api/workspace/orders",
-    query: `scope=${scope}`,
+    query: `scope=${scope}${scope === "producer" || downloads ? "&status=PAID" : ""}`,
     label: (order) => `Order ${order.id.slice(-8)}`,
     columns: [
       {
@@ -104,6 +112,7 @@ export function OrdersWorkspace({
                 </pre>
               </details>
             )}
+            {item.agreementUrl && <div className="flex flex-wrap gap-4"><a href={item.agreementUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-accent-text underline">View agreement</a><a href={`${item.agreementUrl}&download=1`} className="inline-flex min-h-11 items-center font-semibold text-accent-text underline">Download agreement</a></div>}
             {item.downloadUrl && (
               <a
                 href={item.downloadUrl}
@@ -126,7 +135,9 @@ export function OrdersWorkspace({
 }
 function formatTerms(value: string) {
   try {
-    return JSON.stringify(JSON.parse(value), null, 2);
+    const saved = JSON.parse(value);
+    if (!saved.terms || !saved.title) return value;
+    return [saved.title, `License version: ${saved.version}`, `Type: ${saved.terms.licenseType}`, saved.description || "", ...conditionRows(licenseConditions(saved.terms, saved.territory)).map(([key,value])=>`${key}: ${value}`), `Files included: ${(saved.filesToDeliver ?? []).map((file: {format:string})=>file.format).join(" + ")}`, "Additional producer terms:", saved.terms.customTerms || "None."].filter(Boolean).join("\n");
   } catch {
     return value;
   }

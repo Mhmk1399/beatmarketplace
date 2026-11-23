@@ -102,6 +102,9 @@ test("cross-site mutations, malformed cookies, and oversized JSON are handled sa
   assert.throws(() => requireSameOrigin(new Request("http://localhost/api/orders", { headers: { Origin: "https://other.example" } })), /this website/);
   assert.throws(() => requireSameOrigin(new Request("http://localhost/api/orders", { headers: { "Sec-Fetch-Site": "cross-site" } })), /this website/);
   assert.doesNotThrow(() => requireSameOrigin(new Request("http://localhost/api/orders", { headers: { Origin: "http://localhost" } })));
+  assert.doesNotThrow(() => requireSameOrigin(new Request("http://localhost/api/orders", { headers: { Host: "127.0.0.1:4321", Origin: "http://127.0.0.1:4321" } })));
+  assert.doesNotThrow(() => requireSameOrigin(new Request("http://localhost/api/orders", { headers: { Host: "internal:3000", "X-Forwarded-Host": "beats.example", "X-Forwarded-Proto": "https", Origin: "https://beats.example" } })));
+  assert.throws(() => requireSameOrigin(new Request("http://localhost/api/orders", { headers: { Host: "beats.example", Origin: "https://evil.example" } })), /this website/);
   assert.equal(getAccessToken(new Request("http://localhost", { headers: { Cookie: "beatmarketplace_access=%ZZ" } })), null);
   await assert.rejects(readSecureJson(new Request("http://localhost", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ value: "a".repeat(20_000) }) })), /too large/);
   await assert.rejects(readSecureJson(new Request("http://localhost", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{" })), /Invalid JSON/);

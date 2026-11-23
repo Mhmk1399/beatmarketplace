@@ -29,7 +29,7 @@ export function NavigationItem({
     >
       <DashboardIcon name={item.icon} className="size-[19px] shrink-0" />
       <span className="truncate">{item.label}</span>
-      {active && <span className="ml-auto size-1.5 shrink-0 rounded-full bg-accent-muted shadow-[var(--shadow-nav-dot)]" aria-hidden="true" />}
+
     </Link>
   );
 }

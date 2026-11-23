@@ -1,4 +1,5 @@
 "use client";
+import { LicenseConditions } from "@/components/licensing/LicenseConditions";
 
 import Image from "next/image";
 import { CoverImage } from "@/components/ui/CoverImage";
@@ -634,7 +635,7 @@ function LoadedTrackDetail({ data, stale, refreshing, refresh }: { data: TrackDe
                         license.distributionLimit === null
                           ? "Unlimited distributions"
                           : `${license.distributionLimit.toLocaleString("en-US")} distributions`,
-                        "Producer credit required",
+                        license.conditions?.creditRequired === false ? "Producer credit not required" : "Producer credit required",
                       ].map((term) => (
                         <li key={term}>
                           <CheckIcon />
@@ -642,15 +643,7 @@ function LoadedTrackDetail({ data, stale, refreshing, refresh }: { data: TrackDe
                         </li>
                       ))}
                     </ul>
-                    {license.customTerms && (
-                      <details className="detail-license-terms">
-                        <summary>
-                          Additional license terms{" "}
-                          <span aria-hidden="true">+</span>
-                        </summary>
-                        <p>{license.customTerms}</p>
-                      </details>
-                    )}
+                    <details className="detail-license-terms"><summary>All license conditions</summary><div className="mt-4"><LicenseConditions license={license} /></div></details>
                     <div className="detail-license-footer">
                       {purchasable ? (
                         <NeumorphicButton

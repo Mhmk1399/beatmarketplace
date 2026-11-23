@@ -34,7 +34,7 @@ function DemoTimeline({ track }: { track: AudioTrack }) {
             <TrackSpectrum trackId={track.id} variant="bars" />
           </div>
           <div className="music-room-timeline-label">
-            <span>Full-length demo</span>
+            <span>30-second demo</span>
             <span>MP3</span>
           </div>
         </>
@@ -98,7 +98,7 @@ export function ListeningRoom() {
             <h2 id="listening-room-title">Press play. Stay a while.</h2>
           </div>
           <p>
-            Full-length listening demos, not for sale.
+            30-second listening previews, not for sale.
             <br />
             Keep the music going as you explore.
           </p>

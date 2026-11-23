@@ -1,3 +1,4 @@
+import { readSecureJson } from "@/lib/security/request";
 import { NextResponse } from "next/server";
 import { discountCreateSchema, discountsQuerySchema, validateDiscountWindow } from "@/lib/marketplace/discount-validation";
 import { serializeDiscount } from "@/lib/marketplace/discount-server";
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
   try {
     const auth = await requireMarketplaceRole(request, "PRODUCER");
     if (!auth.ok) return auth.response;
-    const data = discountCreateSchema.parse(await request.json());
+    const data = discountCreateSchema.parse(await readSecureJson(request));
     const dates = { startsAt: new Date(data.startsAt), endsAt: new Date(data.endsAt), isActive: true };
     const issue = validateDiscountWindow(dates);
     if (issue) throw new MarketplaceError(issue);

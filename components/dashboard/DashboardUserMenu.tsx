@@ -68,7 +68,7 @@ export function DashboardUserMenu({ user, workspace }: { user: DashboardUser; wo
             <p className="mt-1 truncate text-xs text-faint">{user.email}</p>
           </div>
           <div className="my-1 h-px bg-divider" />
-          <Link role="menuitem" href="/dashboard/profile" onClick={() => setOpen(false)} className="dashboard-menu-item">
+          <Link role="menuitem" href={`${workspace.href}/profile`} onClick={() => setOpen(false)} className="dashboard-menu-item">
             <UserIcon className="size-[18px]" /> Profile
           </Link>
           <Link role="menuitem" href={`${workspace.href}/settings`} onClick={() => setOpen(false)} className="dashboard-menu-item">

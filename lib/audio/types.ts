@@ -9,7 +9,7 @@ export type AudioTrack = {
   coverUrl: string | null;
   description: string;
   href?: string;
-  /** Marketplace previews are capped at 30; local demo songs omit the cap. */
+  /** Public listening previews are capped at 30 seconds. */
   durationLimitSeconds?: number;
   isDemo?: boolean;
 };

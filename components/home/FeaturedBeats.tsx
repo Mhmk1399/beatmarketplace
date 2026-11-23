@@ -190,7 +190,7 @@ function FeaturedCard({ selected, selectedIndex, total, selectedPlaying, onPlay,
                     <TrackSpectrum trackId={selected.audio.id} variant="bars" />
                   </div>
                   <span>
-                    {selected.beat ? "30s preview" : "Full-length demo"}
+                    {selected.beat ? "30s preview" : "30-second demo"}
                   </span>
                 </div>
               </article>);

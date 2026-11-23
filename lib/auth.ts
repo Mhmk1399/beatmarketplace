@@ -6,6 +6,7 @@ import { config, getJwtSecret } from "@/lib/config";
 import { connectToDatabase } from "@/lib/db";
 import type { UserRole } from "@/lib/types";
 import UserModel, { type UserDocument } from "@/models/User";
+import { consumeApiQuota } from "@/lib/security/rate-limit";
 import { requireSameOrigin, securityErrorResponse } from "@/lib/security/request";
 
 export const AUTH_COOKIE_NAME = "beatmarketplace_access";
@@ -113,7 +114,17 @@ export async function authenticateRequest(request: Request): Promise<Authenticat
     catch (error) { return { ok: false, response: securityErrorResponse(error)! }; }
   }
   const resolution = await resolveAuthenticatedUser(getAccessToken(request));
-  if (resolution.ok) return resolution;
+  if (resolution.ok) {
+    try {
+      const write = !["GET", "HEAD", "OPTIONS"].includes(request.method);
+      await consumeApiQuota(write ? "authenticated-write" : "authenticated-read", resolution.user.id, write ? 120 : 600, 60_000);
+    } catch (error) {
+      const response = securityErrorResponse(error);
+      if (response) return { ok: false, response };
+      throw error;
+    }
+    return resolution;
+  }
 
   const errors = {
     MISSING: { error: "Unauthorized.", status: 401 },

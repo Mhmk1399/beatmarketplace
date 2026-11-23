@@ -12,6 +12,7 @@ const DUMMY_PASSWORD_HASH = "$2a$12$V6nWkH5VJgk5tV3XqkWkE.9Xc9xUeMNrV4t7Ca2vQ7k0
 export async function POST(request: Request) {
   try {
     requireSameOrigin(request);
+    await consumeApiQuota("login-service", "all", 120, 60_000);
     const parsed = loginSchema.safeParse(await readSecureJson(request));
     if (!parsed.success) {
       return NextResponse.json(validationError(parsed.error), { status: 400 });

@@ -1,3 +1,5 @@
+import { licenseConditions } from "@/lib/licensing/conditions";
+import { licenseTermsHash } from "@/lib/licensing/server";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
@@ -67,12 +69,13 @@ export async function producerIsPublic(producerId: mongoose.Types.ObjectId | str
   return Boolean(await UserModel.exists({ _id: producerId, status: "ACTIVE", roles: "PRODUCER" }));
 }
 
-type LicenseRecord = Pick<ContractDocument, "_id" | "title" | "price" | "currency" | "terms" | "filesToDeliver" | "version">;
+type LicenseRecord = Pick<ContractDocument, "_id" | "title" | "price" | "currency" | "terms" | "filesToDeliver" | "version" | "description" | "territory">;
 export const MAX_PUBLIC_LICENSES_PER_TRACK = 12;
 
 export function serializeLicense(contract: LicenseRecord, discount: TrackDiscount | null = null, now = new Date()): MarketplaceLicense {
   const originalPrice = contract.price.toString();
   return {
+    description: contract.description ?? "", conditions: licenseConditions(contract.terms, contract.territory), termsHash: licenseTermsHash(contract),
     id: String(contract._id), title: contract.title, price: discount ? String(computeDiscountedPrice(originalPrice, discount, now)) : originalPrice,
     originalPrice, discount, currency: contract.currency,
     licenseType: contract.terms.licenseType, formats: contract.filesToDeliver.map((file) => file.format),
@@ -98,8 +101,8 @@ export async function serializeTracks(tracks: (TrackFields & { _id: mongoose.Typ
         { $match: { ...activeContractFilter(now), $expr: { $eq: ["$producerId", "$$producer"] } } },
         { $sort: { price: 1, _id: 1 } },
         { $limit: MAX_PUBLIC_LICENSES_PER_TRACK + 1 },
-        { $project: { _id: 1, title: 1, price: 1, currency: 1, filesToDeliver: 1, version: 1,
-          "terms.licenseType": 1, "terms.streamingLimit": 1, "terms.distributionLimit": 1,
+        { $project: { _id: 1, title: 1, description: 1, territory: 1, price: 1, currency: 1, filesToDeliver: 1, version: 1,
+          "terms.licenseType": 1, "terms.streamingLimit": 1, "terms.distributionLimit": 1, "terms.musicVideoLimit": 1, "terms.commercialUse": 1, "terms.creditRequired": 1, "terms.creditText": 1, "terms.livePerformance": 1, "terms.broadcastRights": 1, "terms.contentIdAllowed": 1, "terms.termMonths": 1, "terms.royaltyPercent": 1, "terms.publishingSharePercent": 1, "terms.governingLaw": 1,
           ...(options.includeLicenseTerms ? { "terms.customTerms": 1 } : {}),
         } },
       ], as: "licenses" } },

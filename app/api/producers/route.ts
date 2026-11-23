@@ -1,3 +1,4 @@
+import { readSecureJson, securityErrorResponse } from "@/lib/security/request";
 import { NextResponse } from "next/server";
 
 import { authenticateRequest } from "@/lib/auth";
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User cannot become a producer." }, { status: 403 });
     }
 
-    const parsed = producerProfileSchema.safeParse(await request.json());
+    const parsed = producerProfileSchema.safeParse(await readSecureJson(request));
     if (!parsed.success) {
       return NextResponse.json(validationError(parsed.error), { status: 400 });
     }
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ profile: profile.toJSON(), created: true }, { status: 201 });
   } catch (error) {
+    const secured = securityErrorResponse(error); if (secured) return secured;
     if (typeof error === "object" && error && "code" in error && error.code === 11000) {
       return NextResponse.json({ error: "Producer profile already exists." }, { status: 409 });
     }
@@ -64,6 +66,7 @@ export async function GET(request: Request) {
     const profile = await ProducerProfileModel.findOne({ userId: authentication.user._id });
     return NextResponse.json({ profile: profile?.toJSON() ?? null });
   } catch (error) {
+    const secured = securityErrorResponse(error); if (secured) return secured;
     console.error("Producer fetch error", error);
     return NextResponse.json({ error: "Failed to load producer profile." }, { status: 500 });
   }

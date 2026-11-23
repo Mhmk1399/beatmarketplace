@@ -412,7 +412,7 @@ export function PlayerDock() {
   const type = track.durationLimitSeconds
     ? `${track.durationLimitSeconds}-second preview`
     : track.isDemo
-      ? "Full-length demo"
+      ? "30-second demo"
       : "Full track";
 
   function stop() {
@@ -598,7 +598,7 @@ export function PlayerDock() {
                 className={cn(neumorphicButtonClass(), "audio-sheet-action")}
               >
                 <ActionIcon kind="download" />
-                <span>Download demo</span>
+                <span>Download preview</span>
               </a>
             ) : (
               <NeumorphicLink

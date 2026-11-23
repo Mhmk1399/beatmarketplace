@@ -42,25 +42,18 @@ const navigationByWorkspace: Record<WorkspaceId, readonly NavigationSection[]> =
     },
   ],
   producer: [
-    { items: [{ label: "Overview", href: "/studio", icon: "overview" }] },
-    {
-      label: "Catalog",
-      items: [
-        { label: "Tracks", href: "/studio/tracks", icon: "tracks", description: "Upload tracks and choose the 30-second preview buyers hear." },
-        { label: "Beat audience", href: "/studio/analytics", icon: "overview", description: "View page visits and unique browsers for each beat." },
-        { label: "Contracts", href: "/studio/contracts", icon: "contracts", description: "Set license prices in toman and define usage limits." },
-        { label: "Discounts", href: "/studio/discounts", icon: "genres", description: "Schedule a discount for a track and manage its start and end time." },
-        { label: "Sales", href: "/studio/sales", icon: "contracts", description: "View verified sales of your beats." },
-      ],
-    },
-    {
-      label: "Store",
-      items: [{ label: "Producer Profile", href: "/studio/profile", icon: "store", description: "Edit your producer identity and storefront." }],
-    },
-    {
-      label: "Account",
-      items: [{ label: "Settings", href: "/studio/settings", icon: "settings", description: "Manage your account security." }],
-    },
+    { items: [{ label: "Dashboard", href: "/studio", icon: "overview" }] },
+    { label: "Seller tools", items: [
+      { label: "Tracks", href: "/studio/tracks", icon: "tracks", description: "Upload tracks and choose the 30-second preview buyers hear." },
+      { label: "Contracts", href: "/studio/contracts", icon: "contracts", description: "Set license prices in toman and define usage limits." },
+      { label: "Discounts", href: "/studio/discounts", icon: "genres", description: "Schedule and manage offers for your catalog." },
+      { label: "Producer profile", href: "/studio/profile", icon: "store", description: "Edit your public storefront." },
+    ] },
+    { label: "Performance", items: [
+      { label: "Sales", href: "/studio/sales", icon: "contracts", description: "View verified sales of your beats." },
+      { label: "Beat audience", href: "/studio/analytics", icon: "overview", description: "View page visits and unique browsers for each beat." },
+    ] },
+    { label: "Account", items: [{ label: "Settings", href: "/studio/settings", icon: "settings", description: "Manage your account security." }] },
   ],
   admin: [
     { items: [{ label: "Overview", href: "/admin", icon: "overview" }] },

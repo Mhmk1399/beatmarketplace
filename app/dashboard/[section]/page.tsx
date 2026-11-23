@@ -13,7 +13,7 @@ export default async function PersonalSectionPage({ params }: { params: Promise<
   if (section === "collections") return <CollectionsWorkspace />;
   if (section === "profile") return <ProfileWorkspace />;
   if (section === "settings") return <SettingsWorkspace />;
-  if (section === "downloads") return <OrdersWorkspace />;
+  if (section === "downloads") return <OrdersWorkspace downloads />;
   const item = getNavigationItem("personal", `/dashboard/${section}`);
   if (!item) notFound();
   if (section === "orders") return <OrdersWorkspace />;

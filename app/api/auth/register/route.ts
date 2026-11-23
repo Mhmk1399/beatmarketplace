@@ -10,6 +10,7 @@ import { consumeApiQuota } from "@/lib/security/rate-limit";
 export async function POST(request: Request) {
   try {
     requireSameOrigin(request);
+    await consumeApiQuota("register-service", "all", 20, 60_000);
     const parsed = registerSchema.safeParse(await readSecureJson(request));
     if (!parsed.success) {
       return NextResponse.json(validationError(parsed.error), { status: 400 });

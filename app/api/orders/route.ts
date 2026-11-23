@@ -1,3 +1,6 @@
+import { licenseSnapshot, licenseTermsHash } from "@/lib/licensing/server";
+import type { AgreementSnapshot } from "@/lib/licensing/agreement";
+import UserModel from "@/models/User";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
@@ -14,7 +17,7 @@ import { computeDiscountedPrice } from "@/lib/marketplace/discounts";
 import { readSecureJson, securityErrorResponse } from "@/lib/security/request";
 import { consumeApiQuota } from "@/lib/security/rate-limit";
 
-const inputSchema = z.object({ idempotencyKey: z.uuid(), items: z.array(z.object({ trackId: objectIdSchema, contractId: objectIdSchema, expectedPrice: z.string().regex(/^\d+$/), expectedVersion: z.number().int().positive(), expectedDiscountVersion: z.number().int().positive().nullable().optional() }).strict()).min(1).max(20), acceptTerms: z.literal(true) }).strict()
+const inputSchema = z.object({ idempotencyKey: z.uuid(), items: z.array(z.object({ trackId: objectIdSchema, contractId: objectIdSchema, expectedPrice: z.string().regex(/^\d+$/), expectedVersion: z.number().int().positive(), expectedTermsHash: z.string().regex(/^[a-f0-9]{64}$/), expectedDiscountVersion: z.number().int().positive().nullable().optional() }).strict()).min(1).max(20), acceptTerms: z.literal(true) }).strict()
   .refine((value) => new Set(value.items.map((item) => item.trackId)).size === value.items.length, "Choose one license per track.");
 
 export async function GET(request: Request) {
@@ -56,15 +59,22 @@ export async function POST(request: Request) {
       const candidate = discountsByTrack.get(String(track._id));
       const discount = candidate && String(candidate.producerId) === String(track.producerId) ? serializeDiscount(candidate) : null;
       const price = computeDiscountedPrice(originalPrice, discount, quoteTime);
-      if (contract.version !== requested.expectedVersion || String(price) !== requested.expectedPrice ||
+      if (licenseTermsHash(contract) !== requested.expectedTermsHash || contract.version !== requested.expectedVersion || String(price) !== requested.expectedPrice ||
           (requested.expectedDiscountVersion !== undefined && requested.expectedDiscountVersion !== (discount?.version ?? null))) {
         throw new MarketplaceError("A license, price or promotion changed. Review the current price and add the license to your cart again before paying.", 409);
       }
+      const seller = await UserModel.findById(track.producerId).select("firstName lastName");
+      if (!seller) throw new MarketplaceError("The producer is unavailable.", 409);
+      const snapshot: AgreementSnapshot = { schemaVersion: 1,
+        buyer: { id: auth.user.id, name: `${auth.user.firstName} ${auth.user.lastName}`.trim(), email: auth.user.email },
+        seller: { id: String(track.producerId), name: `${seller.firstName} ${seller.lastName}`.trim() },
+        licenseId: String(contract._id), trackId: String(track._id), trackTitle: track.title, price, currency: "IRT", acceptedAt: quoteTime.toISOString(), license: licenseSnapshot(contract),
+      };
       items.push({ trackId: track._id, producerId: track.producerId, title: track.title, contractId: contract._id, contractVersion: contract.version,
         licenseTitle: contract.title, price, originalPrice, discountAmount: originalPrice - price,
         discount: discount ? { id: discount.id, percentage: discount.percentage, version: discount.version, startsAt: new Date(discount.startsAt), endsAt: new Date(discount.endsAt) } : undefined,
         terms: JSON.stringify({ title: contract.title, version: contract.version, description: contract.description, terms: contract.terms, territory: contract.territory, filesToDeliver: contract.filesToDeliver }),
-        master: track.audio.master });
+        agreement: JSON.stringify(snapshot), agreementVersion: 1, master: track.audio.master });
     }
     const total = items.reduce((sum, item) => sum + item.price, 0);
     if (total < 1000) throw new MarketplaceError("The minimum gateway payment is 1,000 toman. Add another licensed track to complete this order.");

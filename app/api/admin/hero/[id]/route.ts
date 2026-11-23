@@ -1,3 +1,4 @@
+import { readSecureJson } from "@/lib/security/request";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { heroPatchSchema, validateHeroBooking } from "@/lib/hero/validation";
@@ -13,7 +14,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const auth = await requireMarketplaceRole(request, "ADMIN");
     if (!auth.ok) return auth.response;
     const id = objectIdSchema.parse((await params).id);
-    const { expectedVersion, ...data } = heroPatchSchema.parse(await request.json());
+    const { expectedVersion, ...data } = heroPatchSchema.parse(await readSecureJson(request));
     const placement = await HeroPlacementModel.findById(id);
     if (!placement) throw new MarketplaceError("This hero placement could not be found.", 404);
     if (expectedVersion !== undefined && placement.version !== expectedVersion) throw new MarketplaceError("This placement changed. Refresh before saving again.", 409);

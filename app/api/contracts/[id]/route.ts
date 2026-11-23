@@ -1,3 +1,4 @@
+import { readSecureJson } from "@/lib/security/request";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
@@ -11,13 +12,16 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     const authentication = await requireMarketplaceRole(request, "PRODUCER");
     if (!authentication.ok) return authentication.response;
     const id = objectIdSchema.parse((await context.params).id);
-    const data = contractPatchSchema.parse(await request.json());
+    const data = contractPatchSchema.parse(await readSecureJson(request, 131072));
     const contract = await ContractModel.findOne({ _id: id, producerId: authentication.user._id });
     if (!contract) throw new MarketplaceError("This license could not be found.", 404);
     if (!contract.isActive) throw new MarketplaceError("An inactive license cannot be edited. Create a new license instead.", 409);
+    if (data.expectedVersion !== undefined && contract.version !== data.expectedVersion) throw new MarketplaceError("This license changed. Refresh before editing again.", 409);
     const trackIds = data.trackIds ?? contract.trackIds.map(String);
     const ownedCount = await TrackModel.countDocuments({ _id: { $in: trackIds }, producerId: authentication.user._id, status: { $ne: "ARCHIVED" } });
     if (ownedCount !== trackIds.length) throw new MarketplaceError("Select only your own available tracks.", 403);
+    if (data.description !== undefined) contract.description = data.description;
+    if (data.territory !== undefined) contract.territory = data.territory;
     if (data.title !== undefined) contract.title = data.title;
     if (data.price !== undefined) contract.price = mongoose.Types.Decimal128.fromString(data.price);
     if (data.currency !== undefined) contract.currency = data.currency;
@@ -27,6 +31,17 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
     if (data.streamingLimit !== undefined) contract.terms.streamingLimit = data.streamingLimit;
     if (data.distributionLimit !== undefined) contract.terms.distributionLimit = data.distributionLimit;
     if (data.customTerms !== undefined) contract.terms.customTerms = data.customTerms;
+    if (data.musicVideoLimit !== undefined) contract.terms.musicVideoLimit = data.musicVideoLimit;
+    if (data.commercialUse !== undefined) contract.terms.commercialUse = data.commercialUse;
+    if (data.creditRequired !== undefined) contract.terms.creditRequired = data.creditRequired;
+    if (data.creditText !== undefined) contract.terms.creditText = data.creditText;
+    if (data.livePerformance !== undefined) contract.terms.livePerformance = data.livePerformance;
+    if (data.broadcastRights !== undefined) contract.terms.broadcastRights = data.broadcastRights;
+    if (data.contentIdAllowed !== undefined) contract.terms.contentIdAllowed = data.contentIdAllowed;
+    if (data.termMonths !== undefined) contract.terms.termMonths = data.termMonths;
+    if (data.royaltyPercent !== undefined) contract.terms.royaltyPercent = data.royaltyPercent;
+    if (data.publishingSharePercent !== undefined) contract.terms.publishingSharePercent = data.publishingSharePercent;
+    if (data.governingLaw !== undefined) contract.terms.governingLaw = data.governingLaw;
     contract.version += 1;
     await contract.save();
     return NextResponse.json({ contract: serializeStudioLicense(contract) });

@@ -1,3 +1,4 @@
+import { orderAllowsDownload } from "@/lib/payments/orders";
 import { NextResponse } from "next/server";
 import { authenticateRequest } from "@/lib/auth";
 import { marketplaceError } from "@/lib/marketplace/server";
@@ -13,13 +14,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     requireSameOrigin(request);
     const auth = await authenticateRequest(request);
     if (!auth.ok) return auth.response;
+    await consumeApiQuota("purchased-download", auth.user.id, 60, 60_000);
     const id = objectIdSchema.parse((await params).id);
     const order = await OrderModel.findOne({ _id: id, buyerId: auth.user._id, status: "PAID" }).select("+items.master");
     const rawIndex = new URL(request.url).searchParams.get("item");
     const index = rawIndex && /^\d{1,2}$/.test(rawIndex) ? Number(rawIndex) : -1;
     const item = order?.items[index];
-    if (!item?.master) return NextResponse.json({ error: "Purchased file not found." }, { status: 404 });
-    await consumeApiQuota("purchased-download", auth.user.id, 60, 60_000);
+    if (!order || !orderAllowsDownload(order) || !item?.master) return NextResponse.json({ error: "Purchased file not found." }, { status: 404 });
     return await serveStoredAsset(request, item.master, { downloadName: item.title, privateDownload: true });
   } catch (error) { return marketplaceError(error); }
 }

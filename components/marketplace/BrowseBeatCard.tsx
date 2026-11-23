@@ -87,7 +87,7 @@ export function BrowseBeatCard({ beat, demo, queue }: Props) {
           title={
             beat
               ? "Listen to the producer-selected 30-second preview"
-              : "Listen to the full-length demo"
+              : "Listen to the 30-second demo"
           }
           aria-pressed={playing || buffering}
           onClick={() => actions.toggle(audio, queue)}
@@ -112,7 +112,7 @@ export function BrowseBeatCard({ beat, demo, queue }: Props) {
           )}
         </h3>
         <p className="browse-beat-meta">
-          {beat ? `${beat.bpm} BPM · ${beat.musicalKey}` : "Full-length demo"}
+          {beat ? `${beat.bpm} BPM · ${beat.musicalKey}` : "30-second demo"}
         </p>
       </div>
       <div className="browse-beat-actions">

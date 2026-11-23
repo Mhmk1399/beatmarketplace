@@ -4,7 +4,7 @@ import styles from "./home-discovery.module.css";
 
 const questions = [
   { question: "What can I do with a licensed beat?", answer: "Each producer defines the terms for their beat. Compare the license, streaming and distribution limits, and producer-credit requirements on the beat page before choosing the fit for your release.", href: "/marketplace", action: "Explore beats and licenses" },
-  { question: "How much can I hear before buying?", answer: "Marketplace beats have a producer-selected preview of up to 30 seconds. Our listening demos are full-length player examples, clearly marked as demos and not offered for sale.", href: "/#listening-room", action: "Try the listening room" },
+  { question: "How much can I hear before buying?", answer: "Marketplace beats have a producer-selected preview of up to 30 seconds. Our listening demos are 30-second player examples, clearly marked as demos and not offered for sale.", href: "/#listening-room", action: "Try the listening room" },
   { question: "What happens after I pay?", answer: "Prices are shown in toman. After your payment is verified, your purchased WAV files and agreed license terms become available in your account’s purchases. Your order keeps the terms you purchased with.", href: "/dashboard/orders", action: "Open purchases and licenses" },
   { question: "How do I start selling my beats?", answer: "With producer access, you can upload original WAV files, choose the 30-second preview, add artwork, and set licenses, prices and timed offers from Producer Studio. Your account keeps your listening library and studio together.", href: "/#producer", action: "Explore Producer Studio" },
 ];

@@ -1,3 +1,4 @@
+import { consumeApiQuota } from "@/lib/security/rate-limit";
 import { trackUploadResponse } from "@/lib/uploads/server-progress";
 import { trackUploadIdentity } from "@/lib/uploads/identity";
 import type { UploadStageReporter } from "@/lib/uploads/protocol";
@@ -27,6 +28,7 @@ export const runtime = "nodejs";
 
 export async function GET(request: Request) {
   try {
+    await consumeApiQuota("public-catalog", "all", 1200, 60_000);
     const params = new URL(request.url).searchParams;
     const now = new Date();
     const discounted = params.get("discounted") === "1";

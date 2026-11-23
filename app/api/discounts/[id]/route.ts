@@ -1,3 +1,4 @@
+import { readSecureJson } from "@/lib/security/request";
 import { NextResponse } from "next/server";
 import { discountPatchSchema, validateDiscountWindow } from "@/lib/marketplace/discount-validation";
 import { serializeDiscount } from "@/lib/marketplace/discount-server";
@@ -11,7 +12,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const auth = await requireMarketplaceRole(request, "PRODUCER");
     if (!auth.ok) return auth.response;
     const id = objectIdSchema.parse((await params).id);
-    const data = discountPatchSchema.parse(await request.json());
+    const data = discountPatchSchema.parse(await readSecureJson(request));
     const discount = await TrackDiscountModel.findOne({ _id: id, producerId: auth.user._id });
     if (!discount) throw new MarketplaceError("This discount could not be found.", 404);
     const track = await TrackModel.findOne({ _id: discount.trackId, producerId: auth.user._id }).select("title status");

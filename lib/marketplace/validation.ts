@@ -64,21 +64,29 @@ export const contractInputSchema = z.object({
   currency: z.literal("IRT").default("IRT"),
   trackIds: z.array(objectIdSchema).min(1).max(100).refine((ids) => new Set(ids).size === ids.length, "Select each track only once."),
   licenseType: z.enum(["NON_EXCLUSIVE", "EXCLUSIVE"]).default("NON_EXCLUSIVE"),
+  description: z.string().trim().max(8000).default(""),
+  commercialUse: z.boolean().default(true), creditRequired: z.boolean().default(true),
+  creditText: z.string().trim().max(500).default(""),
+  musicVideoLimit: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).nullable().default(null),
+  livePerformance: z.boolean().default(false), broadcastRights: z.boolean().default(false),
+  contentIdAllowed: z.boolean().nullable().default(null),
+  termMonths: z.number().int().min(1).max(1200).nullable().default(null),
+  royaltyPercent: z.number().min(0).max(100).nullable().default(null),
+  publishingSharePercent: z.number().min(0).max(100).nullable().default(null),
+  governingLaw: z.string().trim().max(500).default(""),
+  territory: z.object({ worldwide: z.boolean(), includedCountries: z.array(z.string().regex(/^[A-Z]{2}$/)).max(250), excludedCountries: z.array(z.string().regex(/^[A-Z]{2}$/)).max(250) }).strict()
+    .refine(t => (t.worldwide || t.includedCountries.length > 0) && !t.includedCountries.some(code => t.excludedCountries.includes(code)), "Choose permitted countries and avoid overlapping exclusions.")
+    .default({ worldwide: true, includedCountries: [], excludedCountries: [] }),
   formats: z.array(z.literal("WAV")).length(1).default(["WAV"]),
   streamingLimit: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).nullable().default(null),
   distributionLimit: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).nullable().default(null),
   customTerms: z.string().trim().max(20_000).default(""),
 }).strict();
 
-export const contractPatchSchema = z.object({
-  ...contractInputSchema.shape,
-  currency: contractInputSchema.shape.currency.removeDefault(),
-  licenseType: contractInputSchema.shape.licenseType.removeDefault(),
-  formats: contractInputSchema.shape.formats.removeDefault(),
-  streamingLimit: contractInputSchema.shape.streamingLimit.removeDefault(),
-  distributionLimit: contractInputSchema.shape.distributionLimit.removeDefault(),
-  customTerms: contractInputSchema.shape.customTerms.removeDefault(),
-}).partial().strict();
+// Remove defaults from every field before PATCH, so omitted rights never overwrite existing terms.
+export const contractPatchSchema = z.object(Object.fromEntries(
+  Object.entries(contractInputSchema.shape).map(([key, value]) => [key, value instanceof z.ZodDefault ? value.removeDefault() : value]),
+) as { [K in keyof typeof contractInputSchema.shape]: (typeof contractInputSchema.shape)[K] extends z.ZodDefault<infer T> ? T : (typeof contractInputSchema.shape)[K] }).partial().extend({ expectedVersion: z.number().int().positive().optional() }).strict();
 
 export const taxonomyInputSchema = z.object({
   kind: taxonomyKindSchema,

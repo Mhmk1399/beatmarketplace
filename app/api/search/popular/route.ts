@@ -1,3 +1,4 @@
+import { consumeApiQuota } from "@/lib/security/rate-limit";
 import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 import mongoose from "mongoose";
 import { z } from "zod";
@@ -17,6 +18,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
     requireOrigin(request);
+    await consumeApiQuota("search-record", "all", 120, 60_000);
     const { q } = z.object({ q: z.string().trim().min(2).max(100) }).strict().parse(await readJson(request, 1024));
     const result = await searchCatalog(q, 1, true);
     if (!result.trendTerm) return json({ recorded: false });

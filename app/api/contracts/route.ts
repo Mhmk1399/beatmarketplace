@@ -1,3 +1,4 @@
+import { readSecureJson } from "@/lib/security/request";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
     const now = new Date();
     const [contracts, promotion] = await Promise.all([
       ContractModel.find({ ...activeContractFilter(now), trackIds: track._id, producerId: track.producerId })
-        .select("title price currency filesToDeliver version terms.licenseType terms.streamingLimit terms.distributionLimit terms.customTerms")
+        .select("title description price currency filesToDeliver version terms territory")
         .sort({ price: 1, _id: 1 }).skip((pagination.page - 1) * pagination.pageSize).limit(pagination.pageSize + 1),
       TrackDiscountModel.findOne({ trackId: track._id, producerId: track.producerId, ...activeDiscountFilter(now) }),
     ]);
@@ -48,13 +49,13 @@ export async function POST(request: Request) {
   try {
     const authentication = await requireMarketplaceRole(request, "PRODUCER");
     if (!authentication.ok) return authentication.response;
-    const data = contractInputSchema.parse(await request.json());
+    const data = contractInputSchema.parse(await readSecureJson(request, 131072));
     const ownedCount = await TrackModel.countDocuments({ _id: { $in: data.trackIds }, producerId: authentication.user._id, status: { $ne: "ARCHIVED" } });
     if (ownedCount !== data.trackIds.length) throw new MarketplaceError("Select only your own available tracks.", 403);
     const contract = await ContractModel.create({
-      producerId: authentication.user._id, title: data.title, price: mongoose.Types.Decimal128.fromString(data.price), currency: data.currency,
+      producerId: authentication.user._id, description: data.description, territory: data.territory, title: data.title, price: mongoose.Types.Decimal128.fromString(data.price), currency: data.currency,
       trackIds: data.trackIds, filesToDeliver: data.formats.map((format) => ({ format, label: "Uncompressed WAV master", required: true })),
-      terms: { licenseType: data.licenseType, streamingLimit: data.streamingLimit, distributionLimit: data.distributionLimit, customTerms: data.customTerms },
+      terms: { licenseType: data.licenseType, streamingLimit: data.streamingLimit, distributionLimit: data.distributionLimit, musicVideoLimit: data.musicVideoLimit, commercialUse: data.commercialUse, creditRequired: data.creditRequired, creditText: data.creditText, livePerformance: data.livePerformance, broadcastRights: data.broadcastRights, contentIdAllowed: data.contentIdAllowed, termMonths: data.termMonths, royaltyPercent: data.royaltyPercent, publishingSharePercent: data.publishingSharePercent, governingLaw: data.governingLaw, customTerms: data.customTerms },
     });
     return NextResponse.json({ contract: serializeStudioLicense(contract) }, { status: 201 });
   } catch (error) { return marketplaceError(error); }

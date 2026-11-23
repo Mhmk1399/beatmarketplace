@@ -1,3 +1,4 @@
+import type { LicenseConditions } from "@/lib/licensing/conditions";
 export type TrackDiscount = {
   id: string;
   trackId: string;
@@ -11,6 +12,9 @@ export type TrackDiscount = {
 export type ProducerDiscount = TrackDiscount & { trackTitle: string };
 
 export type MarketplaceLicense = {
+  description?: string;
+  conditions?: LicenseConditions;
+  termsHash?: string;
   id: string;
   title: string;
   price: string;

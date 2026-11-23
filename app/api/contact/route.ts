@@ -1,3 +1,4 @@
+import { consumeApiQuota } from "@/lib/security/rate-limit";
 import { connectToDatabase } from "@/lib/db";
 import { contactSchema } from "@/lib/contact/validation";
 import { ContactError, contactError, contactJson, contactPayloadHash, consumeContactQuota, isDuplicate, readContactJson, requireContactOrigin } from "@/lib/contact/server";
@@ -7,6 +8,7 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   try {
     requireContactOrigin(request);
+    await consumeApiQuota("contact-service", "all", 30, 60_000);
     const data = contactSchema.parse(await readContactJson(request));
     const payloadHash = contactPayloadHash(data);
     await connectToDatabase();

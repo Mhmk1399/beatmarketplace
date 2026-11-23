@@ -28,7 +28,7 @@ Initial logins are generated locally in the Git-ignored `.data/sample-catalog/ac
 - Server-created, independent **30-second, 128 kbps MP3 previews**, starting at the producer's chosen position. The original master is never served by the public media route.
 - Real catalog at `/marketplace`, search by title/producer/tags, genre/BPM/key filters, price sorting and pagination.
 - Track details and license comparison, persistent shared preview player, account-based saved beats.
-- Global music dock with queue, seek, next/previous, skip, volume, shuffle/repeat and a complete mobile player. The homepage listening room uses the five supplied full-length MP3 demos and custom covers.
+- Global music dock with queue, seek, next/previous, skip, volume, shuffle/repeat and a complete mobile player. The homepage listening room uses the five supplied 30-second demo previews and custom covers.
 - Shared graphite clay player controls with an audio-reactive play halo, plus a live frequency spectrum in the global player, plus one adaptive Three.js background shared by the full-viewport hero and horizontal listening carousel. Listening sessions show two cards on desktop and one on mobile, with native touch scrolling, seamless looping, soft edge masks and shared arrow controls. Demo favorites are stored in the browser and synchronized across hero/listening cards and tabs; marketplace favorites remain account-based.
 - Admin-scheduled sponsored hero placements with real beat artwork, license prices and shared preview playback.
 - License CRUD, versioning, usage limits and integer **toman (IRT)** prices.
@@ -62,7 +62,7 @@ Producer and admin uploads show transfer progress followed by preview preparatio
 
 CDN activation, the read-only deployment checker and the on-device listening recorder are described in [audio deployment checks](docs/AUDIO_DEPLOYMENT.md). Cached preview delivery stays enabled by default; the optional CDN is configured through the hosting environment when its real address is available.
 
-The global player and Three.js integration are documented in [shared audio architecture](docs/AUDIO_PLAYER.md). Shared playback includes a persistent 96 kbps data-saver option, lower-data homepage demo copies, and visible loading/offline/retry feedback. Preview bytes use bounded server caching and authorization-checked ETag revalidation; see [delivery details](docs/MEDIA_SECURITY.md). Full-length public listening demos are separate from the protected marketplace previews.
+The global player and Three.js integration are documented in [shared audio architecture](docs/AUDIO_PLAYER.md). Shared playback includes a persistent 96 kbps data-saver option, lower-data homepage demo copies, and visible loading/offline/retry feedback. Preview bytes use bounded server caching and authorization-checked ETag revalidation; see [delivery details](docs/MEDIA_SECURITY.md). Demo previews are also cropped to 30 seconds; original demo files stay outside public/.
 
 The implemented uploader supports uncompressed PCM WAV (8/16/24/32-bit) and 32-bit IEEE float WAV, up to 60 MB, 30 seconds to 30 minutes. Artwork accepts PNG, JPEG or WebP up to 5 MB. A server parser validates the file and writes only the chosen 30 seconds into a temporary WAV, without source metadata. FFmpeg encodes that cropped file as a separate 128 kbps stereo MP3. The uploaded original stays byte-identical and private for paid downloads. See [music delivery security](docs/MEDIA_SECURITY.md).
 
@@ -74,7 +74,7 @@ S3 uploads use `MEDIA_S3_PREFIX=beatmarket` by default. Set this variable in the
 
 ## Sponsored hero placements
 
-The homepage currently uses the five local listening demos in `lib/audio/demo-tracks.ts` for visual and playback testing. They show full-length demo labels rather than sale prices. `Hero` passes them explicitly to `FeaturedBeats`; omitting the `demos` prop restores the administrator-selected sponsored deck. The hero fills one dynamic viewport behind the overlaid navigation, uses the same clay surfaces and shared buttons as the rest of the app, and centers its interactive ribbon on mobile.
+The homepage currently uses the five local listening demos in `lib/audio/demo-tracks.ts` for visual and playback testing. They show 30-second demo labels rather than sale prices. `Hero` passes them explicitly to `FeaturedBeats`; omitting the `demos` prop restores the administrator-selected sponsored deck. The hero fills one dynamic viewport behind the overlaid navigation, uses the same clay surfaces and shared buttons as the rest of the app, and centers its interactive ribbon on mobile.
 
 Administrators manage bookings at `/admin/hero`: choose an eligible public beat, set its order, label and UTC schedule, and record an agreed whole-toman fee, manual payment status and reference. `PENDING` bookings stay private; active `PAID` or `COMPLIMENTARY` bookings appear within their scheduled window. These fields are bookkeeping only: the site does not charge for advertising or settle advertising fees.
 
@@ -100,7 +100,19 @@ Keep sandbox enabled while testing. Production needs a real merchant ID, public 
 
 If the merchant configuration is missing, checkout is disabled and the API returns 503 without creating a paid order. No real gateway transaction was performed during implementation. Settlement to producers, platform fees, refunds, financial reconciliation and exclusive-sale inventory require further implementation before operating a commercial marketplace.
 
+## Licensing and purchased agreements
+
+Producer Studio → Contracts exposes commercial use, credit wording, audio streams, distribution copies, videos, live performances, broadcasting, Content ID, duration, territory, master-receipt royalties, publishing shares, jurisdiction and additional terms. Empty stream/copy/video limits mean unlimited; empty financial shares mean unspecified. The supported online deliverable remains the original WAV. Exclusive terms can be prepared, but exclusive online checkout remains disabled.
+
+Checkout loads current conditions from `POST /api/orders/quote`, displays them in full and binds consent to their server-generated fingerprint, version and quoted price. Missing or changed terms require a fresh review before payment. Contract requests have a bounded 128 KiB limit so the full 20,000-character additional-terms field can be saved, including multilingual text.
+
+New orders save buyer/producer account names, buyer email, accepted terms, license version, price and acceptance time separately from the editable catalog. Once payment is verified, Purchases offers View agreement and Download agreement. The authenticated `/api/orders/[id]/agreement?item=0` route returns escaped, printable HTML; `&download=1` saves the document, and browser printing can save a PDF. No digital signature, legal identity verification or automated royalty settlement is claimed. Old purchases retain their original saved license terms; no new party details or terms are retroactively invented for them.
+
+The bucket remains public as requested; this feature does not change storage permissions. Local tests (`npm run test:licensing`) substitute database, payment and storage boundaries and do not perform a live sale.
+
 ## Verification
+
+See the [music and API security review](docs/SECURITY_REVIEW.md) for tested attack cases, limits and remaining storage/deployment risks. Run `npm run test:security` for isolated API regression checks.
 
 ```bash
 npm run check

@@ -136,7 +136,12 @@ const trackSchema = new Schema<TrackFields>(
       ],
     },
   },
-  { timestamps: true, optimisticConcurrency: true, toJSON: { transform: transformMongoDocument } },
+  { timestamps: true, optimisticConcurrency: true, toJSON: { transform(document, returned) {
+    transformMongoDocument(document, returned);
+    const data = returned as unknown as { audio?: { master?: unknown }; lastUploadRequestId?: unknown };
+    if (data.audio) delete data.audio.master;
+    delete data.lastUploadRequestId;
+  } } },
 );
 
 trackSchema.pre("validate", function validatePublishableTrack() {

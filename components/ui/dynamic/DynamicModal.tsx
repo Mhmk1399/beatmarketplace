@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 import { cn } from "@/lib/cn";
+import { CloseIcon } from "@/components/ui/icons";
 import { useSheetGesture } from "./useSheetGesture";
 import styles from "./DynamicModal.module.css";
 
@@ -185,7 +186,7 @@ export function DynamicModal({
                 </p>
               )}
             </div>
-            {/* <button
+            <button
               data-autofocus
               type="button"
               onClick={requestClose}
@@ -193,7 +194,7 @@ export function DynamicModal({
               className="neo-icon-button mt-3 inline-flex size-10 shrink-0 items-center justify-center rounded-xl"
             >
               <CloseIcon className="size-5" />
-            </button> */}
+            </button>
           </header>
         </div>
         <div

@@ -29,6 +29,12 @@ export type ContractFields = {
   terms: {
     licenseType: LicenseType;
     commercialUse: boolean;
+    creditText?: string;
+    contentIdAllowed?: boolean | null;
+    termMonths?: number | null;
+    royaltyPercent?: number | null;
+    publishingSharePercent?: number | null;
+    governingLaw?: string;
     creditRequired: boolean;
     distributionLimit: number | null;
     streamingLimit: number | null;
@@ -104,6 +110,12 @@ const contractSchema = new Schema<ContractFields>(
     },
     terms: {
       licenseType: { type: String, enum: ["NON_EXCLUSIVE", "EXCLUSIVE", "CUSTOM"], default: "NON_EXCLUSIVE" },
+      creditText: { type: String, default: "", maxlength: 500 },
+      contentIdAllowed: { type: Boolean, default: null },
+      termMonths: { type: Number, default: null, min: 1, max: 1200 },
+      royaltyPercent: { type: Number, default: null, min: 0, max: 100 },
+      publishingSharePercent: { type: Number, default: null, min: 0, max: 100 },
+      governingLaw: { type: String, default: "", maxlength: 500 },
       commercialUse: { type: Boolean, default: true },
       creditRequired: { type: Boolean, default: true },
       distributionLimit: { type: Number, default: null, min: 0 },
@@ -160,6 +172,7 @@ contractSchema.index({ producerId: 1, createdAt: -1, _id: -1 });
 contractSchema.index({ trackIds: 1, isActive: 1 });
 contractSchema.index({ trackIds: 1, isActive: 1, price: 1, _id: 1 });
 
+if (process.env.NODE_ENV !== "production" && mongoose.models.Contract && !mongoose.models.Contract.schema.path("terms.termMonths")) mongoose.deleteModel("Contract");
 const ContractModel =
   (mongoose.models.Contract as Model<ContractFields> | undefined) ?? mongoose.model<ContractFields>("Contract", contractSchema);
 

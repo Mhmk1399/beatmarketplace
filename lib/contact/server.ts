@@ -1,3 +1,4 @@
+import { isSameRequestOrigin, readSecureJson, securityErrorResponse } from "@/lib/security/request";
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
@@ -13,6 +14,7 @@ export function contactJson(body: unknown, status = 200, headers: Record<string,
   return NextResponse.json(body, { status, headers: { "Cache-Control": "private, no-store", ...headers } });
 }
 export function contactError(error: unknown) {
+  const secured = securityErrorResponse(error); if (secured) return secured;
   if (error instanceof ZodError) return contactJson({ error: "Please check the highlighted fields.", issues: error.issues.map(issue => ({ field: issue.path.join("."), message: issue.message })) }, 400);
   if (error instanceof ContactError) return contactJson({ error: error.message }, error.status, error.retryAfter ? { "Retry-After": String(error.retryAfter) } : {});
   if (error instanceof SyntaxError) return contactJson({ error: "Invalid JSON request." }, 400);
@@ -21,20 +23,10 @@ export function contactError(error: unknown) {
   return contactJson({ error: "We couldn't save your message right now. Please try again shortly." }, 503);
 }
 export function requireContactOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  if (request.headers.get("sec-fetch-site") === "cross-site" || (origin && origin !== new URL(request.url).origin)) throw new ContactError("This request must come from this website.", 403);
+  if (request.headers.get("sec-fetch-site") === "cross-site" || !isSameRequestOrigin(request)) throw new ContactError("This request must come from this website.", 403);
 }
 export async function readContactJson(request: Request, maxBytes = 16 * 1024) {
-  if (request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase() !== "application/json") throw new ContactError("Use a JSON request.", 415);
-  const length = request.headers.get("content-length");
-  if (length && (!/^\d+$/.test(length) || Number(length) > maxBytes)) throw new ContactError("Your message is too large.", 413);
-  if (!request.body) throw new ContactError("Enter a message.");
-  const reader = request.body.getReader();
-  const chunks: Uint8Array[] = []; let total = 0;
-  try {
-    while (true) { const { done, value } = await reader.read(); if (done) break; total += value.byteLength; if (total > maxBytes) { await reader.cancel(); throw new ContactError("Your message is too large.", 413); } chunks.push(value); }
-  } finally { reader.releaseLock(); }
-  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  return readSecureJson(request, maxBytes);
 }
 export function contactPayloadHash(data: { name: string; email: string; subject: string; message: string }) {
   return createHash("sha256").update(JSON.stringify([data.name, data.email, data.subject, data.message])).digest("hex");

@@ -12,7 +12,7 @@ function WorkspaceIcon({ id, className }: { id: WorkspaceDefinition["id"]; class
   return <Icon className={className} />;
 }
 
-export function WorkspaceSwitcher({ activeWorkspace, workspaces, onNavigate }: { activeWorkspace: WorkspaceDefinition; workspaces: readonly WorkspaceDefinition[]; onNavigate?: () => void }) {
+export function WorkspaceSwitcher({ activeWorkspace, workspaces, onNavigate, compact = false }: { activeWorkspace: WorkspaceDefinition; workspaces: readonly WorkspaceDefinition[]; onNavigate?: () => void; compact?: boolean }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -47,7 +47,7 @@ export function WorkspaceSwitcher({ activeWorkspace, workspaces, onNavigate }: {
   }
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className={cn("relative", compact && "dashboard-workspace-compact")}>
       <button
         ref={buttonRef}
         type="button"
