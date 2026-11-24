@@ -14,12 +14,19 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { CheckIcon, ChevronDownIcon } from "@/components/ui/icons";
+import { neumorphicButtonClass } from "@/components/ui/neumorphic/Button";
 import { cn } from "@/lib/cn";
 type Option = { value: string; label: string; disabled?: boolean };
 type Props = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   "multiple" | "size"
-> & { options?: readonly Option[]; placeholder?: string; portalContainer?: Element | null };
+> & {
+  options?: readonly Option[];
+  placeholder?: string;
+  portalContainer?: Element | null;
+  triggerVariant?: "field" | "button";
+  minListWidth?: number;
+};
 function text(node: ReactNode): string {
   return Children.toArray(node)
     .map((child) =>
@@ -67,6 +74,8 @@ export const DynamicSelect = forwardRef<HTMLSelectElement, Props>(
       onChange,
       onInvalid,
       portalContainer,
+      triggerVariant = "field",
+      minListWidth = 0,
       ...props
     },
     forwardedRef,
@@ -116,17 +125,13 @@ export const DynamicSelect = forwardRef<HTMLSelectElement, Props>(
         roomAbove = rect.top - 12,
         below = roomBelow >= 180 || roomBelow >= roomAbove,
         height = Math.max(80, Math.min(300, below ? roomBelow : roomAbove));
+      const viewportWidth = document.documentElement.clientWidth;
+      const width = Math.min(Math.max(rect.width, minListWidth), viewportWidth - 16);
       anchor.current = { left: rect.left, top: rect.top };
       setPosition({
-        left: Math.max(
-          8,
-          Math.min(
-            rect.left,
-            innerWidth - Math.min(rect.width, innerWidth - 16) - 8,
-          ),
-        ),
+        left: Math.max(8, Math.min(rect.left, viewportWidth - width - 8)),
         ...(below ? { top: rect.bottom + 6 } : { bottom: innerHeight - rect.top + 6 }),
-        width: Math.min(rect.width, innerWidth - 16),
+        width,
         maxHeight: height,
       });
       const current = options.findIndex(
@@ -221,7 +226,11 @@ export const DynamicSelect = forwardRef<HTMLSelectElement, Props>(
           type="button"
           id={id}
           role="combobox"
-          className={cn("dynamic-select-trigger neo-input-wrap", className)}
+          className={cn(
+            "dynamic-select-trigger",
+            triggerVariant === "button" ? neumorphicButtonClass() : "neo-input-wrap",
+            className,
+          )}
           disabled={props.disabled}
           aria-expanded={open}
           aria-controls={open ? listId : undefined}
