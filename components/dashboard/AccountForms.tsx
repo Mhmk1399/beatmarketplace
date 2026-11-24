@@ -314,7 +314,7 @@ export function ProfileWorkspace({ producer = false }: { producer?: boolean }) {
       <DashboardPageIntro
         eyebrow="Your identity"
         title={producer ? "Your studio profile." : "Your profile."}
-        description="Keep your account details and profile image up to date."
+        description="Keep your account details, profile image and password up to date."
       />
       {producer && <ProducerPageEditor avatarRevision={identityRevision} />}
       <EditableForm
@@ -325,18 +325,11 @@ export function ProfileWorkspace({ producer = false }: { producer?: boolean }) {
         fields={profileFields}
         onIdentitySaved={producer ? () => setIdentityRevision(value => value + 1) : undefined}
       />
+      <AccountSettings />
     </div>
   );
 }
 const passwordFields: DynamicFormField<Values>[] = [
-  {
-    name: "currentPassword",
-    label: "Current password",
-    type: "password",
-    revealable: true,
-    required: true,
-    autoComplete: "current-password",
-  },
   {
     name: "newPassword",
     label: "New password",
@@ -359,7 +352,6 @@ const passwordFields: DynamicFormField<Values>[] = [
 ];
 export function AccountSettings() {
   const [values, setValues] = useState<Values>({
-      currentPassword: "",
       newPassword: "",
       confirmPassword: "",
     }),
@@ -396,7 +388,6 @@ export function AccountSettings() {
               body: JSON.stringify(values),
             });
             setValues({
-              currentPassword: "",
               newPassword: "",
               confirmPassword: "",
             });

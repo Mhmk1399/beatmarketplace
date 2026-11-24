@@ -3,7 +3,7 @@
 import { DynamicSelect } from "@/components/ui/dynamic/DynamicSelect";
 import { DynamicDateTimePicker } from "@/components/ui/dynamic/DynamicDateTimePicker";
 
-import { useEffect, useId, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from "react";
 
 import { EyeIcon, EyeOffIcon } from "@/components/ui/icons";
 import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
@@ -99,7 +99,13 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
 }: DynamicFormProps<T>) {
   const generatedId = useId();
   const formId = id ?? `dynamic-form-${generatedId}`;
-  useEffect(() => { const name = Object.keys(errors)[0]; if (name) document.getElementById(`${formId}-${name}`)?.focus(); }, [errors, formId]);
+  const previousErrorNames = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const errorNames = Object.keys(errors).filter((name) => Boolean(errors[name as FieldName<T>]));
+    const firstNewError = errorNames.find((name) => !previousErrorNames.current.has(name));
+    previousErrorNames.current = new Set(errorNames);
+    if (firstNewError) document.getElementById(`${formId}-${firstNewError}`)?.focus();
+  }, [errors, formId]);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(() => new Set());
 
   function togglePassword(name: string) {
