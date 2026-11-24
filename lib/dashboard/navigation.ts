@@ -10,13 +10,23 @@ export type DashboardIconName =
   | "users"
   | "genres"
   | "moods"
-  | "instruments";
+  | "instruments"
+  | "files"
+  | "collections"
+  | "photos"
+  | "promote"
+  | "finances"
+  | "analytics"
+  | "rights"
+  | "integrations";
 
 export type NavigationItem = {
   label: string;
   href: string;
   icon: DashboardIconName;
   description?: string;
+  availability?: "live" | "limited" | "coming-soon";
+  badge?: string;
 };
 
 export type NavigationSection = {
@@ -42,18 +52,42 @@ const navigationByWorkspace: Record<WorkspaceId, readonly NavigationSection[]> =
     },
   ],
   producer: [
-    { items: [{ label: "Dashboard", href: "/studio", icon: "overview" }] },
-    { label: "Seller tools", items: [
-      { label: "Tracks", href: "/studio/tracks", icon: "tracks", description: "Upload tracks and choose the 30-second preview buyers hear." },
-      { label: "Contracts", href: "/studio/contracts", icon: "contracts", description: "Set license prices in toman and define usage limits." },
-      { label: "Discounts", href: "/studio/discounts", icon: "genres", description: "Schedule and manage offers for your catalog." },
-      { label: "Producer profile", href: "/studio/profile", icon: "store", description: "Edit your public storefront." },
+    { items: [{ label: "Dashboard", href: "/studio", icon: "overview", availability: "live" }] },
+    { label: "Catalog", items: [
+      { label: "Tracks", href: "/studio/tracks", icon: "tracks", availability: "live", description: "Upload tracks and choose the 30-second preview buyers hear." },
+      { label: "File Storage", href: "/studio/files", icon: "files", availability: "live", description: "Review the safe metadata for files attached to your tracks." },
+      { label: "Tracklists", href: "/studio/tracklists", icon: "collections", availability: "coming-soon", badge: "Soon" },
+      { label: "Collections", href: "/studio/collections", icon: "collections", availability: "live", description: "Private listening and organization collections." },
+      { label: "Sound Kits", href: "/studio/sound-kits", icon: "files", availability: "coming-soon", badge: "Soon" },
     ] },
-    { label: "Performance", items: [
-      { label: "Sales", href: "/studio/sales", icon: "contracts", description: "View verified sales of your beats." },
-      { label: "Beat audience", href: "/studio/analytics", icon: "overview", description: "View page visits and unique browsers for each beat." },
+    { label: "Selling", items: [
+      { label: "Contracts", href: "/studio/contracts", icon: "contracts", availability: "live", description: "Set license prices in toman and define usage limits." },
+      { label: "Services", href: "/studio/services", icon: "store", availability: "coming-soon", badge: "Soon" },
+      { label: "Discounts", href: "/studio/discounts", icon: "genres", availability: "live", description: "Schedule and manage offers for your catalog." },
     ] },
-    { label: "Account", items: [{ label: "Settings", href: "/studio/settings", icon: "settings", description: "Manage your account security." }] },
+    { label: "Content", items: [
+      { label: "Videos", href: "/studio/videos", icon: "photos", availability: "coming-soon", badge: "Soon" },
+      { label: "Photos", href: "/studio/photos", icon: "photos", availability: "live", description: "Manage your profile photo and studio banner." },
+    ] },
+    { label: "Marketing", items: [
+      { label: "Promote", href: "/studio/promote", icon: "promote", availability: "limited", badge: "Limited" },
+      { label: "Pro Page", href: "/studio/pro-page", icon: "store", availability: "live", description: "Edit your public storefront." },
+    ] },
+    { label: "Rights", items: [
+      { label: "Publishing", href: "/studio/publishing", icon: "rights", availability: "coming-soon", badge: "Soon" },
+      { label: "Beat ID", href: "/studio/beat-id", icon: "rights", availability: "coming-soon", badge: "Soon" },
+      { label: "CRA", href: "/studio/cra", icon: "rights", availability: "coming-soon", badge: "Soon" },
+    ] },
+    { label: "Business", items: [
+      { label: "Sales", href: "/studio/sales", icon: "contracts", availability: "live", description: "View verified sales of your beats." },
+      { label: "Finances", href: "/studio/finances", icon: "finances", availability: "live", description: "Review gross verified sales without invented balances." },
+      { label: "Analytics", href: "/studio/analytics", icon: "analytics", availability: "live", description: "View page visits and unique browsers for each beat." },
+    ] },
+    { label: "Account", items: [
+      { label: "Integrations", href: "/studio/integrations", icon: "integrations", availability: "coming-soon", badge: "Soon" },
+      { label: "Promote Credits", href: "/studio/promote-credits", icon: "promote", availability: "coming-soon", badge: "Soon" },
+      { label: "Settings", href: "/studio/settings", icon: "settings", availability: "live", description: "Manage your account security." },
+    ] },
   ],
   admin: [
     { items: [{ label: "Overview", href: "/admin", icon: "overview" }] },

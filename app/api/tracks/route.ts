@@ -41,6 +41,9 @@ export async function GET(request: Request) {
       const authentication = await requireMarketplaceRole(request, "PRODUCER");
       if (!authentication.ok) return authentication.response;
       filter.producerId = authentication.user._id;
+      if (query.status) filter.status = query.status;
+      if (query.visibility) filter.visibility = query.visibility;
+      if (query.trackId) filter._id = new mongoose.Types.ObjectId(query.trackId);
     }
     await connectToDatabase();
     if (query.q) {
@@ -163,7 +166,7 @@ async function createProducerTrack(request: Request, producerId: mongoose.Types.
       ...(uploadId ? { _id: new mongoose.Types.ObjectId(uploadId) } : {}), lastUploadRequestId: uploadId ?? undefined,
       producerId, title: data.title, slug: trackSlugBase(data.title), description: data.description,
       artwork: media.artwork, audio: { master: media.master, preview: media.preview, previewStartSeconds: data.previewStartSeconds, previewDurationSeconds: 30 },
-      metadata: { moodIds: data.moodIds, instrumentIds: data.instrumentIds, bpm: data.bpm, musicalKey: data.musicalKey, genreId: data.genreId, tags: data.tags, durationSeconds: media.durationSeconds },
+      metadata: { moodIds: data.moodIds, instrumentIds: data.instrumentIds, bpm: data.bpm, musicalKey: data.musicalKey, genreId: data.genreId, tags: data.tags, durationSeconds: media.durationSeconds, isExplicit: data.explicit },
       status: data.status, visibility: data.visibility,
     });
     report("saving");

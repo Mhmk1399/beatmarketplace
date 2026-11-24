@@ -29,7 +29,7 @@ export function NavigationItem({
     >
       <DashboardIcon name={item.icon} className="size-[19px] shrink-0" />
       <span className="truncate">{item.label}</span>
-
+      {item.badge && <span className="dashboard-nav-badge" data-kind={item.availability}>{item.badge}</span>}
     </Link>
   );
 }

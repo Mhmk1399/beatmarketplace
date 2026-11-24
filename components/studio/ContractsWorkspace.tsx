@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useState, type FormEvent } from "react";
+import { useCallback, useState, type FormEvent, type ReactNode } from "react";
 import { DynamicModal } from "@/components/ui/dynamic/DynamicModal";
 import { DynamicSelect } from "@/components/ui/dynamic/DynamicSelect";
 import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
@@ -10,6 +10,7 @@ import { apiRequest, controlClass, errorMessage, Field, RequestError } from "./s
 import { licenseConditions } from "@/lib/licensing/conditions";
 import { LicenseConditions } from "@/components/licensing/LicenseConditions";
 import type { StudioLicense } from "@/lib/marketplace/types";
+function EditorSection({ title, description, children }: { title: string; description: string; children: ReactNode }) { const headingId = `license-section-${title.toLowerCase().replaceAll(" ", "-")}`; return <section className="workspace-editor-section" aria-labelledby={headingId}><header><h3 id={headingId}>{title}</h3><span>{description}</span></header><div className="space-y-5">{children}</div></section>; }
 function ContractEditor({ contract, onClose, onSaved }: { contract: StudioLicense | null; onClose: () => void; onSaved: () => void }) {
   const [values, setValues] = useState({ title: contract?.title ?? "WAV License", price: contract?.price ?? "250000", licenseType: contract?.licenseType ?? "NON_EXCLUSIVE", streamingLimit: contract?.streamingLimit === null || !contract ? "" : String(contract.streamingLimit), distributionLimit: contract?.distributionLimit === null || !contract ? "" : String(contract.distributionLimit), customTerms: contract?.customTerms ?? "" });
   const initial = contract?.conditions ?? licenseConditions(contract ?? {});
@@ -53,20 +54,30 @@ function ContractEditor({ contract, onClose, onSaved }: { contract: StudioLicens
     <form onSubmit={submit} className="space-y-6" aria-busy={saving}>
       <fieldset disabled={saving} className="space-y-5">
         <legend className="sr-only">License details</legend>
+        <EditorSection title="Basic" description="Name, price and the license model buyers choose at checkout.">
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="License name *">{(id) => <input id={id} required maxLength={160} value={values.title} onChange={(event) => update("title", event.target.value)} className={controlClass} />}</Field>
           <Field label="Price (Toman) *" hint="Whole Toman, from 1,000 to 1,000,000,000.">{(id) => <input id={id} type="number" inputMode="numeric" min={1000} max={1000000000} step={1} required value={values.price} onChange={(event) => update("price", event.target.value)} className={controlClass} />}</Field>
         </div>
         <Field label="License type">{(id) => <DynamicSelect id={id} value={values.licenseType} onChange={(event) => update("licenseType", event.target.value)} className={controlClass}><option value="NON_EXCLUSIVE">Non-exclusive</option><option value="EXCLUSIVE">Exclusive</option></DynamicSelect>}</Field>
         {values.licenseType === "EXCLUSIVE" && <p className="text-xs leading-5 text-[var(--warning-text)]">You can prepare exclusive license terms here. Exclusive purchases require a direct agreement with the producer; online checkout for exclusive licenses is coming later.</p>}
-        <OwnedBeatPicker selected={trackIds} onChange={setTrackIds} />
         <Field label="License description">{id => <textarea id={id} rows={3} maxLength={8000} className={controlClass} value={rights.description} onChange={e=>setRights({...rights,description:e.target.value})} />}</Field>
+        </EditorSection>
+        <EditorSection title="Usage Rights" description="Set what the buyer may do with music made using your beat.">
         <div className="grid gap-4 sm:grid-cols-2">{([
           ["commercialUse", "Commercial use"], ["creditRequired", "Producer credit required"],
           ["livePerformance", "Live performances allowed"], ["broadcastRights", "Broadcast / radio allowed"],
         ] as const).map(([key,label])=><label key={key} className="flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" checked={rights[key]} onChange={e=>setRights({...rights,[key]:e.target.checked})} />{label}</label>)}</div>
         <Field label="Required producer credit" hint="Example: Produced by your producer name.">{id=><input id={id} maxLength={500} className={controlClass} value={rights.creditText} onChange={e=>setRights({...rights,creditText:e.target.value})} />}</Field>
         <Field label="Content ID registration">{id=><DynamicSelect id={id} className={controlClass} value={rights.contentIdAllowed === null ? "unspecified" : String(rights.contentIdAllowed)} onChange={e=>setRights({...rights,contentIdAllowed:e.target.value === "unspecified" ? null : e.target.value === "true"})}><option value="unspecified">Not specified</option><option value="false">Not allowed</option><option value="true">Allowed</option></DynamicSelect>}</Field>
+        </EditorSection>
+        <EditorSection title="Territory" description="Choose where this license applies and which law governs it.">
+        <label className="flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" checked={rights.territory.worldwide} onChange={e=>setRights({...rights,territory:{...rights.territory,worldwide:e.target.checked}})} />Worldwide territory</label>
+        {!rights.territory.worldwide && <Field label="Permitted countries" hint="Comma-separated two-letter country codes, for example IR, GB.">{id=><input id={id} required maxLength={1000} className={controlClass} value={rights.includedCountries} onChange={e=>setRights({...rights,includedCountries:e.target.value})} />}</Field>}
+        <Field label="Excluded countries" hint="Comma-separated two-letter country codes; leave empty for none.">{id=><input id={id} maxLength={1000} className={controlClass} value={rights.excludedCountries} onChange={e=>setRights({...rights,excludedCountries:e.target.value})} />}</Field>
+        <Field label="Governing law / jurisdiction">{id=><input id={id} maxLength={500} className={controlClass} value={rights.governingLaw} onChange={e=>setRights({...rights,governingLaw:e.target.value})} />}</Field>
+        </EditorSection>
+        <EditorSection title="Limits" description="Leave a limit empty when usage should be unlimited or not specified.">
         <div className="grid gap-5 sm:grid-cols-2">{([
           ["musicVideoLimit", "Music video limit", "Empty means unlimited; zero means none.", 0, 1000000000],
           ["termMonths", "License duration (months)", "Empty means no fixed expiry. Starts after verified payment.", 1, 1200],
@@ -74,17 +85,17 @@ function ContractEditor({ contract, onClose, onSaved }: { contract: StudioLicens
           ["publishingSharePercent", "Producer share of new composition publishing (%)", "Empty means not specified. Separate from master receipts.", 0, 100],
         ] as const).map(([key,label,hint,min,max])=><Field key={key} label={label} hint={hint}>{id=><input id={id} type="number" min={min} max={max} step={key.endsWith("Percent") ? "0.01" : "1"} className={controlClass} value={rights[key]} onChange={e=>setRights({...rights,[key]:e.target.value})} />}</Field>)}</div>
         <p className="text-xs leading-6 text-muted">Royalty and publishing percentages are recorded in the agreement. Collection and payouts are arranged separately.</p>
-        <label className="flex min-h-11 items-center gap-3 text-sm"><input type="checkbox" checked={rights.territory.worldwide} onChange={e=>setRights({...rights,territory:{...rights.territory,worldwide:e.target.checked}})} />Worldwide territory</label>
-        {!rights.territory.worldwide && <Field label="Permitted countries" hint="Comma-separated two-letter country codes, for example IR, GB.">{id=><input id={id} required maxLength={1000} className={controlClass} value={rights.includedCountries} onChange={e=>setRights({...rights,includedCountries:e.target.value})} />}</Field>}
-        <Field label="Excluded countries" hint="Comma-separated two-letter country codes; leave empty for none.">{id=><input id={id} maxLength={1000} className={controlClass} value={rights.excludedCountries} onChange={e=>setRights({...rights,excludedCountries:e.target.value})} />}</Field>
-        <Field label="Governing law / jurisdiction">{id=><input id={id} maxLength={500} className={controlClass} value={rights.governingLaw} onChange={e=>setRights({...rights,governingLaw:e.target.value})} />}</Field>
-
         <div className="grid gap-5 sm:grid-cols-2">
           <Field label="Streaming limit" hint="Leave empty for unlimited streams.">{(id) => <input id={id} type="number" min={0} max={1000000000} step={1} value={values.streamingLimit} onChange={(event) => update("streamingLimit", event.target.value)} placeholder="Unlimited" className={controlClass} />}</Field>
           <Field label="Distribution limit" hint="Leave empty for unlimited copies.">{(id) => <input id={id} type="number" min={0} max={1000000000} step={1} value={values.distributionLimit} onChange={(event) => update("distributionLimit", event.target.value)} placeholder="Unlimited" className={controlClass} />}</Field>
         </div>
         <Field label="Additional terms" hint="Describe credit requirements and any other usage conditions clearly.">{(id) => <textarea id={id} rows={5} maxLength={20000} value={values.customTerms} onChange={(event) => update("customTerms", event.target.value)} className={`${controlClass} resize-y`} />}</Field>
         <p className="text-xs leading-5 text-[var(--muted)]">Includes the full WAV file. New purchases use the current version of your license; previous purchases keep their original terms.</p>
+        </EditorSection>
+        <EditorSection title="Tracks" description="Apply this license to one or more beats you own."><OwnedBeatPicker selected={trackIds} onChange={setTrackIds} /></EditorSection>
+        <EditorSection title="Buyer Agreement Preview" description="This is the human-readable summary buyers review at checkout and receive after purchase.">
+          <LicenseConditions license={{ id: contract?.id ?? "preview", title: values.title || "Untitled license", description: rights.description, price: values.price || "0", currency: "IRT", licenseType: values.licenseType as "NON_EXCLUSIVE" | "EXCLUSIVE", formats: ["WAV"], streamingLimit: values.streamingLimit === "" ? null : Number(values.streamingLimit), distributionLimit: values.distributionLimit === "" ? null : Number(values.distributionLimit), customTerms: values.customTerms, version: contract?.version ?? 1, conditions: licenseConditions({ ...rights, streamingLimit: values.streamingLimit === "" ? null : Number(values.streamingLimit), distributionLimit: values.distributionLimit === "" ? null : Number(values.distributionLimit), musicVideoLimit: rights.musicVideoLimit === "" ? null : Number(rights.musicVideoLimit), termMonths: rights.termMonths === "" ? null : Number(rights.termMonths), royaltyPercent: rights.royaltyPercent === "" ? null : Number(rights.royaltyPercent), publishingSharePercent: rights.publishingSharePercent === "" ? null : Number(rights.publishingSharePercent) }, { worldwide: rights.territory.worldwide, includedCountries: rights.includedCountries.split(",").map(value=>value.trim().toUpperCase()).filter(Boolean), excludedCountries: rights.excludedCountries.split(",").map(value=>value.trim().toUpperCase()).filter(Boolean) }) }} />
+        </EditorSection>
       </fieldset>
       {error && <RequestError message={error} />}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><NeumorphicButton disabled={saving} onClick={close}>Cancel</NeumorphicButton><NeumorphicButton type="submit" variant="accent" disabled={saving}>{saving ? "Saving…" : "Save license"}</NeumorphicButton></div>

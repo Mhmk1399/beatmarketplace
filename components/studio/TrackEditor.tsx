@@ -47,6 +47,7 @@ type TrackValues = {
   previewStartSeconds: number;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   visibility: "PUBLIC" | "PRIVATE";
+  explicit: boolean;
 };
 
 export function TrackEditor({
@@ -80,6 +81,7 @@ export function TrackEditor({
     status:
       track?.status === "SCHEDULED" ? "DRAFT" : (track?.status ?? "DRAFT"),
     visibility: track?.visibility ?? "PUBLIC",
+    explicit: track?.explicit ?? false,
   });
   const [master, setMaster] = useState<File | null>(null);
   const [artwork, setArtwork] = useState<File | null>(null);
@@ -500,6 +502,10 @@ export function TrackEditor({
               />
             )}
           </Field>
+          <label className="neo-inset flex min-h-14 items-start gap-3 rounded-[var(--radius-control)] p-4 text-sm">
+            <input type="checkbox" checked={values.explicit} onChange={(event) => update("explicit", event.target.checked)} className="mt-1 size-4 accent-[var(--accent)]" />
+            <span><strong className="block text-[var(--text)]">Explicit content</strong><span className="mt-1 block text-xs leading-5 text-muted">Mark this when the lyrics or audio contain explicit language or themes. Buyers will see an explicit label.</span></span>
+          </label>
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Moods">
               {(id) => (
