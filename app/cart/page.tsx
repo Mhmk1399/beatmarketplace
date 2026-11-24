@@ -1,3 +1,15 @@
 import { Cart } from "@/components/marketplace/Cart";
 import { PublicShell } from "@/components/public/PublicShell";
-export default function CartPage() { return <PublicShell><main className="mx-auto max-w-7xl space-y-9 px-5 py-12 sm:py-20"><header><p className="text-xs font-bold uppercase tracking-[.2em] text-[var(--accent-text)]">Your next release</p><h1 className="mt-4 text-4xl font-black">Your cart.</h1><p className="mt-4 text-[var(--muted)]">One beat, the right license, your own sound.</p></header><Cart /></main></PublicShell>; }
+import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
+import { ArrowRightIcon } from "@/components/ui/icons";
+import styles from "@/components/marketplace/Cart.module.css";
+
+export default function CartPage() {
+  return <PublicShell><div className={styles.page}>
+    <header className={styles.pageHeader}>
+      <div><p className={styles.eyebrow}>Your next release starts here</p><h1>Your cart<span className="text-accent-text">.</span></h1><p>The beats you love. The license that fits your next move.</p></div>
+      <NeumorphicLink href="/marketplace" className={styles.continue}>Keep exploring<ArrowRightIcon /></NeumorphicLink>
+    </header>
+    <Cart />
+  </div></PublicShell>;
+}

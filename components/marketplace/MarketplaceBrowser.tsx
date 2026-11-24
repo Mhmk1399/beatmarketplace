@@ -13,6 +13,7 @@ import {
 } from "react";
 import {
   ArrowRightIcon,
+  ChevronDownIcon,
   CloseIcon,
   GridIcon,
   MusicNoteIcon,
@@ -20,6 +21,7 @@ import {
 import {
   NeumorphicButton,
   NeumorphicLink,
+  neumorphicButtonClass,
 } from "@/components/ui/neumorphic/Button";
 import { DynamicModal } from "@/components/ui/dynamic/DynamicModal";
 import { useLoopCarousel } from "@/components/ui/dynamic/useLoopCarousel";
@@ -41,6 +43,9 @@ import { useBrowseCatalog } from "./useBrowseCatalog";
 import { BrowseBeatCard } from "./BrowseBeatCard";
 import { MarketRibbon } from "./MarketRibbon";
 import { MUSICAL_KEY_FILTER_OPTIONS } from "@/lib/music/keys";
+
+const filterButtonClass = `${neumorphicButtonClass()} market-filter-trigger`;
+const filterListMinWidth = 240;
 
 function SearchIcon() {
   return (
@@ -479,15 +484,16 @@ export function MarketplaceBrowser({
         <div className="market-desktop-filters">
           <details className="market-filter-details">
             <summary
+              className={filterButtonClass}
               onClick={() => {
                 setDraft(filters);
                 setFilterError("");
               }}
             >
-              {filters.minBpm || filters.maxBpm
+              <span>{filters.minBpm || filters.maxBpm
                 ? `${filters.minBpm || 20}–${filters.maxBpm || 400} BPM`
-                : "BPM"}
-              <Chevron />
+                : "BPM"}</span>
+              <ChevronDownIcon />
             </summary>
             <form onSubmit={apply} className="market-filter-popover">
               <label>
@@ -524,13 +530,14 @@ export function MarketplaceBrowser({
           </details>
           <details className="market-filter-details">
             <summary
+              className={filterButtonClass}
               onClick={() => {
                 setDraft(filters);
                 setFilterError("");
               }}
             >
-              {filters.key || "Key"}
-              <Chevron />
+              <span>{filters.key || "Key"}</span>
+              <ChevronDownIcon />
             </summary>
             <form onSubmit={apply} className="market-filter-popover">
               <label>
@@ -549,35 +556,35 @@ export function MarketplaceBrowser({
               </NeumorphicButton>
             </form>
           </details>
-          <label className="market-select">
-            <span className="sr-only">Mood</span>
-            <DynamicSelect
-              aria-label="Mood"
-              value={filters.moodId}
-              onChange={(event) => update({ moodId: event.target.value })}
-            >
-              <option value="">Mood</option>
-              {taxonomy.moods.map((mood) => (
-                <option key={mood.id} value={mood.id}>
-                  {mood.name}
-                </option>
-              ))}
-            </DynamicSelect>
-          </label>
-          <label className="market-select">
-            <span className="sr-only">Price order</span>
-            <DynamicSelect
-              aria-label="Price order"
-              value={filters.sort}
-              onChange={(event) =>
-                update({ sort: event.target.value as BrowseFilters["sort"] })
-              }
-            >
-              <option value="newest">Price</option>
-              <option value="price-asc">Lowest price</option>
-              <option value="price-desc">Highest price</option>
-            </DynamicSelect>
-          </label>
+          <DynamicSelect
+            aria-label="Mood"
+            className="market-filter-trigger"
+            triggerVariant="button"
+            minListWidth={filterListMinWidth}
+            value={filters.moodId}
+            onChange={(event) => update({ moodId: event.target.value })}
+          >
+            <option value="">Mood</option>
+            {taxonomy.moods.map((mood) => (
+              <option key={mood.id} value={mood.id}>
+                {mood.name}
+              </option>
+            ))}
+          </DynamicSelect>
+          <DynamicSelect
+            aria-label="Price order"
+            className="market-filter-trigger"
+            triggerVariant="button"
+            minListWidth={filterListMinWidth}
+            value={filters.sort}
+            onChange={(event) =>
+              update({ sort: event.target.value as BrowseFilters["sort"] })
+            }
+          >
+            <option value="newest">Price</option>
+            <option value="price-asc">Lowest price</option>
+            <option value="price-desc">Highest price</option>
+          </DynamicSelect>
         </div>
      
         <NeumorphicButton
@@ -795,6 +802,7 @@ export function MarketplaceBrowser({
             Mood
             <DynamicSelect
               aria-label="Mood"
+              minListWidth={filterListMinWidth}
               value={draft.moodId}
               onChange={(event) =>
                 setDraft({ ...draft, moodId: event.target.value })
@@ -825,25 +833,7 @@ export function MarketplaceBrowser({
               <option value="price-desc">Highest price</option>
             </DynamicSelect>
           </label>
-          <div className="market-sheet-view">
-            <span>Display</span>
-            <NeumorphicButton
-              type="button"
-              aria-pressed={view === "shelves"}
-              onClick={() => setView("shelves")}
-            >
-              <GridIcon />
-              Grid
-            </NeumorphicButton>
-            <NeumorphicButton
-              type="button"
-              aria-pressed={view === "list"}
-              onClick={() => setView("list")}
-            >
-              <ListIcon />
-              List
-            </NeumorphicButton>
-          </div>
+
           {filterError && (
             <p className="market-filter-error" role="alert">
               {filterError}

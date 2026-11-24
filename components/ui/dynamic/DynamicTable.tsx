@@ -30,6 +30,10 @@ type DynamicTableProps<T> = {
   onView?: (row: T) => void;
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
+  rowAction?: {
+    label: (row: T) => string;
+    onClick: (row: T) => void;
+  };
   getRowLabel?: (row: T) => string;
   deleteLabel?: string;
   busy?: boolean;
@@ -65,11 +69,12 @@ export function DynamicTable<T>({
   onView,
   onEdit,
   onDelete,
+  rowAction,
   getRowLabel,
   deleteLabel = "Delete",
   busy = false,
 }: DynamicTableProps<T>) {
-  const actions = Boolean(onView || onEdit || onDelete);
+  const actions = Boolean(onView || onEdit || onDelete || rowAction);
   return (
     <div
       className={cn(
@@ -175,6 +180,17 @@ export function DynamicTable<T>({
                             onClick={() => onEdit(row)}
                           >
                             Edit
+                          </NeumorphicButton>
+                        )}
+                        {rowAction && (
+                          <NeumorphicButton
+                            size="sm"
+                            variant="quiet"
+                            disabled={busy}
+                            aria-label={`${rowAction.label(row)} ${getRowLabel?.(row) ?? "record"}`}
+                            onClick={() => rowAction.onClick(row)}
+                          >
+                            {rowAction.label(row)}
                           </NeumorphicButton>
                         )}
                         {onDelete && (

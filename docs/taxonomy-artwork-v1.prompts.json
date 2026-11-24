@@ -1,0 +1,715 @@
+{
+  "version": "taxonomy-artwork-v1",
+  "date": "2026-11-23",
+  "mode": "Built-in image_gen; no external generation API or CLI fallback",
+  "palette": {
+    "canvas": "#171a20",
+    "deep": "#111318",
+    "violet": "#9b5cf6"
+  },
+  "items": [
+    {
+      "kind": "moods",
+      "name": "Dark",
+      "slug": "dark",
+      "description": "Deep, shadowy sounds with an intense atmosphere.",
+      "artDirection": "An immense dark obsidian sphere eclipsed by a violet crescent above a foggy graphite sound stage, jagged distant shadows, deep intense atmosphere, restrained particles.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Dark music mood on BeatMarketplace.\nMeaning: Deep, shadowy sounds with an intense atmosphere.\nSubject and scene: An immense dark obsidian sphere eclipsed by a violet crescent above a foggy graphite sound stage, jagged distant shadows, deep intense atmosphere, restrained particles.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass details and restrained neon violet/lavender rim lighting, matching a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich believable materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed image, one strong recognizable central upper subject, safe margins, visually quiet darker bottom 28% for HTML title/description overlay. No baked UI, no borders, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-dark-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Dark music mood on BeatMarketplace.\nMeaning: Deep, shadowy sounds with an intense atmosphere.\nSubject and scene: An immense dark obsidian sphere eclipsed by a violet crescent above a foggy graphite sound stage, jagged distant shadows, deep intense atmosphere, restrained particles.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-dark-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Dreamy",
+      "slug": "dreamy",
+      "description": "Floating textures and a dreamlike atmosphere.",
+      "artDirection": "Floating translucent lavender glass clouds and a small pearlescent moon above a silky mist ocean, drifting weightless ribbons, soft dreamlike focus and depth.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Dreamy music mood on BeatMarketplace.\nMeaning: Floating textures and a dreamlike atmosphere.\nSubject and scene: Floating translucent lavender glass clouds and a small pearlescent moon above a silky mist ocean, drifting weightless ribbons, soft dreamlike focus and depth.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-dreamy-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Dreamy music mood on BeatMarketplace.\nMeaning: Floating textures and a dreamlike atmosphere.\nSubject and scene: Floating translucent lavender glass clouds and a small pearlescent moon above a silky mist ocean, drifting weightless ribbons, soft dreamlike focus and depth.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-dreamy-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Energetic",
+      "slug": "energetic",
+      "description": "High-energy sounds full of movement and momentum.",
+      "artDirection": "A powerful vortex of violet light streaks bursting from a dark metallic rhythm core, forward motion and concentrated momentum, crisp bright edges.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Energetic music mood on BeatMarketplace.\nMeaning: High-energy sounds full of movement and momentum.\nSubject and scene: A powerful vortex of violet light streaks bursting from a dark metallic rhythm core, forward motion and concentrated momentum, crisp bright edges.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-energetic-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Energetic music mood on BeatMarketplace.\nMeaning: High-energy sounds full of movement and momentum.\nSubject and scene: A powerful vortex of violet light streaks bursting from a dark metallic rhythm core, forward motion and concentrated momentum, crisp bright edges.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-energetic-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Melancholic",
+      "slug": "melancholic",
+      "description": "Emotional melodies with a reflective, bittersweet feel.",
+      "artDirection": "A solitary sculptural lavender glass raindrop above a rain-covered piano reflection, deep indigo-violet haze, quiet bittersweet evening atmosphere.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Melancholic music mood on BeatMarketplace.\nMeaning: Emotional melodies with a reflective, bittersweet feel.\nSubject and scene: A solitary sculptural lavender glass raindrop above a rain-covered piano reflection, deep indigo-violet haze, quiet bittersweet evening atmosphere.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-melancholic-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Melancholic music mood on BeatMarketplace.\nMeaning: Emotional melodies with a reflective, bittersweet feel.\nSubject and scene: A solitary sculptural lavender glass raindrop above a rain-covered piano reflection, deep indigo-violet haze, quiet bittersweet evening atmosphere.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-melancholic-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Aggressive",
+      "slug": "aggressive",
+      "description": "Hard-hitting rhythms with a raw, forceful edge.",
+      "artDirection": "A sharp fractured obsidian prism smashing through a rigid sound ring, controlled shards and a forceful magenta-violet pulse, raw hard-edged lighting.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Aggressive music mood on BeatMarketplace.\nMeaning: Hard-hitting rhythms with a raw, forceful edge.\nSubject and scene: A sharp fractured obsidian prism smashing through a rigid sound ring, controlled shards and a forceful magenta-violet pulse, raw hard-edged lighting.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-aggressive-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Aggressive music mood on BeatMarketplace.\nMeaning: Hard-hitting rhythms with a raw, forceful edge.\nSubject and scene: A sharp fractured obsidian prism smashing through a rigid sound ring, controlled shards and a forceful magenta-violet pulse, raw hard-edged lighting.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-aggressive-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Chill",
+      "slug": "chill",
+      "description": "Relaxed rhythms and an easygoing feel.",
+      "artDirection": "A smooth dark sculptural pebble with soft lavender ripples on perfectly calm water, low evening haze, unhurried minimal peaceful composition.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Chill music mood on BeatMarketplace.\nMeaning: Relaxed rhythms and an easygoing feel.\nSubject and scene: A smooth dark sculptural pebble with soft lavender ripples on perfectly calm water, low evening haze, unhurried minimal peaceful composition.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-chill-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Chill music mood on BeatMarketplace.\nMeaning: Relaxed rhythms and an easygoing feel.\nSubject and scene: A smooth dark sculptural pebble with soft lavender ripples on perfectly calm water, low evening haze, unhurried minimal peaceful composition.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-chill-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Uplifting",
+      "slug": "uplifting",
+      "description": "Bright, inspiring sounds that lift the mood.",
+      "artDirection": "Translucent violet ribbons rise toward a luminous lavender opening above the clouds, broad radiant light, inspiring upward motion.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Uplifting music mood on BeatMarketplace.\nMeaning: Bright, inspiring sounds that lift the mood.\nSubject and scene: Translucent violet ribbons rise toward a luminous lavender opening above the clouds, broad radiant light, inspiring upward motion.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-uplifting-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Uplifting music mood on BeatMarketplace.\nMeaning: Bright, inspiring sounds that lift the mood.\nSubject and scene: Translucent violet ribbons rise toward a luminous lavender opening above the clouds, broad radiant light, inspiring upward motion.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-uplifting-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Romantic",
+      "slug": "romantic",
+      "description": "Warm melodies with a tender, romantic feel.",
+      "artDirection": "Two softly interwoven flowing violet glass loops, warm rose-lavender edge lighting on silky folded fabric, intimate graceful tenderness.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Romantic music mood on BeatMarketplace.\nMeaning: Warm melodies with a tender, romantic feel.\nSubject and scene: Two softly interwoven flowing violet glass loops, warm rose-lavender edge lighting on silky folded fabric, intimate graceful tenderness.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-romantic-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Romantic music mood on BeatMarketplace.\nMeaning: Warm melodies with a tender, romantic feel.\nSubject and scene: Two softly interwoven flowing violet glass loops, warm rose-lavender edge lighting on silky folded fabric, intimate graceful tenderness.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-romantic-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Mysterious",
+      "slug": "mysterious",
+      "description": "Intriguing textures filled with tension and suspense.",
+      "artDirection": "An enigmatic obsidian doorway suspended inside deep violet fog, a thin luminous lavender seam and layered shadows, elegant tension and intrigue.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Mysterious music mood on BeatMarketplace.\nMeaning: Intriguing textures filled with tension and suspense.\nSubject and scene: An enigmatic obsidian doorway suspended inside deep violet fog, a thin luminous lavender seam and layered shadows, elegant tension and intrigue.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-mysterious-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Mysterious music mood on BeatMarketplace.\nMeaning: Intriguing textures filled with tension and suspense.\nSubject and scene: An enigmatic obsidian doorway suspended inside deep violet fog, a thin luminous lavender seam and layered shadows, elegant tension and intrigue.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-mysterious-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Cinematic",
+      "slug": "cinematic",
+      "description": "Vivid, film-inspired sounds for storytelling.",
+      "artDirection": "A monumental curved dark landscape with a luminous violet horizon and sweeping volumetric spotlights, dramatic widescreen orchestral storytelling scale.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Cinematic music mood on BeatMarketplace.\nMeaning: Vivid, film-inspired sounds for storytelling.\nSubject and scene: A monumental curved dark landscape with a luminous violet horizon and sweeping volumetric spotlights, dramatic widescreen orchestral storytelling scale.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-cinematic-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Cinematic music mood on BeatMarketplace.\nMeaning: Vivid, film-inspired sounds for storytelling.\nSubject and scene: A monumental curved dark landscape with a luminous violet horizon and sweeping volumetric spotlights, dramatic widescreen orchestral storytelling scale.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-cinematic-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Soulful",
+      "slug": "soulful",
+      "description": "Rich, expressive sounds with warmth and emotion.",
+      "artDirection": "A richly textured dark vinyl record with soft warm lavender light flowing like liquid around its grooves, expressive organic curves, intimate analog warmth.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Soulful music mood on BeatMarketplace.\nMeaning: Rich, expressive sounds with warmth and emotion.\nSubject and scene: A richly textured dark vinyl record with soft warm lavender light flowing like liquid around its grooves, expressive organic curves, intimate analog warmth.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-soulful-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Soulful music mood on BeatMarketplace.\nMeaning: Rich, expressive sounds with warmth and emotion.\nSubject and scene: A richly textured dark vinyl record with soft warm lavender light flowing like liquid around its grooves, expressive organic curves, intimate analog warmth.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-soulful-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Nostalgic",
+      "slug": "nostalgic",
+      "description": "Timeless textures that bring back memories.",
+      "artDirection": "A beautiful unbranded smoked-glass cassette tape with visible dark reels and soft lavender reflections, floating dust in a moody analog studio, timeless memory.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Nostalgic music mood on BeatMarketplace.\nMeaning: Timeless textures that bring back memories.\nSubject and scene: A beautiful unbranded smoked-glass cassette tape with visible dark reels and soft lavender reflections, floating dust in a moody analog studio, timeless memory.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-nostalgic-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Nostalgic music mood on BeatMarketplace.\nMeaning: Timeless textures that bring back memories.\nSubject and scene: A beautiful unbranded smoked-glass cassette tape with visible dark reels and soft lavender reflections, floating dust in a moody analog studio, timeless memory.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-nostalgic-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Confident",
+      "slug": "confident",
+      "description": "Bold, assured sounds with a strong presence.",
+      "artDirection": "A bold upright polished obsidian monolith balanced on a circular graphite stage, precise lavender rim lighting and strong clean symmetry, assured presence.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Confident music mood on BeatMarketplace.\nMeaning: Bold, assured sounds with a strong presence.\nSubject and scene: A bold upright polished obsidian monolith balanced on a circular graphite stage, precise lavender rim lighting and strong clean symmetry, assured presence.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-confident-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Confident music mood on BeatMarketplace.\nMeaning: Bold, assured sounds with a strong presence.\nSubject and scene: A bold upright polished obsidian monolith balanced on a circular graphite stage, precise lavender rim lighting and strong clean symmetry, assured presence.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-confident-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Atmospheric",
+      "slug": "atmospheric",
+      "description": "Spacious textures that create an immersive atmosphere.",
+      "artDirection": "Immense layered translucent purple mist ribbons and sparse star-like particles drifting across a dark open soundscape, deep immersive spaciousness.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Atmospheric music mood on BeatMarketplace.\nMeaning: Spacious textures that create an immersive atmosphere.\nSubject and scene: Immense layered translucent purple mist ribbons and sparse star-like particles drifting across a dark open soundscape, deep immersive spaciousness.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-atmospheric-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Atmospheric music mood on BeatMarketplace.\nMeaning: Spacious textures that create an immersive atmosphere.\nSubject and scene: Immense layered translucent purple mist ribbons and sparse star-like particles drifting across a dark open soundscape, deep immersive spaciousness.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-atmospheric-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Hopeful",
+      "slug": "hopeful",
+      "description": "Optimistic melodies with a forward-looking spirit.",
+      "artDirection": "A delicate luminous lavender seedling emerging from a smooth dark stone amid soft violet mist, a glowing distant horizon, optimistic quiet forward energy.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Hopeful music mood on BeatMarketplace.\nMeaning: Optimistic melodies with a forward-looking spirit.\nSubject and scene: A delicate luminous lavender seedling emerging from a smooth dark stone amid soft violet mist, a glowing distant horizon, optimistic quiet forward energy.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-hopeful-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Hopeful music mood on BeatMarketplace.\nMeaning: Optimistic melodies with a forward-looking spirit.\nSubject and scene: A delicate luminous lavender seedling emerging from a smooth dark stone amid soft violet mist, a glowing distant horizon, optimistic quiet forward energy.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-hopeful-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "moods",
+      "name": "Playful",
+      "slug": "playful",
+      "description": "Lively, lighthearted sounds full of character.",
+      "artDirection": "A lively arrangement of soft rounded violet glass spheres, curved tubes and floating graphite shapes bouncing in a rhythmic composition, lighthearted energetic character.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Playful music mood on BeatMarketplace.\nMeaning: Lively, lighthearted sounds full of character.\nSubject and scene: A lively arrangement of soft rounded violet glass spheres, curved tubes and floating graphite shapes bouncing in a rhythmic composition, lighthearted energetic character.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-playful-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Playful music mood on BeatMarketplace.\nMeaning: Lively, lighthearted sounds full of character.\nSubject and scene: A lively arrangement of soft rounded violet glass spheres, curved tubes and floating graphite shapes bouncing in a rhythmic composition, lighthearted energetic character.\nArt direction: premium cinematic 3D music artwork, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "moods-playful-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "808 Bass",
+      "slug": "808-bass",
+      "description": "Deep, punchy 808 bass tones.",
+      "artDirection": "An unbranded classic analog drum machine with a row of small step buttons beside a large deep woofer, thick violet low-frequency rings, deep punchy 808 bass focus.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the 808 Bass musical instrument on BeatMarketplace.\nMeaning: Deep, punchy 808 bass tones.\nSubject and scene: An unbranded classic analog drum machine with a row of small step buttons beside a large deep woofer, thick violet low-frequency rings, deep punchy 808 bass focus.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-808-bass-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the 808 Bass musical instrument on BeatMarketplace.\nMeaning: Deep, punchy 808 bass tones.\nSubject and scene: An unbranded classic analog drum machine with a row of small step buttons beside a large deep woofer, thick violet low-frequency rings, deep punchy 808 bass focus.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-808-bass-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "instrument1",
+      "slug": "111",
+      "description": "",
+      "artDirection": "A refined unbranded graphite studio controller, headphones and abstract violet sound sculptures on a dark studio desk, a versatile creative instrumental workspace without a specific instrument claim.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the instrument1 musical instrument on BeatMarketplace.\nMeaning: A versatile instrumental music workspace.\nSubject and scene: A refined unbranded graphite studio controller, headphones and abstract violet sound sculptures on a dark studio desk, a versatile creative instrumental workspace without a specific instrument claim.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-111-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the instrument1 musical instrument on BeatMarketplace.\nMeaning: A versatile instrumental music workspace.\nSubject and scene: A refined unbranded graphite studio controller, headphones and abstract violet sound sculptures on a dark studio desk, a versatile creative instrumental workspace without a specific instrument claim.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-111-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Sub Bass",
+      "slug": "sub-bass",
+      "description": "Smooth, controlled low-end bass.",
+      "artDirection": "A dramatic close view of a graphite subwoofer cone surrounded by smooth, widely spaced low-frequency lavender ripples, restrained controlled bass energy.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Sub Bass musical instrument on BeatMarketplace.\nMeaning: Smooth, controlled low-end bass.\nSubject and scene: A dramatic close view of a graphite subwoofer cone surrounded by smooth, widely spaced low-frequency lavender ripples, restrained controlled bass energy.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-sub-bass-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Sub Bass musical instrument on BeatMarketplace.\nMeaning: Smooth, controlled low-end bass.\nSubject and scene: A dramatic close view of a graphite subwoofer cone surrounded by smooth, widely spaced low-frequency lavender ripples, restrained controlled bass energy.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-sub-bass-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Acoustic Drums",
+      "slug": "acoustic-drums",
+      "description": "Natural acoustic drum kits.",
+      "artDirection": "A beautiful real acoustic drum kit with dark lacquer shells, kick drum, snare, toms and restrained metallic cymbals, clear realistic instrument construction.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Acoustic Drums musical instrument on BeatMarketplace.\nMeaning: Natural acoustic drum kits.\nSubject and scene: A beautiful real acoustic drum kit with dark lacquer shells, kick drum, snare, toms and restrained metallic cymbals, clear realistic instrument construction.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-acoustic-drums-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Acoustic Drums musical instrument on BeatMarketplace.\nMeaning: Natural acoustic drum kits.\nSubject and scene: A beautiful real acoustic drum kit with dark lacquer shells, kick drum, snare, toms and restrained metallic cymbals, clear realistic instrument construction.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-acoustic-drums-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Drum Machine",
+      "slug": "drum-machine",
+      "description": "Programmed drums and electronic rhythms.",
+      "artDirection": "An unbranded contemporary graphite drum machine with tactile square performance pads, rotary controls and step-sequencer buttons glowing lavender, precise electronic rhythm.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Drum Machine musical instrument on BeatMarketplace.\nMeaning: Programmed drums and electronic rhythms.\nSubject and scene: An unbranded contemporary graphite drum machine with tactile square performance pads, rotary controls and step-sequencer buttons glowing lavender, precise electronic rhythm.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-drum-machine-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Drum Machine musical instrument on BeatMarketplace.\nMeaning: Programmed drums and electronic rhythms.\nSubject and scene: An unbranded contemporary graphite drum machine with tactile square performance pads, rotary controls and step-sequencer buttons glowing lavender, precise electronic rhythm.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-drum-machine-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Hi-Hats",
+      "slug": "hi-hats",
+      "description": "Hi-hat patterns and detailed rhythmic accents.",
+      "artDirection": "A realistic pair of finely lathed dark-bronze hi-hat cymbals on a chrome stand, slightly open, crisp edges lit in violet, detailed rhythmic metallic texture.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Hi-Hats musical instrument on BeatMarketplace.\nMeaning: Hi-hat patterns and detailed rhythmic accents.\nSubject and scene: A realistic pair of finely lathed dark-bronze hi-hat cymbals on a chrome stand, slightly open, crisp edges lit in violet, detailed rhythmic metallic texture.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-hi-hats-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Hi-Hats musical instrument on BeatMarketplace.\nMeaning: Hi-hat patterns and detailed rhythmic accents.\nSubject and scene: A realistic pair of finely lathed dark-bronze hi-hat cymbals on a chrome stand, slightly open, crisp edges lit in violet, detailed rhythmic metallic texture.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-hi-hats-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Hand Percussion",
+      "slug": "hand-percussion",
+      "description": "Hand-played percussion and lively grooves.",
+      "artDirection": "A graceful pair of real wooden conga drums with natural skin heads beside a small shaker, warm carved texture illuminated in lavender, lively hand-played rhythm.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Hand Percussion musical instrument on BeatMarketplace.\nMeaning: Hand-played percussion and lively grooves.\nSubject and scene: A graceful pair of real wooden conga drums with natural skin heads beside a small shaker, warm carved texture illuminated in lavender, lively hand-played rhythm.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-hand-percussion-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Hand Percussion musical instrument on BeatMarketplace.\nMeaning: Hand-played percussion and lively grooves.\nSubject and scene: A graceful pair of real wooden conga drums with natural skin heads beside a small shaker, warm carved texture illuminated in lavender, lively hand-played rhythm.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-hand-percussion-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Piano",
+      "slug": "piano",
+      "description": "Expressive acoustic piano tones.",
+      "artDirection": "A refined black acoustic grand piano with a lifted lid and clearly arranged ivory and black keys, flowing lavender light reflecting on polished curved wood, expressive concert atmosphere.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Piano musical instrument on BeatMarketplace.\nMeaning: Expressive acoustic piano tones.\nSubject and scene: A refined black acoustic grand piano with a lifted lid and clearly arranged ivory and black keys, flowing lavender light reflecting on polished curved wood, expressive concert atmosphere.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-piano-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Piano musical instrument on BeatMarketplace.\nMeaning: Expressive acoustic piano tones.\nSubject and scene: A refined black acoustic grand piano with a lifted lid and clearly arranged ivory and black keys, flowing lavender light reflecting on polished curved wood, expressive concert atmosphere.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-piano-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Electric Piano",
+      "slug": "electric-piano",
+      "description": "Electric piano textures and warm chords.",
+      "artDirection": "An unbranded vintage electric stage piano with a compact rectangular dark body, realistic alternating black and ivory keys and tactile controls, warm lavender tube-like light.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Electric Piano musical instrument on BeatMarketplace.\nMeaning: Electric piano textures and warm chords.\nSubject and scene: An unbranded vintage electric stage piano with a compact rectangular dark body, realistic alternating black and ivory keys and tactile controls, warm lavender tube-like light.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-electric-piano-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Electric Piano musical instrument on BeatMarketplace.\nMeaning: Electric piano textures and warm chords.\nSubject and scene: An unbranded vintage electric stage piano with a compact rectangular dark body, realistic alternating black and ivory keys and tactile controls, warm lavender tube-like light.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-electric-piano-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Synth Lead",
+      "slug": "synth-lead",
+      "description": "Distinctive lead synthesizer melodies.",
+      "artDirection": "An unbranded monophonic analog synthesizer with a compact keyboard, expressive knobs and one sharp luminous lavender waveform rising behind it, distinctive clear melodic energy.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Synth Lead musical instrument on BeatMarketplace.\nMeaning: Distinctive lead synthesizer melodies.\nSubject and scene: An unbranded monophonic analog synthesizer with a compact keyboard, expressive knobs and one sharp luminous lavender waveform rising behind it, distinctive clear melodic energy.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-synth-lead-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Synth Lead musical instrument on BeatMarketplace.\nMeaning: Distinctive lead synthesizer melodies.\nSubject and scene: An unbranded monophonic analog synthesizer with a compact keyboard, expressive knobs and one sharp luminous lavender waveform rising behind it, distinctive clear melodic energy.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-synth-lead-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Synth Pad",
+      "slug": "synth-pad",
+      "description": "Soft, atmospheric synthesizer pads.",
+      "artDirection": "A broad unbranded dark synthesizer keyboard beneath a canopy of soft translucent violet aurora ribbons, smooth sustained atmospheric layers, airy diffuse illumination.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Synth Pad musical instrument on BeatMarketplace.\nMeaning: Soft, atmospheric synthesizer pads.\nSubject and scene: A broad unbranded dark synthesizer keyboard beneath a canopy of soft translucent violet aurora ribbons, smooth sustained atmospheric layers, airy diffuse illumination.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-synth-pad-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Synth Pad musical instrument on BeatMarketplace.\nMeaning: Soft, atmospheric synthesizer pads.\nSubject and scene: A broad unbranded dark synthesizer keyboard beneath a canopy of soft translucent violet aurora ribbons, smooth sustained atmospheric layers, airy diffuse illumination.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-synth-pad-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Electric Guitar",
+      "slug": "electric-guitar",
+      "description": "Electric guitar riffs and amplified textures.",
+      "artDirection": "A beautifully constructed dark solid-body electric guitar with six strings, realistic pickups, bridge and tuning hardware, violet rim reflections and subtle amplified energy.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Electric Guitar musical instrument on BeatMarketplace.\nMeaning: Electric guitar riffs and amplified textures.\nSubject and scene: A beautifully constructed dark solid-body electric guitar with six strings, realistic pickups, bridge and tuning hardware, violet rim reflections and subtle amplified energy.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-electric-guitar-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Electric Guitar musical instrument on BeatMarketplace.\nMeaning: Electric guitar riffs and amplified textures.\nSubject and scene: A beautifully constructed dark solid-body electric guitar with six strings, realistic pickups, bridge and tuning hardware, violet rim reflections and subtle amplified energy.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-electric-guitar-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Acoustic Guitar",
+      "slug": "acoustic-guitar",
+      "description": "Acoustic guitar tones and natural melodies.",
+      "artDirection": "A beautiful natural-wood steel-string acoustic guitar with six strings, sound hole, visible wood grain and precise frets, warm lavender studio reflections and gentle natural melody.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Acoustic Guitar musical instrument on BeatMarketplace.\nMeaning: Acoustic guitar tones and natural melodies.\nSubject and scene: A beautiful natural-wood steel-string acoustic guitar with six strings, sound hole, visible wood grain and precise frets, warm lavender studio reflections and gentle natural melody.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-acoustic-guitar-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Acoustic Guitar musical instrument on BeatMarketplace.\nMeaning: Acoustic guitar tones and natural melodies.\nSubject and scene: A beautiful natural-wood steel-string acoustic guitar with six strings, sound hole, visible wood grain and precise frets, warm lavender studio reflections and gentle natural melody.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-acoustic-guitar-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "String Section",
+      "slug": "strings",
+      "description": "String ensembles and orchestral arrangements.",
+      "artDirection": "An elegant arrangement of a real violin and cello with bow, resonant dark polished wood and realistic strings and bridges, lavender orchestral stage lighting.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the String Section musical instrument on BeatMarketplace.\nMeaning: String ensembles and orchestral arrangements.\nSubject and scene: An elegant arrangement of a real violin and cello with bow, resonant dark polished wood and realistic strings and bridges, lavender orchestral stage lighting.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-strings-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the String Section musical instrument on BeatMarketplace.\nMeaning: String ensembles and orchestral arrangements.\nSubject and scene: An elegant arrangement of a real violin and cello with bow, resonant dark polished wood and realistic strings and bridges, lavender orchestral stage lighting.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-strings-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Brass",
+      "slug": "brass",
+      "description": "Warm, powerful brass instruments.",
+      "artDirection": "A polished trumpet and French horn with believable brass tubing and valves, dark warm bronze finish edged in violet light, powerful resonant sculptural silhouette.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Brass musical instrument on BeatMarketplace.\nMeaning: Warm, powerful brass instruments.\nSubject and scene: A polished trumpet and French horn with believable brass tubing and valves, dark warm bronze finish edged in violet light, powerful resonant sculptural silhouette.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-brass-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Brass musical instrument on BeatMarketplace.\nMeaning: Warm, powerful brass instruments.\nSubject and scene: A polished trumpet and French horn with believable brass tubing and valves, dark warm bronze finish edged in violet light, powerful resonant sculptural silhouette.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-brass-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Saxophone",
+      "slug": "saxophone",
+      "description": "Expressive saxophone tones and jazz phrases.",
+      "artDirection": "A realistic expressive tenor saxophone with curved bell, detailed keys and mother-of-pearl finger touches, dark bronze and lavender club lighting, intimate jazz phrasing.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Saxophone musical instrument on BeatMarketplace.\nMeaning: Expressive saxophone tones and jazz phrases.\nSubject and scene: A realistic expressive tenor saxophone with curved bell, detailed keys and mother-of-pearl finger touches, dark bronze and lavender club lighting, intimate jazz phrasing.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-saxophone-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Saxophone musical instrument on BeatMarketplace.\nMeaning: Expressive saxophone tones and jazz phrases.\nSubject and scene: A realistic expressive tenor saxophone with curved bell, detailed keys and mother-of-pearl finger touches, dark bronze and lavender club lighting, intimate jazz phrasing.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-saxophone-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Vocal Chops",
+      "slug": "vocal-chops",
+      "description": "Chopped vocals and layered vocal textures.",
+      "artDirection": "A beautiful unbranded studio condenser microphone in a shock mount with discrete floating translucent violet waveform slices surrounding it, layered chopped vocal texture.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Vocal Chops musical instrument on BeatMarketplace.\nMeaning: Chopped vocals and layered vocal textures.\nSubject and scene: A beautiful unbranded studio condenser microphone in a shock mount with discrete floating translucent violet waveform slices surrounding it, layered chopped vocal texture.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-vocal-chops-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Vocal Chops musical instrument on BeatMarketplace.\nMeaning: Chopped vocals and layered vocal textures.\nSubject and scene: A beautiful unbranded studio condenser microphone in a shock mount with discrete floating translucent violet waveform slices surrounding it, layered chopped vocal texture.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-vocal-chops-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Ney",
+      "slug": "ney",
+      "description": "Ney flute tones with a Persian character.",
+      "artDirection": "A real Persian ney flute made of warm hollow cane, a long simple thin tube with visible finger holes, without Western metal flute keys, Persian character and soft lavender breath-like mist.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Ney musical instrument on BeatMarketplace.\nMeaning: Ney flute tones with a Persian character.\nSubject and scene: A real Persian ney flute made of warm hollow cane, a long simple thin tube with visible finger holes, without Western metal flute keys, Persian character and soft lavender breath-like mist.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-ney-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Ney musical instrument on BeatMarketplace.\nMeaning: Ney flute tones with a Persian character.\nSubject and scene: A real Persian ney flute made of warm hollow cane, a long simple thin tube with visible finger holes, without Western metal flute keys, Persian character and soft lavender breath-like mist.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-ney-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Santur",
+      "slug": "santur",
+      "description": "Santur textures and Persian melodic patterns.",
+      "artDirection": "An accurately recognizable Persian santur, a trapezoidal wooden hammered dulcimer with many parallel metal strings and small bridges, two delicate wooden mezrab hammers resting beside it, subtle lavender highlights.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Santur musical instrument on BeatMarketplace.\nMeaning: Santur textures and Persian melodic patterns.\nSubject and scene: An accurately recognizable Persian santur, a trapezoidal wooden hammered dulcimer with many parallel metal strings and small bridges, two delicate wooden mezrab hammers resting beside it, subtle lavender highlights.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-santur-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Santur musical instrument on BeatMarketplace.\nMeaning: Santur textures and Persian melodic patterns.\nSubject and scene: An accurately recognizable Persian santur, a trapezoidal wooden hammered dulcimer with many parallel metal strings and small bridges, two delicate wooden mezrab hammers resting beside it, subtle lavender highlights.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-santur-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Setar",
+      "slug": "setar",
+      "description": "Delicate setar melodies and phrases.",
+      "artDirection": "An accurately recognizable Persian setar lute with a small pear-shaped wooden bowl body, very long slender fretted neck and four fine strings, natural wood grain under soft lavender studio light.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Setar musical instrument on BeatMarketplace.\nMeaning: Delicate setar melodies and phrases.\nSubject and scene: An accurately recognizable Persian setar lute with a small pear-shaped wooden bowl body, very long slender fretted neck and four fine strings, natural wood grain under soft lavender studio light.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-setar-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Setar musical instrument on BeatMarketplace.\nMeaning: Delicate setar melodies and phrases.\nSubject and scene: An accurately recognizable Persian setar lute with a small pear-shaped wooden bowl body, very long slender fretted neck and four fine strings, natural wood grain under soft lavender studio light.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-setar-banner.webp"
+        }
+      ]
+    },
+    {
+      "kind": "instruments",
+      "name": "Texture FX",
+      "slug": "texture-fx",
+      "description": "Atmospheric textures, noise, and sound effects.",
+      "artDirection": "A sculptural translucent glass waveform dissolving into violet grains, soft noise clouds and fine spectral particles around a dark effects processor, atmospheric sound design texture.",
+      "assets": [
+        {
+          "slot": "thumbnail",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished square thumbnail artwork for the Texture FX musical instrument on BeatMarketplace.\nMeaning: Atmospheric textures, noise, and sound effects.\nSubject and scene: A sculptural translucent glass waveform dissolving into violet grains, soft noise clouds and fine spectral particles around a dark effects processor, atmospheric sound design texture.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: 1:1 square full-bleed artwork, strong recognizable subject centered in upper two-thirds, safe margins, visually quiet darker bottom 28% for HTML title and description overlay. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-texture-fx-thumbnail.webp"
+        },
+        {
+          "slot": "banner",
+          "prompt": "Use case: stylized-concept.\nAsset type: a finished wide panoramic website hero banner for the Texture FX musical instrument on BeatMarketplace.\nMeaning: Atmospheric textures, noise, and sound effects.\nSubject and scene: A sculptural translucent glass waveform dissolving into violet grains, soft noise clouds and fine spectral particles around a dark effects processor, atmospheric sound design texture.\nArt direction: premium cinematic 3D music artwork, physically convincing recognizable musical instrument construction, graphite-black tactile clay surfaces, frosted glass accents and restrained violet/lavender rim lighting. Match a graphite and purple glassmorphism/neumorphism music marketplace. Palette graphite #171a20, obsidian #111318, violet #9b5cf6, subtle lavender highlights. Rich materials, refined atmospheric depth, polished editorial music cover quality.\nComposition: very wide 8:3 landscape aspect ratio, full-bleed panoramic scene, main subject on the right half within the central 60% of image height, visually quiet dark left 45% for HTML heading and description, subtle flowing violet sound ribbons connecting the composition. Important instrument features fully visible with safe margins for a 1920x720 crop. No baked UI, no frames, no text, no letters, no logos, no watermark, no collage. Opaque background.",
+          "originalFileName": "instruments-texture-fx-banner.webp"
+        }
+      ]
+    }
+  ]
+}

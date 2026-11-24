@@ -92,6 +92,10 @@ export function CartIcon(props: IconProps) {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}><path d="M3 4h2l2.2 11h11.6L21 7H5.6M8 19h.01M18 19h.01" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /><circle cx="8" cy="19" r="1" fill="currentColor" /><circle cx="18" cy="19" r="1" fill="currentColor" /></svg>;
 }
 
+export function TrashIcon(props: IconProps) {
+  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5M14 11v5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+}
+
 export function CalendarIcon(props: IconProps) {
   return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}><rect x="3.5" y="5" width="17" height="16" rx="3" stroke="currentColor" strokeWidth="1.7" /><path d="M7.5 3v4M16.5 3v4M4 10h16M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" /></svg>;
 }
