@@ -28,7 +28,7 @@ function TrackPicker({ selected, onSelect }: { selected: MarketplaceTrack | null
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(() => {
-      void apiRequest<{ tracks: MarketplaceTrack[]; total: number; serverTime?: string }>(`/api/tracks?mine=1&pageSize=10&page=${page}&q=${encodeURIComponent(query)}`, { signal: controller.signal })
+      void apiRequest<{ tracks: MarketplaceTrack[]; total: number; serverTime?: string }>(`/api/tracks?mine=1&pageSize=10&page=${page}&q=${encodeURIComponent(query)}`, { signal: controller.signal, quiet: true })
         .then((data) => { if (!controller.signal.aborted) { setTracks(data.tracks); setTotal(data.total); setError(""); synchronizeDiscountClock(data.serverTime); } })
         .catch((failure) => { if (!controller.signal.aborted) setError(errorMessage(failure)); })
         .finally(() => { if (!controller.signal.aborted) setLoading(false); });
@@ -47,7 +47,7 @@ function TrackPicker({ selected, onSelect }: { selected: MarketplaceTrack | null
 
 function DiscountEditor({ discount, onClose, onSaved }: { discount: ProducerDiscount | null; onClose: () => void; onSaved: () => void }) {
   const [track, setTrack] = useState<MarketplaceTrack | null>(null);
-  const [percentage, setPercentage] = useState(discount?.percentage ?? 20);
+  const [percentageInput, setPercentageInput] = useState(String(discount?.percentage ?? 20));
   const [startsAt, setStartsAt] = useState(() => discount?.startsAt ?? new Date(Math.floor(discountNow() / 60_000) * 60_000).toISOString());
   const [endsAt, setEndsAt] = useState(() => discount?.endsAt ?? new Date(Math.floor(discountNow() / 60_000) * 60_000 + day).toISOString());
   const [isActive, setIsActive] = useState(discount?.isActive ?? true);
@@ -56,6 +56,7 @@ function DiscountEditor({ discount, onClose, onSaved }: { discount: ProducerDisc
   const close = useCallback(() => { if (!saving) onClose(); }, [saving, onClose]);
   const toast = useToast();
   const timezone = "Asia/Tehran · Jalali calendar, Tehran time";
+  const percentage = Number(percentageInput);
   const base = track?.licenses.reduce<number | null>((min, license) => min === null ? Number(license.originalPrice ?? license.price) : Math.min(min, Number(license.originalPrice ?? license.price)), null);
   const previewPrice = base && Number.isInteger(percentage) && percentage >= 1 && percentage <= 90 ? computeDiscountedPrice(base, { percentage, isActive: true, startsAt: new Date(0).toISOString(), endsAt: new Date(8640000000000000).toISOString() }) : null;
 
@@ -77,7 +78,7 @@ function DiscountEditor({ discount, onClose, onSaved }: { discount: ProducerDisc
   return <DynamicModal open onClose={close} closeOnBackdrop={!saving} title={discount ? "Edit timed offer" : "Create a timed offer"} description="One offer for one beat. The discount applies to its current license prices and ends automatically." size="lg">
     <form onSubmit={submit} className="space-y-6" aria-busy={saving}><fieldset disabled={saving} className="space-y-6"><legend className="sr-only">Timed offer details</legend>
       {discount ? <div className="neo-inset rounded-[var(--radius-control)] p-4"><p className="text-xs text-muted">Selected track</p><h3 className="mt-2 font-bold">{discount.trackTitle}</h3></div> : <TrackPicker selected={track} onSelect={setTrack} />}
-      <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-end"><Field label="Discount percentage *" hint="Choose 1–90%. Prices are rounded to whole toman.">{(id) => <input id={id} type="number" inputMode="numeric" min={1} max={90} step={1} required value={percentage} onChange={(event) => setPercentage(Number(event.target.value))} className={controlClass} />}</Field><div className="flex gap-2">{[10,20,30].map((value) => <NeumorphicButton key={value} size="sm" variant={percentage === value ? "accent" : "default"} onClick={() => setPercentage(value)}>{value}%</NeumorphicButton>)}</div></div>
+      <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-end"><Field label="Discount percentage *" hint="Choose 1–90%. Prices are rounded to whole toman.">{(id) => <input id={id} type="number" inputMode="numeric" min={1} max={90} step={1} required value={percentageInput} onChange={(event) => setPercentageInput(event.target.value)} className={controlClass} />}</Field><div className="flex gap-2">{[10,20,30].map((value) => <NeumorphicButton key={value} size="sm" variant={percentage === value ? "accent" : "default"} onClick={() => setPercentageInput(String(value))}>{value}%</NeumorphicButton>)}</div></div>
       <div className="grid gap-5 sm:grid-cols-2"><Field label="Starts at *">{(id) => <DynamicDateTimePicker id={id} required value={startsAt} onValueChange={setStartsAt} />}</Field><Field label="Ends at *">{(id) => <DynamicDateTimePicker id={id} required min={startsAt} value={endsAt} onValueChange={setEndsAt} />}</Field></div>
       <div className="flex flex-wrap items-center gap-2"><span className="mr-1 text-xs text-muted">Duration</span>{[{ days: 1, label: "1 day" },{ days: 3, label: "3 days" },{ days: 7, label: "1 week" }].map((preset) => <NeumorphicButton key={preset.days} size="sm" onClick={() => { const start = Date.parse(startsAt); if (Number.isFinite(start)) setEndsAt(new Date(start + preset.days * day).toISOString()); }}>{preset.label}</NeumorphicButton>)}</div>
       <p className="text-xs leading-6 text-muted">Times use <strong className="font-semibold text-secondary">{timezone}</strong>. Offers can run for up to 90 days. A future start time schedules the offer automatically.</p>

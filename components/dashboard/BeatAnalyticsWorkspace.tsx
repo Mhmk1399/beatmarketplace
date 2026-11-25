@@ -9,8 +9,9 @@ import type { BeatAnalytics } from "@/lib/analytics/types";
 
 export function BeatAnalyticsWorkspace({ admin = false }: { admin?: boolean }) {
   const config: ResourceConfig<BeatAnalytics> = {
-    title: "Beat audience", description: "Views count visible beat-page visits lasting at least two seconds, with a 30-minute repeat limit. Visitors are distinct browsers per beat, excluding your own previews. Use Refresh to load the latest counts.",
+    title: "Beat audience", description: "Views count visible beat-page visits lasting at least two seconds, with a 30-minute repeat limit. Visitors are distinct browsers per beat. Your visits to your own beats are excluded.",
     endpoint: "/api/workspace/track-analytics", query: `scope=${admin ? "admin" : "producer"}`, label: track => track.title,
+    refreshOnReturn: true,
     columns: [
       { id: "beat", header: "Beat", cell: track => <TableIdentity image={track.artworkUrl} title={track.title} subtitle={`${track.status} · ${track.visibility}`} /> },
       { id: "views", header: "Views", cell: track => track.views.toLocaleString("en-US") },

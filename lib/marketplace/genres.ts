@@ -13,17 +13,18 @@ export const genreStyles = [
 ] as const;
 
 export function genreName(slug: string) {
-  return genreStyles.find((style) => style.slug === slug)?.name ?? slug.replaceAll("-", " ");
+  return genreStyles.find((style) => genreAliases(slug).includes(style.slug))?.name ?? slug.replaceAll("-", " ");
 }
 
+const aliases = [
+  ["hip-hop", "hiphop"],
+  ["rnb", "r-b", "r-and-b"],
+  ["lo-fi", "lofi"],
+  ["afro", "afrobeat", "afrobeats"],
+];
+
 export function genreAliases(slug: string) {
-  const aliases: Record<string, string[]> = {
-    "hip-hop": ["hip-hop", "hiphop"],
-    rnb: ["rnb", "r-b", "r-and-b"],
-    "lo-fi": ["lo-fi", "lofi"],
-    afro: ["afro", "afrobeat", "afrobeats"],
-  };
-  return aliases[slug] ?? [slug];
+  return aliases.find((group) => group.includes(slug)) ?? [slug];
 }
 
 export type GenreStyle = { id?: string; slug: string; name: string; description: string; art: string; thumbnailUrl?: string | null; bannerUrl?: string | null };

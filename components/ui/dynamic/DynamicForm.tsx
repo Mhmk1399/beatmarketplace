@@ -3,7 +3,7 @@
 import { DynamicSelect } from "@/components/ui/dynamic/DynamicSelect";
 import { DynamicDateTimePicker } from "@/components/ui/dynamic/DynamicDateTimePicker";
 
-import { useEffect, useId, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type InputHTMLAttributes, type ReactNode } from "react";
 
 import { EyeIcon, EyeOffIcon } from "@/components/ui/icons";
 import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
@@ -99,7 +99,19 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
 }: DynamicFormProps<T>) {
   const generatedId = useId();
   const formId = id ?? `dynamic-form-${generatedId}`;
-  useEffect(() => { const name = Object.keys(errors)[0]; if (name) document.getElementById(`${formId}-${name}`)?.focus(); }, [errors, formId]);
+  const previousErrors = useRef<DynamicFormErrors<T>>({});
+  useEffect(() => {
+    const previous = previousErrors.current;
+    if (disabled || isSubmitting) return;
+    previousErrors.current = errors;
+
+    // Removing an error while editing should leave focus on the current field.
+    const hasNewError = fields.some(({ name }) => errors[name] && errors[name] !== previous[name]);
+    if (!hasNewError) return;
+
+    const invalidField = fields.find(field => !field.disabled && errors[field.name]);
+    if (invalidField) document.getElementById(`${formId}-${invalidField.name}`)?.focus();
+  }, [disabled, errors, fields, formId, isSubmitting]);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(() => new Set());
 
   function togglePassword(name: string) {

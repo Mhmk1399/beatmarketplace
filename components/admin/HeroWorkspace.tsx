@@ -121,7 +121,7 @@ function TrackPicker({
         const data = await apiRequest<{
           tracks: MarketplaceTrack[];
           nextCursor: string | null;
-        }>(`/api/tracks?${params}`, { signal: controller.signal });
+        }>(`/api/tracks?${params}`, { signal: controller.signal, quiet: true });
         if (!controller.signal.aborted) {
           setTracks(data.tracks);
           setNext(data.nextCursor);
@@ -248,7 +248,7 @@ function PlacementEditor({
   onSaved: () => void;
 }) {
   const [selected, setSelected] = useState<MarketplaceTrack | null>(null);
-  const [position, setPosition] = useState(placement?.position ?? 0);
+  const [position, setPosition] = useState(String(placement?.position ?? 0));
   const [label, setLabel] = useState(placement?.label ?? "Featured");
   const [startsAt, setStartsAt] = useState(() =>
     placement?.startsAt ?? new Date(Math.floor(discountNow() / 1000) * 1000).toISOString(),
@@ -287,7 +287,7 @@ function PlacementEditor({
     }
     const values = {
       trackId,
-      position,
+      position: Number(position),
       label: label.trim() || "Featured",
       startsAt,
       endsAt,
@@ -395,7 +395,7 @@ function PlacementEditor({
                   max={10000}
                   step={1}
                   value={position}
-                  onChange={(event) => setPosition(Number(event.target.value))}
+                  onChange={(event) => setPosition(event.target.value)}
                   className={controlClass}
                 />
               )}

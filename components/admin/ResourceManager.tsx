@@ -18,7 +18,7 @@ type StatusAction<T> = {
   description: (item: T) => string;
   payload: (item: T) => unknown;
 };
-export type ResourceConfig<T> = { renderCard?: (item: T, actions: { view: () => void; edit: () => void; remove: () => void }) => ReactNode; title: string; description: string; endpoint: string; columns: DynamicTableColumn<T>[]; label: (item: T) => string; details?: (item: T) => ReactNode; fields?: (item: T | null) => DynamicFormField<Values>[]; values?: (item: T | null) => Values; payload?: (values: Values, item: T | null) => unknown; createLabel?: string; deleteLabel?: string; deleteDescription?: string; canCreate?: boolean; canEdit?: boolean; canDelete?: boolean; statusAction?: StatusAction<T>; query?: string; searchable?: boolean; itemsKey?: string; pagination?: "cursor" | "offset"; toolbar?: ReactNode; deletePayload?: (item: T) => unknown; editor?: (props: { item: T | null; onClose: () => void; onSaved: () => void }) => ReactNode };
+export type ResourceConfig<T> = { renderCard?: (item: T, actions: { view: () => void; edit: () => void; remove: () => void }) => ReactNode; title: string; description: string; endpoint: string; columns: DynamicTableColumn<T>[]; label: (item: T) => string; details?: (item: T) => ReactNode; fields?: (item: T | null) => DynamicFormField<Values>[]; values?: (item: T | null) => Values; payload?: (values: Values, item: T | null) => unknown; createLabel?: string; deleteLabel?: string; deleteDescription?: string; canCreate?: boolean; canEdit?: boolean; canDelete?: boolean; statusAction?: StatusAction<T>; query?: string; searchable?: boolean; refreshOnReturn?: boolean; itemsKey?: string; pagination?: "cursor" | "offset"; toolbar?: ReactNode; deletePayload?: (item: T) => unknown; editor?: (props: { item: T | null; onClose: () => void; onSaved: () => void }) => ReactNode };
 export function ResourceManager<T extends { id: string; version?: number }>({ config }: { config: ResourceConfig<T> }) {
   const [layout, setLayout] = useState<"grid" | "list">(config.renderCard ? "grid" : "list");
   const [search, setSearch] = useState(""), [q, setQ] = useState(""), [cursors, setCursors] = useState([""]);
@@ -44,7 +44,7 @@ export function ResourceManager<T extends { id: string; version?: number }>({ co
   if (config.pagination === "offset") { query.set("page", cursor || "1"); query.set("pageSize", "20"); }
   else { query.set("limit", "20"); if (cursor) query.set("cursor", cursor); }
   if (q) query.set("q", q);
-  const cached = useWorkspaceData<ResourcePage<T> & Record<string, unknown>>(`${config.endpoint}?${query}`, { quiet: Boolean(q) });
+  const cached = useWorkspaceData<ResourcePage<T> & Record<string, unknown>>(`${config.endpoint}?${query}`, { quiet: Boolean(q) || config.refreshOnReturn, refreshOnReturn: config.refreshOnReturn });
   const { isLoading: loading, isValidating, refresh } = cached;
   const error = cached.error ? errorMessage(cached.error) : "";
   const result = cached.data;

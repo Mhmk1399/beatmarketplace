@@ -6,8 +6,9 @@ import { CoverImage } from "@/components/ui/CoverImage";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { trackHref } from "@/lib/marketplace/track-url";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { TrackDetailSkeleton } from "./TrackDetailSkeleton";
+import { RelatedBeats } from "./RelatedBeats";
 import { useDetailNavHeight } from "./useDetailNavHeight";
 import { useTrackDetail, type TrackDetailResponse } from "./useTrackDetail";
 import { useAudioPlayer } from "@/components/audio/AudioPlayerProvider";
@@ -406,7 +407,7 @@ export function TrackDetail({ id, initialSlug }: { id: string; initialSlug?: str
     if (next !== initialHref) router.replace(next, { scroll: false });
   }, [data, initialHref, pathname, router]);
   // SWR exposes the retry error in state; consume its rejected promise as well.
-  const refresh = () => { void mutate().catch(() => undefined); };
+  const refresh = useCallback(() => { void mutate().catch(() => undefined); }, [mutate]);
   if (error && (!data || [401, 403, 404].includes(error.status)))
     return (
       <div role="alert" className="detail-error music-glass">
@@ -486,6 +487,7 @@ function LoadedTrackDetail({ data, stale, refreshing, refresh }: { data: TrackDe
         id={track.id}
         producerId={track.producerId}
         token={viewToken}
+        onTokenExpired={refresh}
       />
       <TrackListeningHero
         track={track}
@@ -708,6 +710,7 @@ function LoadedTrackDetail({ data, stale, refreshing, refresh }: { data: TrackDe
             </NeumorphicLink>
           </div>
         </section>
+        {viewToken && track.genre && <RelatedBeats trackId={id} genre={track.genre} />}
       </div>
     </div>
   );

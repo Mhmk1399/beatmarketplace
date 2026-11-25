@@ -27,6 +27,8 @@ export function useLoopCarousel(count: number, maxVisible = 2) {
     if (!viewport || !count) return;
     let frame = 0;
     let settle: ReturnType<typeof setTimeout> | undefined;
+    let touching = false;
+    const supportsScrollEnd = "onscrollend" in viewport;
 
     function publish() {
       frame = 0;
@@ -41,7 +43,7 @@ export function useLoopCarousel(count: number, maxVisible = 2) {
     publishRef.current = publish;
 
     function normalize() {
-      if (dragRef.current || !metrics.current.stride) return;
+      if (touching || dragRef.current || !metrics.current.stride) return;
       const cycle = metrics.current.stride * count;
       const left = viewport!.scrollLeft;
       const shift = left < cycle - .75 ? cycle : left >= cycle * 2 - .75 ? -cycle : 0;
@@ -55,8 +57,19 @@ export function useLoopCarousel(count: number, maxVisible = 2) {
     }
     function scroll() {
       if (!frame) frame = requestAnimationFrame(publish);
+      if (!supportsScrollEnd) scheduleNormalize();
+    }
+    function scheduleNormalize() {
       clearTimeout(settle);
       settle = setTimeout(normalize, 140);
+    }
+    function touchStart() {
+      touching = true;
+      clearTimeout(settle);
+    }
+    function touchEnd(event: TouchEvent) {
+      touching = event.touches.length > 0;
+      if (!touching && !supportsScrollEnd) scheduleNormalize();
     }
     function configure() {
       const card = viewport!.querySelector<HTMLElement>("[data-carousel-item]");
@@ -75,8 +88,21 @@ export function useLoopCarousel(count: number, maxVisible = 2) {
     observer.observe(viewport);
     viewport.addEventListener("scroll", scroll, { passive: true });
     viewport.addEventListener("scrollend", normalize);
+    viewport.addEventListener("touchstart", touchStart, { passive: true });
+    viewport.addEventListener("touchend", touchEnd, { passive: true });
+    viewport.addEventListener("touchcancel", touchEnd, { passive: true });
     configure();
-    return () => { observer.disconnect(); cancelAnimationFrame(frame); clearTimeout(settle); viewport.removeEventListener("scroll", scroll); viewport.removeEventListener("scrollend", normalize); publishRef.current = () => {}; };
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      clearTimeout(settle);
+      viewport.removeEventListener("scroll", scroll);
+      viewport.removeEventListener("scrollend", normalize);
+      viewport.removeEventListener("touchstart", touchStart);
+      viewport.removeEventListener("touchend", touchEnd);
+      viewport.removeEventListener("touchcancel", touchEnd);
+      publishRef.current = () => {};
+    };
   }, [count, maxVisible]);
 
   function scrollPhysical(index: number) {

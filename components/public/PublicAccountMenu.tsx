@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
 import { useAuth, type CurrentUser } from "@/components/auth/AuthProvider";
-import { ChevronDownIcon, GridIcon, LogOutIcon, ShieldIcon, StoreIcon } from "@/components/ui/icons";
+import { ChevronDownIcon, GridIcon, LogOutIcon, ShieldIcon, StoreIcon, UserIcon } from "@/components/ui/icons";
 import { NeumorphicButton } from "@/components/ui/neumorphic/Button";
 import styles from "./PublicAccountMenu.module.css";
 
@@ -59,7 +59,8 @@ export function PublicAccountMenu({ user }: { user: CurrentUser }) {
   }
 
   return <div ref={rootRef} className={styles.root} onKeyDown={keyboard} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}>
-    <NeumorphicButton ref={triggerRef} id={triggerId} className={styles.trigger} aria-expanded={open} aria-haspopup="menu" aria-controls={open ? menuId : undefined} onClick={() => { focusLast.current = false; setOpen(current => !current); }}>
+    <NeumorphicButton ref={triggerRef} id={triggerId} className={`${styles.trigger} music-nav-account-compact`} aria-label={`Account menu for ${name}`} aria-expanded={open} aria-haspopup="menu" aria-controls={open ? menuId : undefined} onClick={() => { focusLast.current = false; setOpen(current => !current); }}>
+      <UserIcon className={styles.mobileIcon} />
       <span className={styles.avatar} aria-hidden="true">{initials}</span>
       <span className={styles.name} dir="auto">{name}</span>
       <ChevronDownIcon className={styles.chevron} />

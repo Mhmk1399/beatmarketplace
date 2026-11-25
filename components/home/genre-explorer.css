@@ -39,10 +39,10 @@
 }
 @media (max-width: 699px) {
   .genre-panel { padding: 22px 14px 14px; border-radius: var(--radius-card); }
-  .genre-heading { gap: 12px; margin-bottom: 17px; padding-inline: 3px; }
+  .genre-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-bottom: 17px; padding-inline: 3px; }
   .genre-heading h2 { margin-top: 7px; font-size: clamp(1.65rem, 7vw, 2rem); }
   .genre-kicker { font-size: .55rem; }
-  .genre-navigation { width: 100%; justify-content: flex-end; gap: 6px; }
+  .genre-navigation { gap: 6px; }
   .genre-viewport { --genre-gap: 12px; --genre-visible: min(2, var(--genre-column-count, 4)); }
   .genre-card.neo-button { border-radius: 15px; }
   .genre-card-copy { left: 12px; right: 36px; bottom: 13px; gap: 4px; }
@@ -50,10 +50,6 @@
   .genre-card-copy > span { font-size: .54rem; }
   .genre-card-arrow { right: 8px; bottom: 16px; width: 24px; height: 24px; }
   .genre-card-arrow > svg { width: 13px; height: 13px; }
-}
-@media (min-width: 390px) and (max-width: 699px) {
-  .genre-heading { flex-wrap: nowrap; }
-  .genre-navigation { width: auto; }
 }
 @media (prefers-reduced-motion: reduce) {
   .genre-art img { animation: none; transform: none; }

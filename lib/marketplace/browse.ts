@@ -18,7 +18,7 @@ export function readBrowseFilters(params: URLSearchParams): BrowseFilters {
     genre: genre.length <= 100 && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(genre) ? genre : "",
     minBpm: bpm("minBpm"), maxBpm: bpm("maxBpm"),
     key: normalizeMusicalKey((params.get("key") ?? "").slice(0, 20)) ?? "",
-    moodId: /^[a-f\d]{24}$/i.test(moodId) ? moodId : "",
+    moodId: /^[a-f\d]{24}$/i.test(moodId) ? moodId.toLowerCase() : "",
     sort: sort === "price-asc" || sort === "price-desc" ? sort : "newest",
   };
   if (result.minBpm && result.maxBpm && Number(result.minBpm) > Number(result.maxBpm)) { result.minBpm = ""; result.maxBpm = ""; }
@@ -27,7 +27,11 @@ export function readBrowseFilters(params: URLSearchParams): BrowseFilters {
 
 export function browseParams(filters: BrowseFilters) {
   const params = new URLSearchParams();
-  Object.entries(filters).forEach(([name, value]) => { if (value && !(name === "sort" && value === "newest")) params.set(name, value); });
+  for (const [name, value] of Object.entries(filters)) {
+    const normalized = name === "q" ? value.trim() : value;
+    if (normalized && !(name === "sort" && normalized === "newest")) params.set(name, normalized);
+  }
+  params.sort();
   return params;
 }
 

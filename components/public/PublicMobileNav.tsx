@@ -70,7 +70,7 @@ export function PublicMobileNav({ id, pathname, cartCount, user, status, onClose
   }
 
   if (typeof document === "undefined") return null;
-  const displayName = user?.profile?.displayName || (user ? `${user.firstName} ${user.lastName}`.trim() : "");
+  const displayName = user && (user.profile?.displayName?.trim() || `${user.firstName} ${user.lastName}`.trim() || user.profile?.username || user.email);
   return createPortal(
     <dialog ref={dialogRef} id={id} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="music-mobile-menu" onCancel={(event) => { event.preventDefault(); onClose(); }} onClick={backdrop}>
       <header className="music-mobile-menu-header">
@@ -79,6 +79,7 @@ export function PublicMobileNav({ id, pathname, cartCount, user, status, onClose
         <h2 id={titleId} className="sr-only">Navigation menu</h2>
       </header>
       <div className="music-mobile-menu-content">
+        {user && <div className="music-mobile-menu-user"><span aria-hidden="true">{user.firstName.charAt(0)}{user.lastName.charAt(0)}</span><div><p>Signed in as</p><strong dir="auto">{displayName}</strong></div></div>}
         <p className="music-eyebrow">Explore your sound</p>
         <nav aria-label="Mobile navigation" className="music-mobile-menu-links">
           <Link href="/" className="music-mobile-menu-link" aria-current={pathname === "/" ? "page" : undefined} onClick={onClose}><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg><span>Home</span></Link>
@@ -91,7 +92,6 @@ export function PublicMobileNav({ id, pathname, cartCount, user, status, onClose
         </nav>
         <section className="music-mobile-menu-account" aria-label="Your account">
           {status === "loading" ? <p role="status" className="text-sm text-muted">Loading your account…</p> : user ? <>
-            <div className="music-mobile-menu-user"><span aria-hidden="true">{user.firstName.charAt(0)}{user.lastName.charAt(0)}</span><div><p>Signed in as</p><strong>{displayName}</strong></div></div>
             <NeumorphicLink href="/dashboard" variant="accent" className="w-full" onClick={onClose}>Your dashboard</NeumorphicLink>
             {user.roles.includes("PRODUCER") && <Link href="/studio" className="music-mobile-menu-link" onClick={onClose}><StoreIcon /><span>Producer Studio</span></Link>}
             {user.roles.includes("ADMIN") && <Link href="/admin" className="music-mobile-menu-link" onClick={onClose}><StoreIcon /><span>Admin panel</span></Link>}

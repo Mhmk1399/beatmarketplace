@@ -33,8 +33,7 @@ function Chevron({ previous = false }: { previous?: boolean }) {
   );
 }
 
-export function GenreExplorer() {
-  const [categories, setCategories] = useState<TaxonomyItem[]>([]);
+export function GenreExplorer({ categories }: { categories: TaxonomyItem[] }) {
   const styles = getGenreStyles(categories).slice(0, 16);
   const columnCount = styles.length <= 4 ? styles.length : Math.ceil(styles.length / 2);
   const columns = Array.from({ length: columnCount }, (_, index) => styles.filter((_, styleIndex) => styleIndex === index || styleIndex === index + columnCount));
@@ -42,15 +41,6 @@ export function GenreExplorer() {
   const moveRef = useRef<(direction: number, step?: number) => void>(() => {});
   const cooldown = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const id = useId();
-  useEffect(() => {
-    const controller = new AbortController();
-    void fetch("/api/taxonomy?kind=genres", { signal: controller.signal, cache: "no-store" }).then(async response => {
-      if (!response.ok) return;
-      const data = await response.json();
-      if (!controller.signal.aborted && Array.isArray(data.items)) setCategories(data.items);
-    }).catch(() => { /* Keep the existing style shortcuts when the catalog is unavailable. */ });
-    return () => controller.abort();
-  }, []);
   const {
     viewportRef,
     position,
@@ -260,7 +250,7 @@ export function GenreExplorer() {
                     >
                       <span className={`genre-art genre-art-${style.art}`}>
                         <CoverImage
-                          src={style.thumbnailUrl ?? `/assets/genres/${style.art}.svg`}
+                          src={style.thumbnailUrl ?? ""}
                           alt=""
                           position="center 35%"
                           draggable={false}

@@ -2,15 +2,17 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { connectToDatabase } from "@/lib/db";
 import { acquireVisitSlot, recordTrackVisit } from "@/lib/analytics/record";
+import { VIEW_REMAINING_HEADER } from "@/lib/analytics/constants";
 import { trackVisitorKey, verifyViewToken } from "@/lib/analytics/token";
 import { readJson, requireOrigin } from "@/lib/workspace/server";
 
 export const runtime = "nodejs";
 const schema = z.object({ browserId: z.uuid(), token: z.string().min(1).max(512) }).strict();
-const empty = () => new NextResponse(null, { status: 204, headers: { "Cache-Control": "private, no-store" } });
+const empty = (status = 204, headers?: Record<string, string>) => new NextResponse(null, { status, headers: { "Cache-Control": "private, no-store", ...headers } });
+const accepted = (until: number) => empty(204, { [VIEW_REMAINING_HEADER]: String(Math.max(0, until - Date.now())) });
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  let release: ((saved: boolean) => void) | undefined;
+  let release: ((until?: number) => void) | undefined;
   try {
     requireOrigin(request);
     if (!request.headers.get("origin") || request.headers.get("dnt") === "1" || request.headers.get("sec-gpc") === "1"
@@ -19,20 +21,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const { id } = await params;
     if (!/^[a-f\d]{24}$/i.test(id)) return empty();
     const parsed = schema.safeParse(await readJson(request));
-    if (!parsed.success || !verifyViewToken(parsed.data.token, id)) return empty();
+    if (!parsed.success) return empty();
+    if (!verifyViewToken(parsed.data.token, id)) return empty(409);
     const visitorKey = trackVisitorKey(id, parsed.data.browserId), slot = acquireVisitSlot(visitorKey);
-    if (slot === "duplicate") return empty();
-    if (slot === "busy") return new NextResponse(null, { status: 429, headers: { "Retry-After": "5", "Cache-Control": "private, no-store" } });
+    if (typeof slot === "number") return accepted(slot);
+    if (slot === "busy") return empty(429, { "Retry-After": "5" });
     release = slot;
     await connectToDatabase();
-    await recordTrackVisit(id, visitorKey);
-    release(true);
+    const until = await recordTrackVisit(id, visitorKey);
+    slot(until);
     release = undefined;
-    return empty();
+    return accepted(until);
   } catch (error) {
     if (error instanceof SyntaxError) return empty();
     if (error instanceof Error && "status" in error && typeof error.status === "number" && [400, 403, 413, 415].includes(error.status)) return empty();
     console.error("Beat analytics write failed", error instanceof Error ? error.name : "Unknown error");
-    return new NextResponse(null, { status: 503, headers: { "Retry-After": "5", "Cache-Control": "private, no-store" } });
-  } finally { release?.(false); }
+    return empty(503, { "Retry-After": "5" });
+  } finally { release?.(); }
 }

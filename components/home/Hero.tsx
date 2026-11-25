@@ -1,13 +1,12 @@
-import { FeaturedBeats } from "@/components/home/FeaturedBeats";
+import { FeaturedBeats, type FeaturedBeatsProps } from "@/components/home/FeaturedBeats";
 import { HeroActions } from "./HeroActions";
 import {
   DiscIcon,
   ShieldIcon,
   TagIcon,
 } from "@/components/ui/icons";
-import { demoTracks } from "@/lib/audio/demo-tracks";
 
-export function Hero() {
+export function Hero(props: FeaturedBeatsProps) {
   return (
     <section
       className="hero-showcase music-home-hero"
@@ -31,7 +30,7 @@ export function Hero() {
             </p>
             <HeroActions />
           </div>
-          <FeaturedBeats fallbackDemos={demoTracks} />
+          <FeaturedBeats {...props} />
         </div>
         <div
           className="hero-showcase-promises"

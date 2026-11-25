@@ -15,5 +15,7 @@ const schema = new Schema<TrackMetricFields>({
   lastViewedAt: { type: Date, required: true },
 }, { versionKey: false });
 
+schema.index({ views: -1, _id: 1 }, { name: "track_metric_top_views" });
+
 const TrackMetricModel = (mongoose.models.TrackMetric as Model<TrackMetricFields> | undefined) ?? mongoose.model<TrackMetricFields>("TrackMetric", schema);
 export default TrackMetricModel;

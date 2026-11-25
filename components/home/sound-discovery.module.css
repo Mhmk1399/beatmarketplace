@@ -1,0 +1,191 @@
+.layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--home-section-gap);
+}
+
+.shelf {
+  min-width: 0;
+  padding: clamp(16px, 2.25vw, 30px);
+  border: 1px solid var(--genre-edge);
+  border-radius: var(--radius-panel);
+  background: var(--genre-fill);
+  box-shadow: var(--genre-shadow);
+  scroll-margin-top: 8rem;
+}
+
+.heading,
+.title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.heading {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: clamp(12px, 1.5vw, 20px);
+}
+
+.title h2 {
+  color: var(--text);
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -.045em;
+}
+
+.icon,
+.arrow {
+  display: grid;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--music-glass-border);
+  color: var(--accent-text);
+  background: var(--fill-control);
+  box-shadow: var(--shadow-control);
+}
+
+.icon {
+  width: clamp(34px, 3.6vw, 48px);
+  height: clamp(34px, 3.6vw, 48px);
+  border-radius: var(--radius-control);
+}
+
+.icon svg { width: 20px; height: 20px; }
+
+.directoryLink:global(.neo-button) {
+  padding-inline: 12px;
+  color: var(--accent-text);
+  border: 1px solid var(--music-glass-border);
+  font-size: .75rem;
+}
+
+.directoryLink svg,
+.arrow svg { width: 14px; height: 14px; }
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(10px, 1.2vw, 16px);
+  padding: 0;
+  list-style: none;
+}
+
+.cards > li { min-width: 0; }
+
+.card:global(.neo-button) {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  min-height: 112px;
+  aspect-ratio: 1.65;
+  padding: 12px 14px;
+  overflow: hidden;
+  border: 1px solid var(--genre-card-edge);
+  background: var(--genre-card-fill);
+  box-shadow: var(--genre-card-shadow);
+  text-align: left;
+  transition: border-color var(--motion-base), box-shadow var(--motion-base), transform var(--motion-base);
+}
+
+.art { transition: transform var(--motion-base) var(--motion-ease); }
+
+.card::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background: var(--genre-card-scrim);
+}
+
+.cardCopy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 3px;
+}
+
+.cardCopy strong {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text);
+  font-size: clamp(.94rem, 1.4vw, 1.2rem);
+  font-weight: 850;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.cardCopy > span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: .7rem;
+  font-weight: 500;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.arrow {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+}
+
+.card:focus-visible { outline-offset: -4px; border-color: var(--focus-border); }
+.empty { color: var(--muted); font-size: .85rem; line-height: 1.6; }
+
+@media (hover: hover) and (pointer: fine) {
+  .card:global(.neo-button):hover {
+    transform: translateY(-2px);
+    border-color: var(--focus-border);
+    box-shadow: var(--music-glow);
+  }
+  .card:hover .art { transform: scale(1.035); }
+}
+
+@media (max-width: 1023px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 639px) {
+  .shelf { padding: 14px 12px 12px; border-radius: var(--radius-card); }
+  .heading, .title { gap: 7px; }
+  .directoryLink:global(.neo-button) { padding-inline: 8px; font-size: .68rem; gap: 5px; }
+  .cards {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: max(122px, 44%);
+    padding-bottom: 8px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+  .cards > li { scroll-snap-align: start; }
+  .card:global(.neo-button) { min-height: 116px; padding: 10px; }
+  .cardCopy > span { font-size: .65rem; -webkit-line-clamp: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card:global(.neo-button), .art { transition: none; }
+  .card:global(.neo-button):hover, .card:hover .art { transform: none; }
+}

@@ -1,5 +1,6 @@
 .root { position: relative; min-width: 0; }
 .trigger { min-width: 0; max-width: 11rem; min-height: 44px; padding: 5px 10px 5px 6px; gap: 8px; }
+.mobileIcon { display: none; width: 20px; height: 20px; }
 .avatar { display: grid; width: 32px; height: 32px; flex-shrink: 0; place-items: center; border-radius: var(--radius-pill); color: var(--accent-text); background: var(--accent-soft); font-size: .65rem; font-weight: 800; box-shadow: var(--shadow-inset); }
 .name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .75rem; }
 .chevron { width: 14px; height: 14px; flex-shrink: 0; color: var(--muted); transition: transform var(--motion-base); }
@@ -14,5 +15,9 @@
 .logout { margin-top: 4px; color: var(--error-text); }
 .item:disabled { opacity: .6; cursor: wait; }
 @keyframes account-menu-enter { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 639px) { .trigger { max-width: min(10rem, calc(100vw - 12rem)); padding-inline: 12px; } .avatar { display: none; } }
+@media (max-width: 1099px) {
+  .mobileIcon { display: block; }
+  .avatar, .name, .chevron { display: none; }
+  .menu { max-height: calc(100dvh - 7rem); overflow-y: auto; overscroll-behavior: contain; }
+}
 @media (prefers-reduced-motion: reduce) { .menu { animation: none; } .chevron, .item { transition: none; } }

@@ -112,7 +112,7 @@ export function LoginForm() {
         fullWidthSubmit
         onValueChange={(name, value) => {
           setFields((current) => ({ ...current, [name]: value }));
-          setErrors((current) => ({ ...current, [name]: undefined }));
+          setErrors((current) => current[name] ? { ...current, [name]: undefined } : current);
         }}
         onSubmit={handleSubmit}
       />

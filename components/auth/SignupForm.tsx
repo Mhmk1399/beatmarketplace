@@ -68,7 +68,7 @@ export function SignupForm() {
 
   function updateField(field: keyof SignupFields, value: string) {
     setFields((current) => ({ ...current, [field]: value }));
-    setErrors((current) => ({ ...current, [field]: undefined }));
+    setErrors((current) => current[field] ? { ...current, [field]: undefined } : current);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {

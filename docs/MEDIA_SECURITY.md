@@ -8,7 +8,7 @@ Producers upload the original uncompressed WAV (maximum 60 MB) and choose a 30-s
 
 The original WAV is stored byte for byte, without conversion. Failed preparation or a failed database save cleans up newly created media. Purchased order snapshots retain their original master when the producer later replaces a track.
 
-Every marketplace surface uses `marketplaceAudioTrack()` and the shared global audio player. Public API serializers derive preview/image URLs from validated asset roles rather than returning storage references or trusting saved external URLs. The media route accepts only independently stored previews and artwork; a `.master.wav` URL always returns 404. Private/draft previews require the producer or an administrator. Intentional full-length homepage demo songs remain separate public assets, clearly marked as demos and not for sale.
+Every marketplace surface uses `marketplaceAudioTrack()` and the shared global audio player. Public URLs are derived from validated asset roles. The media route accepts independent previews and artwork. Requests for a `.master.wav` URL return 404, and private or draft previews require the producer or an administrator. Homepage previews use these same track media routes.
 
 ## Purchased originals
 
@@ -59,6 +59,6 @@ Data saver requests use `?quality=low`. A 96 kbps derivative is generated from t
 
 The configured internal object-store URL failed browser fetch tests while the public asset domain worked. Small-range tests returned roughly 0.36 seconds from a warm authorized cache versus 0.45–0.67 seconds directly from the public storage domain, so cached delivery remains the default. Cold cache fills include bucket transfer time. These local diagnostic measurements are not deployment capacity guarantees.
 
-All five intentionally public listening demos now have full-length 128 and 96 kbps copies under `public/assets/audios/listening`. `npm run audio:demos` rebuilds them from the retained originals. The explicit Download demo action still offers the original demo; sale tracks never use that action. Source durations, track IDs, covers and waveform associations remain shared.
+The five public demo samples use independently cropped 30-second MP3 files at 128 and 96 kbps. The app serves their private bucket objects by named `HomeMedia` slots and checks the media role, duration and file size. `npm run audio:demos` writes replacement previews to private local storage. Demo metadata has no download URL for the original recording.
 
 The dock and expanded player show loading, buffering, offline and retry states. After eight seconds of continuous waiting they suggest lower-data audio; after 25 seconds they stop showing an indefinite spinner and offer retry. Reconnection never silently starts playback. Physical-device and live-network acceptance remains separate from desktop mobile emulation.
