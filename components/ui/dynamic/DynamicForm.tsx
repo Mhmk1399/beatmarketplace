@@ -101,15 +101,12 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
   const formId = id ?? `dynamic-form-${generatedId}`;
   const previousErrors = useRef<DynamicFormErrors<T>>({});
   useEffect(() => {
-    const previous = previousErrors.current;
     if (disabled || isSubmitting) return;
+    const previous = previousErrors.current;
     previousErrors.current = errors;
 
-    // Removing an error while editing should leave focus on the current field.
-    const hasNewError = fields.some(({ name }) => errors[name] && errors[name] !== previous[name]);
-    if (!hasNewError) return;
-
-    const invalidField = fields.find(field => !field.disabled && errors[field.name]);
+    // Focus a new or changed error without moving focus when an error clears.
+    const invalidField = fields.find(({ name, disabled }) => !disabled && errors[name] && errors[name] !== previous[name]);
     if (invalidField) document.getElementById(`${formId}-${invalidField.name}`)?.focus();
   }, [disabled, errors, fields, formId, isSubmitting]);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(() => new Set());

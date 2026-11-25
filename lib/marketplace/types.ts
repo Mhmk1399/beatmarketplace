@@ -57,9 +57,12 @@ export type MarketplaceTrack = {
   musicalKey: string;
   genre: { id: string; name: string } | null;
   tags: string[];
+  explicit: boolean;
   status: "DRAFT" | "SCHEDULED" | "PUBLISHED" | "ARCHIVED";
   visibility: "PUBLIC" | "PRIVATE";
   licenses: MarketplaceLicense[];
+  /** True when any active license across the full set supports online WAV checkout. */
+  hasPurchasableLicense?: boolean;
   hasMoreLicenses?: boolean;
   discount?: TrackDiscount | null;
 };

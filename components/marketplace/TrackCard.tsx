@@ -36,7 +36,7 @@ export function TrackCard({ track, queue }: { track: MarketplaceTrack; queue?: M
         </button>
       </div>
       <div className="music-track-info">
-        <p className="music-track-genre">{track.genre?.name || "Original beat"}</p>
+        <p className="music-track-genre">{track.genre?.name || "Original beat"}{track.explicit ? " · Explicit" : ""}</p>
         <h3><Link href={trackHref(track)} className="music-track-title">{track.title}</Link></h3>
         <p className="music-track-producer">{track.producerName}</p>
         <div className="music-track-metadata"><span>{track.bpm} <small>BPM</small></span><span>{track.musicalKey}</span></div>

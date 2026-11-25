@@ -95,7 +95,7 @@ export async function serializeTracks(tracks: (TrackFields & { _id: mongoose.Typ
   const producerIds = [...new Set(tracks.map((track) => String(track.producerId)))];
   const genreIds = tracks.flatMap((track) => track.metadata.genreId ? [track.metadata.genreId] : []);
   const [licenseGroups, profiles, producers, genres, discounts, moods, instruments] = await Promise.all([
-    TrackModel.aggregate<{ _id: mongoose.Types.ObjectId; licenses: LicenseRecord[] }>([
+    TrackModel.aggregate<{ _id: mongoose.Types.ObjectId; licenses: LicenseRecord[]; purchasableLicenses: { _id: mongoose.Types.ObjectId }[] }>([
       { $match: { _id: { $in: trackIds } } },
       { $lookup: { from: ContractModel.collection.name, localField: "_id", foreignField: "trackIds", let: { producer: "$producerId" }, pipeline: [
         { $match: { ...activeContractFilter(now), $expr: { $eq: ["$producerId", "$$producer"] } } },
@@ -106,7 +106,11 @@ export async function serializeTracks(tracks: (TrackFields & { _id: mongoose.Typ
           ...(options.includeLicenseTerms ? { "terms.customTerms": 1 } : {}),
         } },
       ], as: "licenses" } },
-      { $project: { _id: 1, licenses: 1 } },
+      { $lookup: { from: ContractModel.collection.name, localField: "_id", foreignField: "trackIds", let: { producer: "$producerId" }, pipeline: [
+        { $match: { ...activeContractFilter(now), "terms.licenseType": "NON_EXCLUSIVE", "filesToDeliver.format": "WAV", $expr: { $eq: ["$producerId", "$$producer"] } } },
+        { $limit: 1 }, { $project: { _id: 1 } },
+      ], as: "purchasableLicenses" } },
+      { $project: { _id: 1, licenses: 1, purchasableLicenses: 1 } },
     ]).option({ maxTimeMS: 10_000 }),
     ProducerProfileModel.find({ userId: { $in: producerIds } }).select("userId stageName").lean(),
     UserModel.find({ _id: { $in: producerIds } }).select("firstName lastName profile.displayName profile.avatar.key").lean(),
@@ -121,6 +125,7 @@ export async function serializeTracks(tracks: (TrackFields & { _id: mongoose.Typ
   const genreNames = new Map(genres.map((genre) => [String(genre._id), genre.name]));
   const discountByTrack = new Map(discounts.map((discount) => [String(discount.trackId), discount]));
   const licensesByTrack = new Map(licenseGroups.map((row) => [String(row._id), row.licenses]));
+  const purchasableByTrack = new Map(licenseGroups.map((row) => [String(row._id), row.purchasableLicenses.length > 0]));
   const moodTags = new Map(moods.map(item => [String(item._id), { id: String(item._id), name: item.name, slug: item.slug }]));
   const instrumentTags = new Map(instruments.map(item => [String(item._id), { id: String(item._id), name: item.name, slug: item.slug }]));
   return tracks.map((track) => {
@@ -141,8 +146,9 @@ export async function serializeTracks(tracks: (TrackFields & { _id: mongoose.Typ
         moods: (track.metadata.moodIds ?? []).flatMap(id => moodTags.get(String(id)) ?? []),
         instruments: (track.metadata.instrumentIds ?? []).flatMap(id => instrumentTags.get(String(id)) ?? []),
       } : {}),
-      tags: [...track.metadata.tags], status: track.status, visibility: track.visibility,
+      tags: [...track.metadata.tags], explicit: track.metadata.isExplicit ?? false, status: track.status, visibility: track.visibility,
       licenses: (licensesByTrack.get(String(track._id)) ?? []).slice(0, MAX_PUBLIC_LICENSES_PER_TRACK).map((contract) => serializeLicense(contract, discount, now)),
+      hasPurchasableLicense: purchasableByTrack.get(String(track._id)) ?? false,
       hasMoreLicenses: (licensesByTrack.get(String(track._id))?.length ?? 0) > MAX_PUBLIC_LICENSES_PER_TRACK,
       discount,
     };

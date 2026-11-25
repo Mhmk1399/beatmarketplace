@@ -275,6 +275,7 @@ function TrackListeningHero({
                 {track.genre?.name || "Original beat"}
               </span>
               <span className="detail-track-kind">INSTRUMENTAL</span>
+              {track.explicit && <span className="detail-track-kind">EXPLICIT</span>}
               {onSale && track.discount && (
                 <span className="detail-sale-tag">
                   −{track.discount.percentage}%

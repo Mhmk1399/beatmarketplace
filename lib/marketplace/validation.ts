@@ -16,6 +16,7 @@ export const trackInputSchema = z.object({
   moodIds: z.array(objectIdSchema).max(10).refine(ids => new Set(ids).size === ids.length).default([]),
   instrumentIds: z.array(objectIdSchema).max(20).refine(ids => new Set(ids).size === ids.length).default([]),
   tags: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
+  explicit: z.boolean().default(false),
   previewStartSeconds: z.number().finite().min(0).max(86_400).default(0),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT"),
   visibility: z.enum(["PUBLIC", "PRIVATE"]).default("PRIVATE"),
@@ -30,6 +31,7 @@ export const trackPatchSchema = z.object({
   moodIds: trackInputSchema.shape.moodIds.removeDefault(),
   instrumentIds: trackInputSchema.shape.instrumentIds.removeDefault(),
   tags: trackInputSchema.shape.tags.removeDefault(),
+  explicit: trackInputSchema.shape.explicit.removeDefault(),
   previewStartSeconds: trackInputSchema.shape.previewStartSeconds.removeDefault(),
   status: trackInputSchema.shape.status.removeDefault(),
   visibility: trackInputSchema.shape.visibility.removeDefault(),
@@ -49,6 +51,9 @@ export const trackQuerySchema = z.object({
   cursor: z.string().min(1).max(256).optional(),
   page: z.coerce.number().int().min(1).max(1000).default(1),
   pageSize: z.coerce.number().int().min(1).max(48).default(24),
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
+  visibility: z.enum(["PUBLIC", "PRIVATE"]).optional(),
+  trackId: objectIdSchema.optional(),
 }).refine((value) => value.minBpm === undefined || value.maxBpm === undefined || value.minBpm <= value.maxBpm, {
   path: ["minBpm"], message: "Minimum BPM must not exceed maximum BPM.",
 });

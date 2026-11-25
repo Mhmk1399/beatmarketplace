@@ -14,6 +14,7 @@ export type DynamicTableColumn<T> = {
   align?: "left" | "center" | "right";
   width?: CSSProperties["width"];
   className?: string;
+  sort?: { active: boolean; onClick: () => void; label: string };
 };
 
 type DynamicTableProps<T> = {
@@ -98,8 +99,9 @@ export function DynamicTable<T>({
                     alignmentClass(column.align),
                     column.className,
                   )}
+                  aria-sort={column.sort ? (column.sort.active ? "descending" : "none") : undefined}
                 >
-                  {column.header}
+                  {column.sort ? <button type="button" onClick={column.sort.onClick} aria-label={column.sort.label} className="min-h-11 underline-offset-4 hover:underline focus-visible:underline">{column.header}{column.sort.active ? " ↓" : ""}</button> : column.header}
                 </th>
               ))}
               {actions && (

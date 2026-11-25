@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { conditionRows, licenseConditions } from "@/lib/licensing/conditions";
 import { formatPersianDate } from "@/lib/date-time";
 import {
@@ -7,6 +8,8 @@ import {
   type ResourceConfig,
 } from "@/components/admin/ResourceManager";
 import { TableIdentity } from "@/components/ui/dynamic/DynamicTable";
+import { controlClass } from "@/components/studio/shared";
+import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
 type Order = {
   id: string;
   status: string;
@@ -31,6 +34,11 @@ export function OrdersWorkspace({
   scope?: "admin" | "producer" | "personal";
   downloads?: boolean;
 }) {
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [beat, setBeat] = useState("");
+  const [license, setLicense] = useState("");
+  const filters = new URLSearchParams({ scope, ...(scope === "producer" || downloads ? { status: "PAID" } : {}), ...(from ? { from } : {}), ...(to ? { to } : {}), ...(beat ? { beat } : {}), ...(license ? { license } : {}) });
   const config: ResourceConfig<Order> = {
     title:
       scope === "producer"
@@ -47,7 +55,9 @@ export function OrdersWorkspace({
           ? "Paid purchases with their full-quality WAV files and saved license agreements."
         : "Verified payment status and order records. Test transactions are labeled separately.",
     endpoint: "/api/workspace/orders",
-    query: `scope=${scope}${scope === "producer" || downloads ? "&status=PAID" : ""}`,
+    query: filters.toString(),
+    searchable: scope !== "producer",
+    toolbar: scope === "producer" ? <div className="workspace-sales-filters"><label><span>From</span><input aria-label="Sales from date" type="date" value={from} onChange={event => setFrom(event.target.value)} className={controlClass} /></label><label><span>To</span><input aria-label="Sales to date" type="date" value={to} min={from || undefined} onChange={event => setTo(event.target.value)} className={controlClass} /></label><label><span>Beat</span><input aria-label="Filter by beat" value={beat} onChange={event => setBeat(event.target.value)} maxLength={160} placeholder="Beat title" className={controlClass} /></label><label><span>License</span><input aria-label="Filter by license" value={license} onChange={event => setLicense(event.target.value)} maxLength={160} placeholder="License name" className={controlClass} /></label><NeumorphicLink href={`/api/workspace/orders?${new URLSearchParams({ ...Object.fromEntries(filters), format: "csv" })}`} size="sm">Export CSV</NeumorphicLink></div> : undefined,
     label: (order) => `Order ${order.id.slice(-8)}`,
     columns: [
       {

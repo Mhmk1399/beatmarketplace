@@ -83,6 +83,7 @@ async function updateProducerTrack(request: Request, id: string, producerId: mon
     if (data.tags !== undefined) track.metadata.tags = data.tags;
     if (data.moodIds !== undefined) track.metadata.moodIds = data.moodIds.map(id=>new mongoose.Types.ObjectId(id));
     if (data.instrumentIds !== undefined) track.metadata.instrumentIds = data.instrumentIds.map(id=>new mongoose.Types.ObjectId(id));
+    if (data.explicit !== undefined) track.metadata.isExplicit = data.explicit;
     if (data.status !== undefined) track.status = data.status;
     if (data.visibility !== undefined) track.visibility = data.visibility;
     report("saving");
