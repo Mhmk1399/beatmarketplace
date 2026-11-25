@@ -8,7 +8,8 @@ import { publicContactSettings } from "@/lib/contact/public-settings";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = { title: "Contact us", description: "Get in touch with BeatMarketplace for questions, support, licensing, or collaboration." };
-export default async function ContactPage() {
+export default async function ContactPage({ searchParams }: { searchParams: Promise<{ subject?: string; message?: string }> }) {
   const settings = await publicContactSettings();
-  return <PublicShell><div className="contact-page"><ContactHero settings={settings} /><ContactSocials settings={settings} /><ContactMessageSection /></div></PublicShell>;
+  const query = await searchParams; const subject = ["general","licensing","payments","technical","collaboration"].includes(query.subject ?? "") ? query.subject : ""; const message = (query.message ?? "").slice(0, 5000);
+  return <PublicShell><div className="contact-page"><ContactHero settings={settings} /><ContactSocials settings={settings} /><ContactMessageSection initialSubject={subject} initialMessage={message} /></div></PublicShell>;
 }

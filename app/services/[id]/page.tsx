@@ -1,0 +1,9 @@
+import { notFound } from "next/navigation";
+import StudioProductModel from "@/models/StudioProduct";
+import UserModel from "@/models/User";
+import ProducerProfileModel from "@/models/ProducerProfile";
+import { connectToDatabase } from "@/lib/db";
+import { PublicShell } from "@/components/public/PublicShell";
+import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
+export const dynamic="force-dynamic";
+export default async function ServicePage({params}:{params:Promise<{id:string}>}){await connectToDatabase();const{id}=await params;if(!/^[a-f\d]{24}$/i.test(id))notFound();const item=await StudioProductModel.findOne({_id:id,kind:"SERVICE",status:"PUBLISHED"}).lean();if(!item||!await UserModel.exists({_id:item.producerId,roles:"PRODUCER",status:"ACTIVE"}))notFound();const profile=await ProducerProfileModel.findOne({userId:item.producerId}).select("stageName").lean();const producer=profile?.stageName||"Producer";return <PublicShell><main className="mx-auto min-h-[70vh] max-w-3xl px-5 py-16"><p className="workspace-page-eyebrow">Producer service · {producer}</p><h1 className="mt-3 text-3xl font-extrabold">{item.title}</h1><p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-muted">{item.description}</p><p className="mt-6 text-xl font-bold">From {(item.priceToman??0).toLocaleString("en-US")} Toman</p><div className="mt-8"><NeumorphicLink variant="accent" href={`/contact?subject=collaboration&message=${encodeURIComponent(`Service inquiry\nService: ${item.title}\nProducer: ${producer}\nReference: ${item._id}\n\nI would like to discuss scope, timing, and delivery.`)}`}>Start an inquiry</NeumorphicLink></div><p className="mt-5 text-xs leading-6 text-muted">Your inquiry is saved to the BeatMarketplace support inbox with this service reference. It is not an automatic booking or payment.</p></main></PublicShell>;}

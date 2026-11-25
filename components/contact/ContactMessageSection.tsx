@@ -4,7 +4,7 @@ import { ContactSendIcon } from "./ContactIcons";
 import { ContactRibbon } from "./ContactRibbon";
 import { ContactForm } from "./ContactForm";
 
-export function ContactMessageSection() {
+export function ContactMessageSection({ initialSubject, initialMessage }: { initialSubject?: string; initialMessage?: string }) {
   return <section id="contact-form" className="contact-container contact-message-section" aria-labelledby="contact-form-title">
     <div className="contact-message-panel">
       <div className="contact-message-art">
@@ -17,7 +17,7 @@ export function ContactMessageSection() {
         </div>
         <ContactRibbon className="contact-form-ribbon" />
       </div>
-      <ContactForm />
+      <ContactForm initialSubject={initialSubject} initialMessage={initialMessage} />
     </div>
   </section>;
 }

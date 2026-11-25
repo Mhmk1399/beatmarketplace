@@ -51,6 +51,7 @@ export type MarketplaceTrack = {
   artworkUrl: string | null;
   previewUrl: string | null;
   previewStartSeconds: number;
+  deliveryReady?: { wav: boolean; mp3: boolean; stems: boolean };
   previewDurationSeconds: number;
   durationSeconds: number;
   bpm: number;

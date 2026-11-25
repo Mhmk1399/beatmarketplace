@@ -13,7 +13,7 @@ type Props = {
   id?: string;
   name?: string;
   label: string;
-  kind: "audio" | "image";
+  kind: "audio" | "image" | "file";
   value: File | null;
   onChange: (file: File | null) => void;
   accept: string;
@@ -78,17 +78,25 @@ export function FileUploadStatus({
 }) {
   if (progress.phase === "idle") return null;
   const busy =
-      progress.phase === "preparing" || progress.phase === "uploading" || progress.phase === "processing",
+      progress.phase === "preparing" ||
+      progress.phase === "uploading" ||
+      progress.phase === "processing",
     preparing = progress.phase === "preparing",
     processing = preparing || progress.phase === "processing",
     failed = progress.phase === "error" || progress.phase === "cancelled";
-  const title = preparing ? "Optimizing image…" : processing
-    ? progress.stage ? uploadStageLabels[progress.stage] : processingLabel
-    : progress.phase === "success"
-      ? "Upload complete"
-      : failed
-        ? progress.stage ? `Stopped: ${uploadStageLabels[progress.stage].replace(/…$/, "")}` : "Upload interrupted"
-        : label;
+  const title = preparing
+    ? "Optimizing image…"
+    : processing
+      ? progress.stage
+        ? uploadStageLabels[progress.stage]
+        : processingLabel
+      : progress.phase === "success"
+        ? "Upload complete"
+        : failed
+          ? progress.stage
+            ? `Stopped: ${uploadStageLabels[progress.stage].replace(/…$/, "")}`
+            : "Upload interrupted"
+          : label;
   return (
     <div
       className="file-upload-status"
@@ -114,11 +122,13 @@ export function FileUploadStatus({
           <span role="status">{title}</span>
         </span>
         <strong aria-hidden="true">
-          {preparing ? "WebP" : processing
-            ? "Working"
-            : progress.percent !== null
-              ? `${progress.percent}%`
-              : "…"}
+          {preparing
+            ? "WebP"
+            : processing
+              ? "Working"
+              : progress.percent !== null
+                ? `${progress.percent}%`
+                : "…"}
         </strong>
       </div>
       <div
@@ -133,7 +143,13 @@ export function FileUploadStatus({
             : undefined
         }
         aria-valuetext={
-          preparing ? "Converting to WebP below 800 KB before upload." : processing ? progress.stage ? uploadStageLabels[progress.stage] : "Files sent. Preparing your upload." : undefined
+          preparing
+            ? "Converting to WebP below 800 KB before upload."
+            : processing
+              ? progress.stage
+                ? uploadStageLabels[progress.stage]
+                : "Files sent. Preparing your upload."
+              : undefined
         }
         data-indeterminate={processing || progress.percent === null}
       >
@@ -147,15 +163,17 @@ export function FileUploadStatus({
       </div>
       <div className="file-upload-status-detail">
         <span>
-          {preparing ? "Preparing a smaller image before upload." : processing
-            ? "Please keep this window open."
-            : progress.phase === "success"
-              ? "Your file is saved and ready."
-              : failed
-                ? "Your selected file is still here."
-                : progress.total
-                  ? `${formatFileSize(progress.loaded)} of ${formatFileSize(progress.total)}`
-                  : "Sending your files…"}
+          {preparing
+            ? "Preparing a smaller image before upload."
+            : processing
+              ? "Please keep this window open."
+              : progress.phase === "success"
+                ? "Your file is saved and ready."
+                : failed
+                  ? "Your selected file is still here."
+                  : progress.total
+                    ? `${formatFileSize(progress.loaded)} of ${formatFileSize(progress.total)}`
+                    : "Sending your files…"}
         </span>
         {failed && onRetry && (
           <NeumorphicButton size="sm" onClick={onRetry}>
@@ -196,22 +214,38 @@ export function DynamicFileInput({
     null,
   );
   const [preparing, setPreparing] = useState(false);
-  const preparation = useRef<{ controller: AbortController; generation: number } | null>(null);
+  const preparation = useRef<{
+    controller: AbortController;
+    generation: number;
+  } | null>(null);
   const generation = useRef(0);
-  useEffect(() => () => { generation.current++; preparation.current?.controller.abort(); preparation.current = null; }, []);
+  useEffect(
+    () => () => {
+      generation.current++;
+      preparation.current?.controller.abort();
+      preparation.current = null;
+    },
+    [],
+  );
   useEffect(() => {
     const form = native.current?.form;
     if (!form) return;
     const guard = (event: Event) => {
       if (!preparation.current) return;
-      event.preventDefault(); event.stopImmediatePropagation();
-      setSelectionError("Your image is being optimized. Please wait a moment before saving.");
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      setSelectionError(
+        "Your image is being optimized. Please wait a moment before saving.",
+      );
     };
     form.addEventListener("submit", guard, true);
     return () => form.removeEventListener("submit", guard, true);
   }, []);
   const busy =
-      preparing || progress?.phase === "preparing" || progress?.phase === "uploading" || progress?.phase === "processing",
+      preparing ||
+      progress?.phase === "preparing" ||
+      progress?.phase === "uploading" ||
+      progress?.phase === "processing",
     unavailable = disabled || busy;
   useEffect(() => {
     let disposed = false,
@@ -240,24 +274,42 @@ export function DynamicFileInput({
     }
     setSelectionError("");
     if (file && kind === "image") {
-      const controller = new AbortController(), job = ++generation.current;
-      preparation.current = { controller, generation: job }; setPreparing(true);
+      const controller = new AbortController(),
+        job = ++generation.current;
+      preparation.current = { controller, generation: job };
+      setPreparing(true);
       try {
-        const { optimizeImageFile } = await import("@/lib/uploads/optimize-image");
-        const optimized = await optimizeImageFile(file, { signal: controller.signal });
+        const { optimizeImageFile } =
+          await import("@/lib/uploads/optimize-image");
+        const optimized = await optimizeImageFile(file, {
+          signal: controller.signal,
+        });
         if (controller.signal.aborted || generation.current !== job) return;
         if (native.current) {
-          try { const transfer = new DataTransfer(); transfer.items.add(optimized); native.current.files = transfer.files; }
-          catch { native.current.value = ""; }
+          try {
+            const transfer = new DataTransfer();
+            transfer.items.add(optimized);
+            native.current.files = transfer.files;
+          } catch {
+            native.current.value = "";
+          }
         }
-        setSelectionError(""); onChange(optimized);
+        setSelectionError("");
+        onChange(optimized);
       } catch (error) {
         if (!controller.signal.aborted && generation.current === job) {
-          setSelectionError(error instanceof Error ? error.message : "This image could not be prepared.");
+          setSelectionError(
+            error instanceof Error
+              ? error.message
+              : "This image could not be prepared.",
+          );
           if (native.current) native.current.value = "";
         }
       } finally {
-        if (generation.current === job) { preparation.current = null; setPreparing(false); }
+        if (generation.current === job) {
+          preparation.current = null;
+          setPreparing(false);
+        }
       }
     } else {
       onChange(file);
@@ -275,7 +327,11 @@ export function DynamicFileInput({
     }
     const file = event.dataTransfer.files[0];
     if (!validateSelectedFile(file, accept, maxBytes) && native.current) {
-      try { native.current.files = event.dataTransfer.files; } catch { /* Controlled forms still use the selected File. */ }
+      try {
+        native.current.files = event.dataTransfer.files;
+      } catch {
+        /* Controlled forms still use the selected File. */
+      }
     }
     void choose(file);
   }
@@ -288,7 +344,12 @@ export function DynamicFileInput({
   const selected = Boolean(value || existingUrl || existingName),
     filename =
       value?.name ?? existingName ?? (existingUrl ? "Current image" : "");
-  const Icon = kind === "audio" ? MusicNoteIcon : PictureIcon;
+  const Icon =
+    kind === "image"
+      ? PictureIcon
+      : kind === "audio"
+        ? MusicNoteIcon
+        : UploadIcon;
   return (
     <div
       className={cn(
@@ -372,7 +433,10 @@ export function DynamicFileInput({
             />
           )}
           {selected && (
-            <span className="dynamic-file-art-check" data-saved={(!value && selected) || progress?.phase === "success"}>
+            <span
+              className="dynamic-file-art-check"
+              data-saved={(!value && selected) || progress?.phase === "success"}
+            >
               <CheckIcon />
             </span>
           )}
@@ -383,7 +447,9 @@ export function DynamicFileInput({
               ? filename
               : kind === "audio"
                 ? "A new sound starts here."
-                : "Give your sound an image."}
+                : kind === "image"
+                  ? "Give your sound an image."
+                  : "Add the complete archive."}
           </strong>
           <p>
             {value
@@ -393,7 +459,13 @@ export function DynamicFileInput({
                 : "Drag a file here or choose from your device"}
           </p>
           <span className="dynamic-file-limit">
-            {kind === "audio" ? "WAV audio" : "PNG · JPEG · WebP"}
+            {kind === "audio"
+              ? accept.toLowerCase().includes("mp3")
+                ? "MP3 audio"
+                : "WAV audio"
+              : kind === "image"
+                ? "PNG · JPEG · WebP"
+                : "ZIP archive"}
             <span aria-hidden="true"> · </span>
             {formatFileSize(maxBytes)} maximum
           </span>
@@ -414,7 +486,9 @@ export function DynamicFileInput({
               size="sm"
               variant="quiet"
               disabled={unavailable}
-              onClick={() => { void choose(null); }}
+              onClick={() => {
+                void choose(null);
+              }}
               aria-label={`Remove ${label}`}
             >
               <CloseIcon />
@@ -425,14 +499,29 @@ export function DynamicFileInput({
       </div>
       <p id={`${id}-hint`} className="dynamic-file-hint">
         {hint ?? "Choose an original file from your device."}
-        {kind === "image" && <span className="block">Automatically converted to WebP below 800 KB before upload.</span>}
+        {kind === "image" && (
+          <span className="block">
+            Automatically converted to WebP below 800 KB before upload.
+          </span>
+        )}
       </p>
       {message && (
         <p id={`${id}-error`} className="dynamic-file-feedback" role="alert">
           {message}
         </p>
       )}
-      {preparing ? <FileUploadStatus progress={{ phase: "preparing", loaded: 0, total: null, percent: null }} /> : progress && <FileUploadStatus progress={progress} onRetry={onRetry} />}
+      {preparing ? (
+        <FileUploadStatus
+          progress={{
+            phase: "preparing",
+            loaded: 0,
+            total: null,
+            percent: null,
+          }}
+        />
+      ) : (
+        progress && <FileUploadStatus progress={progress} onRetry={onRetry} />
+      )}
     </div>
   );
 }

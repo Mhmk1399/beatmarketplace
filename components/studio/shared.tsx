@@ -24,14 +24,14 @@ export async function apiRequest<T>(url: string, init?: RequestInit & { quiet?: 
   const done = !quiet && typeof window !== "undefined" && /^\/(admin|studio|dashboard)(\/|$)/.test(location.pathname) ? startGlobalLoading(init?.method && init.method !== "GET" ? (init.body instanceof FormData ? "Uploading your files…" : "Saving changes…") : "Loading your workspace…") : () => {};
   const controller = new AbortController(), abort = () => controller.abort();
   init?.signal?.addEventListener("abort", abort, { once: true }); if (init?.signal?.aborted) controller.abort();
-  const timeout = setTimeout(abort, init?.body instanceof FormData ? 150_000 : 25_000);
+  const timeout = setTimeout(abort, init?.body instanceof FormData || init?.body instanceof Blob ? 150_000 : 25_000);
   try {
   if (requestInit.body instanceof FormData && Array.from(requestInit.body.values()).some(value => value instanceof File && (/^image\//i.test(value.type) || /\.(png|jpe?g|webp)$/i.test(value.name)))) {
     onUploadProgress?.({ phase: "preparing", loaded: 0, total: null, percent: null });
     const { prepareImageFormData } = await import("@/lib/uploads/optimize-image");
     requestInit.body = await prepareImageFormData(requestInit.body, controller.signal);
   }
-  const response = requestInit.body instanceof FormData && onUploadProgress
+  const response = (requestInit.body instanceof FormData || requestInit.body instanceof Blob) && onUploadProgress
     ? await uploadRequest(url, requestInit, controller.signal, onUploadProgress)
     : await fetch(url, { cache: "no-store", ...requestInit, signal: controller.signal });
   const data = await response.json().catch(() => null);

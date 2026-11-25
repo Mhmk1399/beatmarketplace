@@ -7,7 +7,7 @@ export function useFileUpload() {
   const [progress, setProgress] = useState<FileUploadProgress>(idleUpload);
   const current = useRef<AbortController | null>(null);
   useEffect(() => () => { const active = current.current; current.current = null; active?.abort(); }, []);
-  const upload = useCallback(async <T,>(url: string, body: FormData, method = "POST", headers?: HeadersInit): Promise<T> => {
+  const upload = useCallback(async <T,>(url: string, body: FormData | Blob, method = "POST", headers?: HeadersInit): Promise<T> => {
     if (current.current) throw new Error("An upload is already in progress.");
     const controller = new AbortController(); current.current = controller;
     setProgress({ ...idleUpload, phase: "uploading", percent: 0 });

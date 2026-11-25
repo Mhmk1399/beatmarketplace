@@ -2,64 +2,155 @@ import { readSecureJson } from "@/lib/security/request";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
-import { marketplaceError, MarketplaceError, requireMarketplaceRole, serializeStudioLicense } from "@/lib/marketplace/server";
-import { contractPatchSchema, objectIdSchema } from "@/lib/marketplace/validation";
+import {
+  marketplaceError,
+  MarketplaceError,
+  requireMarketplaceRole,
+  serializeStudioLicense,
+} from "@/lib/marketplace/server";
+import {
+  contractPatchSchema,
+  objectIdSchema,
+} from "@/lib/marketplace/validation";
 import ContractModel from "@/models/Contract";
 import TrackModel from "@/models/Track";
 
-export async function PATCH(request: Request, context: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
   try {
     const authentication = await requireMarketplaceRole(request, "PRODUCER");
     if (!authentication.ok) return authentication.response;
     const id = objectIdSchema.parse((await context.params).id);
-    const data = contractPatchSchema.parse(await readSecureJson(request, 131072));
-    const contract = await ContractModel.findOne({ _id: id, producerId: authentication.user._id });
-    if (!contract) throw new MarketplaceError("This license could not be found.", 404);
-    if (!contract.isActive) throw new MarketplaceError("An inactive license cannot be edited. Create a new license instead.", 409);
-    if (data.expectedVersion !== undefined && contract.version !== data.expectedVersion) throw new MarketplaceError("This license changed. Refresh before editing again.", 409);
+    const data = contractPatchSchema.parse(
+      await readSecureJson(request, 131072),
+    );
+    const contract = await ContractModel.findOne({
+      _id: id,
+      producerId: authentication.user._id,
+    });
+    if (!contract)
+      throw new MarketplaceError("This license could not be found.", 404);
+    if (!contract.isActive)
+      throw new MarketplaceError(
+        "An inactive license cannot be edited. Create a new license instead.",
+        409,
+      );
+    if (
+      data.expectedVersion !== undefined &&
+      contract.version !== data.expectedVersion
+    )
+      throw new MarketplaceError(
+        "This license changed. Refresh before editing again.",
+        409,
+      );
     const trackIds = data.trackIds ?? contract.trackIds.map(String);
-    const ownedCount = await TrackModel.countDocuments({ _id: { $in: trackIds }, producerId: authentication.user._id, status: { $ne: "ARCHIVED" } });
-    if (ownedCount !== trackIds.length) throw new MarketplaceError("Select only your own available tracks.", 403);
+    const formats =
+      data.formats ??
+      contract.filesToDeliver
+        .map((file) => file.format)
+        .filter((format): format is "MP3" | "WAV" | "STEMS" =>
+          ["MP3", "WAV", "STEMS"].includes(format),
+        );
+    const readiness = formats.map((format) =>
+      format === "WAV"
+        ? {
+            $or: [
+              { "deliveryReady.wav": true },
+              { deliveryReady: { $exists: false } },
+            ],
+          }
+        : { [`deliveryReady.${format.toLowerCase()}`]: true },
+    );
+    const ownedCount = await TrackModel.countDocuments({
+      _id: { $in: trackIds },
+      producerId: authentication.user._id,
+      status: { $ne: "ARCHIVED" },
+      $and: readiness,
+    });
+    if (ownedCount !== trackIds.length)
+      throw new MarketplaceError("Select only your own available tracks.", 403);
     if (data.description !== undefined) contract.description = data.description;
     if (data.territory !== undefined) contract.territory = data.territory;
     if (data.title !== undefined) contract.title = data.title;
-    if (data.price !== undefined) contract.price = mongoose.Types.Decimal128.fromString(data.price);
+    if (data.price !== undefined)
+      contract.price = mongoose.Types.Decimal128.fromString(data.price);
     if (data.currency !== undefined) contract.currency = data.currency;
-    if (data.trackIds !== undefined) contract.trackIds = data.trackIds.map((trackId) => new mongoose.Types.ObjectId(trackId));
-    if (data.formats !== undefined) contract.filesToDeliver = data.formats.map((format) => ({ format, label: "Uncompressed WAV master", required: true }));
-    if (data.licenseType !== undefined) contract.terms.licenseType = data.licenseType;
-    if (data.streamingLimit !== undefined) contract.terms.streamingLimit = data.streamingLimit;
-    if (data.distributionLimit !== undefined) contract.terms.distributionLimit = data.distributionLimit;
-    if (data.customTerms !== undefined) contract.terms.customTerms = data.customTerms;
-    if (data.musicVideoLimit !== undefined) contract.terms.musicVideoLimit = data.musicVideoLimit;
-    if (data.commercialUse !== undefined) contract.terms.commercialUse = data.commercialUse;
-    if (data.creditRequired !== undefined) contract.terms.creditRequired = data.creditRequired;
-    if (data.creditText !== undefined) contract.terms.creditText = data.creditText;
-    if (data.livePerformance !== undefined) contract.terms.livePerformance = data.livePerformance;
-    if (data.broadcastRights !== undefined) contract.terms.broadcastRights = data.broadcastRights;
-    if (data.contentIdAllowed !== undefined) contract.terms.contentIdAllowed = data.contentIdAllowed;
-    if (data.termMonths !== undefined) contract.terms.termMonths = data.termMonths;
-    if (data.royaltyPercent !== undefined) contract.terms.royaltyPercent = data.royaltyPercent;
-    if (data.publishingSharePercent !== undefined) contract.terms.publishingSharePercent = data.publishingSharePercent;
-    if (data.governingLaw !== undefined) contract.terms.governingLaw = data.governingLaw;
+    if (data.trackIds !== undefined)
+      contract.trackIds = data.trackIds.map(
+        (trackId) => new mongoose.Types.ObjectId(trackId),
+      );
+    if (data.formats !== undefined)
+      contract.filesToDeliver = data.formats.map((format) => ({
+        format,
+        label:
+          format === "WAV"
+            ? "Uncompressed WAV master"
+            : format === "MP3"
+              ? "Full-quality MP3"
+              : "ZIP stems archive",
+        required: true,
+      }));
+    if (data.licenseType !== undefined)
+      contract.terms.licenseType = data.licenseType;
+    if (data.streamingLimit !== undefined)
+      contract.terms.streamingLimit = data.streamingLimit;
+    if (data.distributionLimit !== undefined)
+      contract.terms.distributionLimit = data.distributionLimit;
+    if (data.customTerms !== undefined)
+      contract.terms.customTerms = data.customTerms;
+    if (data.musicVideoLimit !== undefined)
+      contract.terms.musicVideoLimit = data.musicVideoLimit;
+    if (data.commercialUse !== undefined)
+      contract.terms.commercialUse = data.commercialUse;
+    if (data.creditRequired !== undefined)
+      contract.terms.creditRequired = data.creditRequired;
+    if (data.creditText !== undefined)
+      contract.terms.creditText = data.creditText;
+    if (data.livePerformance !== undefined)
+      contract.terms.livePerformance = data.livePerformance;
+    if (data.broadcastRights !== undefined)
+      contract.terms.broadcastRights = data.broadcastRights;
+    if (data.contentIdAllowed !== undefined)
+      contract.terms.contentIdAllowed = data.contentIdAllowed;
+    if (data.termMonths !== undefined)
+      contract.terms.termMonths = data.termMonths;
+    if (data.royaltyPercent !== undefined)
+      contract.terms.royaltyPercent = data.royaltyPercent;
+    if (data.publishingSharePercent !== undefined)
+      contract.terms.publishingSharePercent = data.publishingSharePercent;
+    if (data.governingLaw !== undefined)
+      contract.terms.governingLaw = data.governingLaw;
     contract.version += 1;
     await contract.save();
     return NextResponse.json({ contract: serializeStudioLicense(contract) });
-  } catch (error) { return marketplaceError(error); }
+  } catch (error) {
+    return marketplaceError(error);
+  }
 }
 
-export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ id: string }> },
+) {
   try {
     const authentication = await requireMarketplaceRole(request, "PRODUCER");
     if (!authentication.ok) return authentication.response;
     const id = objectIdSchema.parse((await context.params).id);
-    const contract = await ContractModel.findOne({ _id: id, producerId: authentication.user._id });
-    if (!contract) throw new MarketplaceError("This license could not be found.", 404);
+    const contract = await ContractModel.findOne({
+      _id: id,
+      producerId: authentication.user._id,
+    });
+    if (!contract)
+      throw new MarketplaceError("This license could not be found.", 404);
     if (contract.isActive) {
       contract.isActive = false;
       contract.version += 1;
       await contract.save();
     }
     return NextResponse.json({ contract: serializeStudioLicense(contract) });
-  } catch (error) { return marketplaceError(error); }
+  } catch (error) {
+    return marketplaceError(error);
+  }
 }

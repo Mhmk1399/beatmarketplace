@@ -50,12 +50,12 @@ export function uploadRequest(url: string, init: RequestInit, signal: AbortSigna
       xhr.open(init.method ?? "POST", url, true);
       xhr.withCredentials = init.credentials === "include";
       const headers = new Headers(init.headers);
-      // Let the browser generate the multipart boundary.
-      headers.delete("Content-Type");
+      // Let the browser generate the multipart boundary, but preserve raw-file MIME types.
+      if (init.body instanceof FormData) headers.delete("Content-Type");
       headers.forEach((value, name) => xhr.setRequestHeader(name, value));
       signal.addEventListener("abort", abort, { once: true });
       report({ phase: "uploading", loaded: 0, total: null, percent: 0 });
-      xhr.send(init.body as FormData);
+      xhr.send(init.body as XMLHttpRequestBodyInit);
     } catch (error) { fail(error instanceof Error ? error : new Error("Upload could not start.")); }
   });
 }

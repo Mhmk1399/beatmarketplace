@@ -2,6 +2,7 @@
 
 import { DynamicSelect } from "@/components/ui/dynamic/DynamicSelect";
 import { ProducerPicker } from "@/components/admin/ProducerPicker";
+import { CollaborationPicker } from "@/components/studio/CollaborationPicker";
 import { DynamicMultiSelect } from "@/components/ui/dynamic/DynamicMultiSelect";
 import {
   DynamicFileInput,
@@ -64,6 +65,11 @@ export function TrackEditor({
   admin?: boolean;
 }) {
   const [producerId, setProducerId] = useState(track?.producerId ?? "");
+  const [collaborators, setCollaborators] = useState<
+    { id: string; name: string; status?: string }[]
+  >([]);
+  const [collaboratorsReady, setCollaboratorsReady] = useState(admin || !track);
+  const [includeCollaborators, setIncludeCollaborators] = useState(!track);
   const [moodIds, setMoodIds] = useState(track?.moodIds ?? []),
     [instrumentIds, setInstrumentIds] = useState(track?.instrumentIds ?? []);
   const [choices, setChoices] = useState<{
@@ -74,7 +80,7 @@ export function TrackEditor({
     title: track?.title ?? "",
     description: track?.description ?? "",
     bpm: String(track?.bpm ?? 120),
-    musicalKey: track ? normalizeMusicalKey(track.musicalKey) ?? "" : "",
+    musicalKey: track ? (normalizeMusicalKey(track.musicalKey) ?? "") : "",
     genreId: track?.genre?.id ?? "",
     tags: track?.tags.join(", ") ?? "",
     previewStartSeconds: track?.previewStartSeconds ?? 0,
@@ -84,6 +90,8 @@ export function TrackEditor({
     explicit: track?.explicit ?? false,
   });
   const [master, setMaster] = useState<File | null>(null);
+  const [fullMp3, setFullMp3] = useState<File | null>(null);
+  const [stems, setStems] = useState<File | null>(null);
   const [artwork, setArtwork] = useState<File | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [duration, setDuration] = useState(track?.durationSeconds ?? 0);
@@ -130,6 +138,18 @@ export function TrackEditor({
   const close = useCallback(() => {
     if (!saving) onClose();
   }, [onClose, saving]);
+  const changeCollaborators = useCallback(
+    (value: { id: string; name: string; status?: string }[]) => {
+      setCollaborators(value);
+      setCollaboratorsReady(true);
+      setIncludeCollaborators(true);
+    },
+    [],
+  );
+  const collaborationHydrationFailed = useCallback(
+    () => setCollaboratorsReady(true),
+    [],
+  );
 
   useEffect(() => {
     if (!audioUrl) return;
@@ -234,16 +254,32 @@ export function TrackEditor({
           .split(",")
           .map((value) => value.trim())
           .filter(Boolean),
+        ...(!admin && includeCollaborators
+          ? { collaboratorIds: collaborators.map((value) => value.id) }
+          : {}),
       }),
     );
     if (master) form.set("master", master);
+    if (fullMp3) form.set("fullMp3", fullMp3);
+    if (stems) form.set("stems", stems);
     if (artwork) form.set("artwork", artwork);
     try {
       const endpoint = admin ? "/api/admin/tracks" : "/api/tracks";
       const url = track ? `${endpoint}/${track.id}` : endpoint;
       const method = track ? "PATCH" : "POST";
-      const identity = submissionRef.current.identify({ url, method, data: String(form.get("data")), master, artwork });
-      await fileUpload.upload(url, form, method, { Accept: UPLOAD_PROGRESS_TYPE, "X-Upload-Request-Id": identity });
+      const identity = submissionRef.current.identify({
+        url,
+        method,
+        data: String(form.get("data")),
+        master,
+        fullMp3,
+        stems,
+        artwork,
+      });
+      await fileUpload.upload(url, form, method, {
+        Accept: UPLOAD_PROGRESS_TYPE,
+        "X-Upload-Request-Id": identity,
+      });
       setRetryAvailable(false);
       toast.success(
         values.status === "PUBLISHED" ? "Track published" : "Track saved",
@@ -252,7 +288,11 @@ export function TrackEditor({
       onSaved();
     } catch (error) {
       setError(errorMessage(error));
-      setRetryAvailable(!(error instanceof ApiRequestError) || error.status >= 500 || [408, 429].includes(error.status));
+      setRetryAvailable(
+        !(error instanceof ApiRequestError) ||
+          error.status >= 500 ||
+          [408, 429].includes(error.status),
+      );
     } finally {
       setSaving(false);
     }
@@ -267,11 +307,26 @@ export function TrackEditor({
       description="Keep the full master private. Choose the 30 seconds that buyers can hear."
       size="lg"
     >
-      <form onSubmit={save} onChange={() => { if (!saving) setRetryAvailable(false); }} className="min-w-0 space-y-6" aria-busy={saving}>
+      <form
+        onSubmit={save}
+        onChange={() => {
+          if (!saving) setRetryAvailable(false);
+        }}
+        className="min-w-0 space-y-6"
+        aria-busy={saving}
+      >
         <fieldset disabled={saving} className="min-w-0 space-y-6">
           <legend className="sr-only">Track information</legend>
           {admin && !track && (
             <ProducerPicker value={producerId} onChange={setProducerId} />
+          )}
+          {!admin && (
+            <CollaborationPicker
+              trackId={track?.id}
+              value={collaborators}
+              onChange={changeCollaborators}
+              onHydrationFailure={collaborationHydrationFailed}
+            />
           )}
           <div className="grid gap-5 sm:grid-cols-2">
             <DynamicFileInput
@@ -303,13 +358,58 @@ export function TrackEditor({
               existingUrl={track?.artworkUrl}
               hint="Square artwork is recommended. Images automatically fill cover cards; edges may be cropped. Required when publishing."
             />
+            <DynamicFileInput
+              name="fullMp3"
+              label="Full MP3 (optional)"
+              kind="audio"
+              accept=".mp3,audio/mpeg"
+              maxBytes={30 * 1024 * 1024}
+              value={fullMp3}
+              onChange={(file) => {
+                fileUpload.reset();
+                setFullMp3(file);
+                setError("");
+              }}
+              disabled={saving}
+              existingName={
+                track?.deliveryReady?.mp3 ? "Saved full MP3 · Ready" : undefined
+              }
+              hint="Optional buyer download. Encrypted before storage and never used as the public preview."
+            />
+            <DynamicFileInput
+              name="stems"
+              label="ZIP stems (optional)"
+              kind="file"
+              accept=".zip,application/zip,application/x-zip-compressed"
+              maxBytes={100 * 1024 * 1024}
+              value={stems}
+              onChange={(file) => {
+                fileUpload.reset();
+                setStems(file);
+                setError("");
+              }}
+              disabled={saving}
+              existingName={
+                track?.deliveryReady?.stems
+                  ? "Saved stems ZIP · Ready"
+                  : undefined
+              }
+              hint="Optional complete stems archive. The server validates and encrypts it without extracting its contents."
+            />
           </div>
           <div ref={uploadStatusRef}>
             <FileUploadStatus
               progress={fileUpload.progress}
               label="Uploading beat files"
               processingLabel="Preparing your beat and preview…"
-              onRetry={retryAvailable && !saving ? () => uploadStatusRef.current?.closest<HTMLFormElement>("form")?.requestSubmit() : undefined}
+              onRetry={
+                retryAvailable && !saving
+                  ? () =>
+                      uploadStatusRef.current
+                        ?.closest<HTMLFormElement>("form")
+                        ?.requestSubmit()
+                  : undefined
+              }
             />
           </div>
 
@@ -446,8 +546,14 @@ export function TrackEditor({
                   onChange={(event) => update("musicalKey", event.target.value)}
                   className={controlClass}
                 >
-                  <option value="" disabled>Select musical key</option>
-                  {MUSICAL_KEY_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+                  <option value="" disabled>
+                    Select musical key
+                  </option>
+                  {MUSICAL_KEY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </DynamicSelect>
               )}
             </Field>
@@ -503,8 +609,21 @@ export function TrackEditor({
             )}
           </Field>
           <label className="neo-inset flex min-h-14 items-start gap-3 rounded-[var(--radius-control)] p-4 text-sm">
-            <input type="checkbox" checked={values.explicit} onChange={(event) => update("explicit", event.target.checked)} className="mt-1 size-4 accent-[var(--accent)]" />
-            <span><strong className="block text-[var(--text)]">Explicit content</strong><span className="mt-1 block text-xs leading-5 text-muted">Mark this when the lyrics or audio contain explicit language or themes. Buyers will see an explicit label.</span></span>
+            <input
+              type="checkbox"
+              checked={values.explicit}
+              onChange={(event) => update("explicit", event.target.checked)}
+              className="mt-1 size-4 accent-[var(--accent)]"
+            />
+            <span>
+              <strong className="block text-[var(--text)]">
+                Explicit content
+              </strong>
+              <span className="mt-1 block text-xs leading-5 text-muted">
+                Mark this when the lyrics or audio contain explicit language or
+                themes. Buyers will see an explicit label.
+              </span>
+            </span>
           </label>
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Moods">
@@ -581,23 +700,36 @@ export function TrackEditor({
           </div>
         </fieldset>
         {error && <RequestError message={error} />}
-        {error && <p className="text-sm text-muted">Your selected files and track details are still here. {retryAvailable ? "Retry when you’re ready." : "Review the error before saving again."}</p>}
+        {error && (
+          <p className="text-sm text-muted">
+            Your selected files and track details are still here.{" "}
+            {retryAvailable
+              ? "Retry when you’re ready."
+              : "Review the error before saving again."}
+          </p>
+        )}
         {saving && (
           <p role="status" className="text-sm text-[var(--muted)]">
-            Keep this window open until your track is saved. Preview preparation may take a moment.
+            Keep this window open until your track is saved. Preview preparation
+            may take a moment.
           </p>
         )}
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <NeumorphicButton onClick={close} disabled={saving}>
             Cancel
           </NeumorphicButton>
-          <NeumorphicButton type="submit" variant="accent" disabled={saving}>
+          <NeumorphicButton
+            type="submit"
+            variant="accent"
+            disabled={saving || !collaboratorsReady}
+          >
             {saving
               ? "Saving…"
-              : retryAvailable ? "Retry upload"
-              : values.status === "PUBLISHED"
-                ? "Publish track"
-                : "Save track"}
+              : retryAvailable
+                ? "Retry upload"
+                : values.status === "PUBLISHED"
+                  ? "Publish track"
+                  : "Save track"}
           </NeumorphicButton>
         </div>
       </form>

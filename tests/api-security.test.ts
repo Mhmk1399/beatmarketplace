@@ -57,7 +57,7 @@ test("API attack regression checks with isolated local boundaries", async t => {
     queries++;
     const value = String(filter._id) === String(orderId) && String(filter.buyerId) === String(buyer) && filter.status === status
       ? { status, gatewayMode, items: [{ master, title: "Purchased" }] } : null;
-    return { select: async (selection: string) => { assert.equal(selection, "+items.master"); return value; } };
+    return { select: async (selection: string) => { assert.equal(selection, "+items.master +items.deliverables"); return value; } };
   });
   const token = signAccessToken({ id: String(buyer), roles: ["USER"] });
   const url = `http://localhost/api/orders/${orderId}/download?item=0`;

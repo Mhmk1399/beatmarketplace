@@ -29,6 +29,11 @@ function validateLogin(fields: LoginFields) {
   return errors;
 }
 
+function loginDestination() {
+  const next = new URLSearchParams(window.location.search).get("next");
+  return next && /^\/sound-kits\/[a-f\d]{24}$/i.test(next) ? next : "/";
+}
+
 export function LoginForm() {
   const router = useRouter();
   const { refresh, status } = useAuth();
@@ -39,7 +44,7 @@ export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated") router.replace("/");
+    if (status === "authenticated") router.replace(loginDestination());
   }, [router, status]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -78,7 +83,7 @@ export function LoginForm() {
 
       await refresh();
       toast.success("Welcome back", "Your session is ready.");
-      router.replace("/");
+      router.replace(loginDestination());
       router.refresh();
     } catch {
       const message = "We could not reach the server. Check your connection and try again.";

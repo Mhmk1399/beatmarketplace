@@ -10,6 +10,7 @@ import {
 import { TableIdentity } from "@/components/ui/dynamic/DynamicTable";
 import { controlClass } from "@/components/studio/shared";
 import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
+import { SoundKitPurchases } from "@/components/dashboard/SoundKitPurchases";
 type Order = {
   id: string;
   status: string;
@@ -24,6 +25,7 @@ type Order = {
     price: number;
     terms?: string;
     downloadUrl: string | null;
+    downloads?: { format: string; url: string }[];
     agreementUrl?: string | null;
   }[];
 };
@@ -38,7 +40,14 @@ export function OrdersWorkspace({
   const [to, setTo] = useState("");
   const [beat, setBeat] = useState("");
   const [license, setLicense] = useState("");
-  const filters = new URLSearchParams({ scope, ...(scope === "producer" || downloads ? { status: "PAID" } : {}), ...(from ? { from } : {}), ...(to ? { to } : {}), ...(beat ? { beat } : {}), ...(license ? { license } : {}) });
+  const filters = new URLSearchParams({
+    scope,
+    ...(scope === "producer" || downloads ? { status: "PAID" } : {}),
+    ...(from ? { from } : {}),
+    ...(to ? { to } : {}),
+    ...(beat ? { beat } : {}),
+    ...(license ? { license } : {}),
+  });
   const config: ResourceConfig<Order> = {
     title:
       scope === "producer"
@@ -46,18 +55,71 @@ export function OrdersWorkspace({
         : downloads
           ? "Downloads"
           : scope === "personal"
-          ? "Purchases & licenses"
-          : "Orders & payments",
+            ? "Purchases & licenses"
+            : "Orders & payments",
     description:
       scope === "producer"
         ? "Sales of your beats. Amounts are gross sales before any settlement or platform fees."
         : downloads
           ? "Paid purchases with their full-quality WAV files and saved license agreements."
-        : "Verified payment status and order records. Test transactions are labeled separately.",
+          : "Verified payment status and order records. Test transactions are labeled separately.",
     endpoint: "/api/workspace/orders",
     query: filters.toString(),
     searchable: scope !== "producer",
-    toolbar: scope === "producer" ? <div className="workspace-sales-filters"><label><span>From</span><input aria-label="Sales from date" type="date" value={from} onChange={event => setFrom(event.target.value)} className={controlClass} /></label><label><span>To</span><input aria-label="Sales to date" type="date" value={to} min={from || undefined} onChange={event => setTo(event.target.value)} className={controlClass} /></label><label><span>Beat</span><input aria-label="Filter by beat" value={beat} onChange={event => setBeat(event.target.value)} maxLength={160} placeholder="Beat title" className={controlClass} /></label><label><span>License</span><input aria-label="Filter by license" value={license} onChange={event => setLicense(event.target.value)} maxLength={160} placeholder="License name" className={controlClass} /></label><NeumorphicLink href={`/api/workspace/orders?${new URLSearchParams({ ...Object.fromEntries(filters), format: "csv" })}`} size="sm">Export CSV</NeumorphicLink></div> : undefined,
+    toolbar:
+      scope === "producer" ? (
+        <div className="workspace-sales-filters">
+          <label>
+            <span>From</span>
+            <input
+              aria-label="Sales from date"
+              type="date"
+              value={from}
+              onChange={(event) => setFrom(event.target.value)}
+              className={controlClass}
+            />
+          </label>
+          <label>
+            <span>To</span>
+            <input
+              aria-label="Sales to date"
+              type="date"
+              value={to}
+              min={from || undefined}
+              onChange={(event) => setTo(event.target.value)}
+              className={controlClass}
+            />
+          </label>
+          <label>
+            <span>Beat</span>
+            <input
+              aria-label="Filter by beat"
+              value={beat}
+              onChange={(event) => setBeat(event.target.value)}
+              maxLength={160}
+              placeholder="Beat title"
+              className={controlClass}
+            />
+          </label>
+          <label>
+            <span>License</span>
+            <input
+              aria-label="Filter by license"
+              value={license}
+              onChange={(event) => setLicense(event.target.value)}
+              maxLength={160}
+              placeholder="License name"
+              className={controlClass}
+            />
+          </label>
+          <NeumorphicLink
+            href={`/api/workspace/orders?${new URLSearchParams({ ...Object.fromEntries(filters), format: "csv" })}`}
+            size="sm"
+          >
+            Export CSV
+          </NeumorphicLink>
+        </div>
+      ) : undefined,
     label: (order) => `Order ${order.id.slice(-8)}`,
     columns: [
       {
@@ -122,15 +184,38 @@ export function OrdersWorkspace({
                 </pre>
               </details>
             )}
-            {item.agreementUrl && <div className="flex flex-wrap gap-4"><a href={item.agreementUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-accent-text underline">View agreement</a><a href={`${item.agreementUrl}&download=1`} className="inline-flex min-h-11 items-center font-semibold text-accent-text underline">Download agreement</a></div>}
-            {item.downloadUrl && (
-              <a
-                href={item.downloadUrl}
-                className="neo-button neo-button-accent inline-flex min-h-11 items-center rounded-[var(--radius-control)] px-4 text-sm font-bold"
-              >
-                Download WAV
-              </a>
+            {item.agreementUrl && (
+              <div className="flex flex-wrap gap-4">
+                <a
+                  href={item.agreementUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center font-semibold text-accent-text underline"
+                >
+                  View agreement
+                </a>
+                <a
+                  href={`${item.agreementUrl}&download=1`}
+                  className="inline-flex min-h-11 items-center font-semibold text-accent-text underline"
+                >
+                  Download agreement
+                </a>
+              </div>
             )}
+            {(item.downloads?.length
+              ? item.downloads
+              : item.downloadUrl
+                ? [{ format: "WAV", url: item.downloadUrl }]
+                : []
+            ).map((file) => (
+              <a
+                key={file.format}
+                href={file.url}
+                className="neo-button neo-button-accent mr-2 inline-flex min-h-11 items-center rounded-[var(--radius-control)] px-4 text-sm font-bold"
+              >
+                Download {file.format === "STEMS" ? "stems ZIP" : file.format}
+              </a>
+            ))}
           </article>
         ))}
         {order.referenceId && (
@@ -141,13 +226,31 @@ export function OrdersWorkspace({
       </div>
     ),
   };
-  return <ResourceManager config={config} />;
+  return (
+    <div className="space-y-6">
+      <ResourceManager config={config} />
+      {scope === "personal" && <SoundKitPurchases downloads={downloads} />}
+    </div>
+  );
 }
 function formatTerms(value: string) {
   try {
     const saved = JSON.parse(value);
     if (!saved.terms || !saved.title) return value;
-    return [saved.title, `License version: ${saved.version}`, `Type: ${saved.terms.licenseType}`, saved.description || "", ...conditionRows(licenseConditions(saved.terms, saved.territory)).map(([key,value])=>`${key}: ${value}`), `Files included: ${(saved.filesToDeliver ?? []).map((file: {format:string})=>file.format).join(" + ")}`, "Additional producer terms:", saved.terms.customTerms || "None."].filter(Boolean).join("\n");
+    return [
+      saved.title,
+      `License version: ${saved.version}`,
+      `Type: ${saved.terms.licenseType}`,
+      saved.description || "",
+      ...conditionRows(licenseConditions(saved.terms, saved.territory)).map(
+        ([key, value]) => `${key}: ${value}`,
+      ),
+      `Files included: ${(saved.filesToDeliver ?? []).map((file: { format: string }) => file.format).join(" + ")}`,
+      "Additional producer terms:",
+      saved.terms.customTerms || "None.",
+    ]
+      .filter(Boolean)
+      .join("\n");
   } catch {
     return value;
   }
