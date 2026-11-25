@@ -3,6 +3,14 @@ import * as THREE from "three";
 type BackdropOptions = { section: HTMLElement; motion: MediaQueryList; onState: (ready: boolean) => void };
 export type HeroBackdropController = { dispose: () => void; syncMotion: () => void };
 
+const ribbonCount = 5;
+const modalSelector = '[aria-modal="true"], dialog[open]';
+const qualityTiers = [
+  { name: "standard", dpr: 1.2, pixels: 1_350_000, fraction: 1, idleFps: 30, activeFps: 60 },
+  { name: "low", dpr: 1, pixels: 640_000, fraction: .67, idleFps: 30, activeFps: 30 },
+  { name: "adaptive", dpr: .8, pixels: 360_000, fraction: .44, idleFps: 20, activeFps: 30 },
+] as const;
+
 const vertexShader = /* glsl */ `
   uniform float uTime;
   uniform float uScroll;
@@ -12,347 +20,380 @@ const vertexShader = /* glsl */ `
   uniform float uMobile;
   uniform float uPixelRatio;
   uniform vec2 uPointer;
-  attribute float aAlong;
-  attribute float aAcross;
-  attribute float aRibbon;
-  attribute float aGlow;
+  attribute float aStyle;
   varying float vLight;
   varying float vTone;
   varying float vQuiet;
   varying float vCore;
-  varying float vGlow;
+  varying float vStyle;
 
-  vec3 ribbonPath(float s, float ribbon) {
-    float t = uTime * 0.13;
-    float scrub = uScroll;
-    float morph = uMorph;
-    if (ribbon < 0.5) {
-      float x = -1.35 + s * 2.7;
-      float y = mix(-0.73, -0.84, uMobile) + sin(s * 5.7 - t + scrub * 2.3) * 0.17;
-      y += sin(s * 11.0 + morph * 0.7 - scrub) * 0.045;
-      y += scrub * 0.12 - uPointer.y * 0.035;
-      return vec3(x, y, sin(s * 5.0 + t) * 0.15);
+  // The tangent comes from the same phases as the path, with no neighboring vertex samples.
+  void ribbonPath(float s, float band, out vec3 center, out vec2 direction) {
+    float time = uTime * .15;
+    float shape = sin(uMorph * 2.094395);
+    if (band < .5) {
+      float a = s * 6.8 - time + uScroll * 2.8;
+      float b = s * 12.6 + uMorph - uScroll;
+      center = vec3(-1.45 + s * 2.90, -.76 + sin(a) * .21 + sin(b) * .042 + uScroll * .17, .16 * cos(a));
+      direction = vec2(2.90, cos(a) * 1.428 + cos(b) * .5292);
+    } else if (band < 1.5 || band > 3.5) {
+      float echo = step(3.5, band);
+      float a = s * 6.283185 - .85 + uScroll * .52 + echo * .54;
+      float wobble = a * 2.0 + time + uScroll * 1.8;
+      float radiusX = mix(.73, .84, uMobile) - echo * .20 + shape * .06;
+      float radiusY = mix(.64, .40, uMobile) - echo * .13;
+      float x = mix(.59, .04, uMobile) - echo * .24 + cos(a) * radiusX + sin(wobble) * .12;
+      float y = mix(.34, .39, uMobile) - echo * .22 + sin(a) * radiusY + cos(wobble) * .07 - uScroll * .15;
+      center = vec3(x, y, sin(a + time) * .24 - echo * .12);
+      direction = vec2(-sin(a) * radiusX + cos(wobble) * .24, cos(a) * radiusY - sin(wobble) * .14);
+    } else {
+      float lower = step(2.5, band);
+      float a = s * 7.7 + time + band + uScroll * 2.0;
+      float arch = sin(s * 3.141593);
+      float base = mix(1.0, -.42, lower);
+      float height = mix(-.33, .42, lower);
+      center = vec3(-1.42 + s * 2.84, base + sin(a) * .13 + arch * height + lower * uScroll * .13, cos(a) * .13 - lower * .15);
+      direction = vec2(2.84, cos(a) + cos(s * 3.141593) * height * 3.141593);
     }
-    if (ribbon < 1.5) {
-      float a = s * 6.0 - 0.65 + scrub * 0.46;
-      float center = mix(0.58, 0.0, uMobile);
-      float x = center + cos(a) * (mix(0.72, 0.86, uMobile) + morph * 0.055);
-      float y = mix(0.25, -0.08, uMobile) + sin(a) * (mix(0.86, 0.63, uMobile) + sin(morph) * 0.06);
-      x += sin(a * 2.0 + t + scrub * 3.0) * (0.13 + scrub * 0.06);
-      y += cos(a * 3.0 - t) * 0.09 - scrub * 0.14;
-      return vec3(x, y, sin(a * 1.5 + t) * 0.26);
-    }
-    float x = -1.3 + s * 2.7;
-    float y = 1.03 + sin(s * 7.4 + t + scrub * 2.4) * 0.15;
-    y -= pow(sin(s * 3.14159), 2.0) * 0.36;
-    return vec3(x, y, cos(s * 6.0 - t) * 0.12);
   }
 
   void main() {
-    float s = aAlong;
-    float b = aAcross;
-    vec3 center = ribbonPath(s, aRibbon);
-    vec2 direction = ribbonPath(s + 0.003, aRibbon).xy - ribbonPath(s - 0.003, aRibbon).xy;
-    vec2 tangent = normalize(vec2(direction.x * uAspect, direction.y) + vec2(0.0001));
-    vec2 normal = vec2(-tangent.y / uAspect, tangent.x);
-    float twist = s * 9.0 + aRibbon * 1.7 + uScroll * 2.6 + uMorph * 0.45;
-    twist += uPointer.x * 0.65 + uTime * 0.075;
-    float width = aRibbon < 0.5 ? 0.25 : aRibbon < 1.5 ? 0.22 : 0.19;
-    width *= 1.0 + sin(s * 9.0 + uScroll * 2.0) * 0.16;
-    float cross = b * width;
-    vec3 p = center;
-    p.xy += normal * cross * cos(twist);
-    p.z += cross * sin(twist) * 1.8;
-    p.xy += normal * sin(s * 13.0 + b * 3.0 - uTime * 0.7) * 0.009;
-    p.x += uPointer.x * (0.04 + sin(s * 4.0 + aRibbon) * 0.055);
-    p.y += uPointer.y * cos(s * 3.0 + aRibbon) * 0.07;
-    p.xy += normal * sin(s * 10.0 - uTime * 1.7) * uPulse * 0.035;
-    p.xy *= 1.0 / (1.0 - p.z * 0.12);
-    gl_Position = vec4(p.xy, p.z * 0.1, 1.0);
+    float s = position.x;
+    float b = position.y;
+    float band = position.z;
+    vec3 p;
+    vStyle = aStyle;
+    vTone = .5 + .5 * sin(s * 6.0 + band * 1.3 + uScroll + uTime * .16);
 
-    float edge = max(smoothstep(0.48, 0.94, abs(p.y)), smoothstep(0.54, 1.05, abs(p.x)));
-    float right = smoothstep(-0.35, 0.35, p.x);
-    vQuiet = mix(0.34, 1.0, max(right, edge));
-    if (uMobile > 0.5) vQuiet = mix(0.48, 1.0, max(smoothstep(0.40, 0.95, abs(p.x)), smoothstep(0.42, 0.92, abs(p.y))));
-    vCore = pow(max(0.0, 1.0 - abs(b)), 5.0);
-    vLight = 0.34 + 0.66 * (0.5 + 0.5 * cos(twist + b * 2.0));
-    vTone = 0.5 + 0.5 * sin(s * 5.0 + aRibbon * 1.4 + uScroll + uTime * 0.055);
-    vGlow = aGlow;
-    float sparkle = pow(max(0.0, sin(s * 61.0 + b * 15.0 + aRibbon * 7.0)), 12.0);
-    float fineSize = clamp(1.4 + vCore * 1.05 + sparkle * 1.8, 1.0, 5.0) * uPixelRatio;
-    gl_PointSize = mix(fineSize, mix(17.0, 13.0, uMobile) * uPixelRatio, aGlow);
+    if (aStyle > 1.5) {
+      // Small particles follow the overall perspective with a slower counter-drift.
+      float phase = s * 21.0 + b * 12.5;
+      p = vec3(s * 2.4 - 1.2, b, sin(phase) * .2);
+      p.x += sin(phase + uTime * .23) * .042 + uPointer.x * .08;
+      p.y += cos(phase + uTime * .18) * .037 + uScroll * .13 + uPointer.y * .09;
+      vCore = .10 + .32 * (sin(phase + uTime * .65) * .5 + .5);
+      vLight = .36 + .44 * vCore;
+      gl_PointSize = (1.45 + vCore * 3.9) * uPixelRatio;
+    } else {
+      vec2 direction;
+      ribbonPath(s, band, p, direction);
+      vec2 tangent = normalize(vec2(direction.x * uAspect, direction.y) + vec2(.0001));
+      vec2 normal = vec2(-tangent.y / uAspect, tangent.x);
+      float twist = s * 9.0 + band * 1.61 + uScroll * 2.4 + uMorph * .48 + uPointer.x * .7 + uTime * .11;
+      float broad = 1.0 - step(2.5, band);
+      float width = mix(.13, .25, broad) * (1.0 + sin(s * 8.2 + uScroll * 1.9) * .14);
+      float spread = b * width;
+      p.xy += normal * (spread * cos(twist) + sin(s * 11.0 - uTime * 1.8 + band) * uPulse * .044);
+      p.z += spread * sin(twist) * 1.6;
+      p.x += uPointer.x * (.085 + p.z * .10);
+      p.y += uPointer.y * (.055 + p.z * .10);
+      float core = max(0.0, 1.0 - abs(b));
+      vCore = core * core * core;
+      vLight = (.48 + .52 * cos(twist + b * 2.0) * .5) * mix(.66, 1.0, broad);
+      float sparkle = smoothstep(.85, 1.0, sin(s * 92.0 + b * 27.0 + band * 3.2 + uTime * 1.1));
+      gl_PointSize = mix(1.35 + vCore * 1.3 + sparkle * .85, 12.0 + sparkle * 4.5, aStyle) * uPixelRatio;
+    }
+
+    p.xy /= 1.0 - p.z * .13;
+    gl_Position = vec4(p.xy, p.z * .1, 1.0);
+    float edges = max(smoothstep(.5, 1.0, abs(p.y)), smoothstep(.58, 1.0, abs(p.x)));
+    float openSide = smoothstep(-.1, .65, p.x) * (1.0 - uMobile);
+    vQuiet = mix(mix(.24, .44, uMobile), 1.0, max(edges, openSide));
+  }
+`;
+
+const fragmentShared = /* glsl */ `
+  uniform vec3 uAccent;
+  uniform vec3 uBright;
+  uniform vec3 uHighlight;
+  varying float vLight;
+  varying float vTone;
+  varying float vQuiet;
+  varying float vCore;
+  varying float vStyle;
+
+  vec3 ribbonColor() {
+    vec3 color = mix(uAccent, uBright, vTone * .83);
+    return mix(color, uHighlight, vCore * .45);
   }
 `;
 
 const particleFragment = /* glsl */ `
-  uniform vec3 uAccent;
-  uniform vec3 uBright;
-  uniform vec3 uHighlight;
-  uniform float uOpacity;
-  varying float vLight;
-  varying float vTone;
-  varying float vQuiet;
-  varying float vCore;
-  varying float vGlow;
+  ${fragmentShared}
   void main() {
-    vec2 p = (gl_PointCoord - 0.5) * 2.0;
+    vec2 p = (gl_PointCoord - .5) * 2.0;
     float radius = dot(p, p);
-    if (radius > 1.0) discard;
-    vec3 color = mix(uAccent, uBright, vTone * 0.8);
-    color = mix(color, uHighlight, vCore * 0.38);
-    float fineAlpha = pow(1.0 - radius, 1.3) * (0.65 + vCore * 0.6);
-    float haloAlpha = exp(-radius * 4.8) * (1.0 - radius) * 0.095;
-    float alpha = mix(fineAlpha, haloAlpha, vGlow) * uOpacity * vQuiet * (0.55 + vLight * 0.6);
-    gl_FragColor = vec4(color, alpha);
+    if (radius >= 1.0) discard;
+    float falloff = 1.0 - radius;
+    float alpha = falloff * falloff * (.87 + vCore * .49);
+    if (vStyle > 1.5) alpha = falloff * falloff * (.40 + vCore * .41);
+    else if (vStyle > .5) alpha = falloff * falloff * falloff * .23;
+    gl_FragColor = vec4(ribbonColor(), alpha * vQuiet * (.44 + vLight));
     #include <colorspace_fragment>
   }
 `;
 
 const lineFragment = /* glsl */ `
-  uniform vec3 uAccent;
-  uniform vec3 uBright;
-  uniform vec3 uHighlight;
-  uniform float uOpacity;
-  varying float vLight;
-  varying float vTone;
-  varying float vQuiet;
-  varying float vCore;
+  ${fragmentShared}
   void main() {
-    vec3 color = mix(uAccent, uBright, vTone);
-    color = mix(color, uHighlight, vCore * 0.36);
-    gl_FragColor = vec4(color, uOpacity * vQuiet * (0.30 + vCore * 0.7) * vLight);
+    gl_FragColor = vec4(ribbonColor(), vQuiet * (.085 + vCore * .37) * vLight);
     #include <colorspace_fragment>
   }
 `;
 
-/** Three ribbons occupy the hero edges. Their only input is the user's movement. */
+function buildPoints(lowPower: boolean) {
+  const along = lowPower ? 116 : 166;
+  const rows = lowPower ? 9 : 14;
+  const count = along * rows * ribbonCount + 360;
+  const position = new Float32Array(count * 3);
+  const style = new Float32Array(count);
+  const fraction = (value: number) => value % 1;
+  for (let index = 0; index < 360; index++) {
+    const offset = index * 3;
+    if (index % 3 === 0) {
+      position[offset] = fraction(index * .618034);
+      position[offset + 1] = fraction(index * .414214) * 2 - 1;
+      style[index] = 2;
+    } else {
+      position[offset] = fraction(index * .754878);
+      position[offset + 1] = Math.sin(index * 2.4) * .12;
+      position[offset + 2] = index % ribbonCount;
+      style[index] = 1;
+    }
+  }
+  for (let row = 0; row < rows; row++) for (let band = 0; band < ribbonCount; band++) for (let step = 0; step < along; step++) {
+    const offset = (360 + ((row * ribbonCount + band) * along + step)) * 3;
+    position[offset] = (step + (row % 2) * .42) / along;
+    position[offset + 1] = fraction(row * .618034 + .5) * 2 - 1;
+    position[offset + 2] = band;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(position, 3));
+  geometry.setAttribute("aStyle", new THREE.BufferAttribute(style, 1));
+  return { geometry, rowSize: along * ribbonCount, rows };
+}
+
+function buildLines(lowPower: boolean) {
+  const segments = lowPower ? 80 : 124;
+  const strands = lowPower ? [0, -.78, .78, -.4, .4] : [0, -.82, .82, -.42, .42, -.63, .63, -.2, .2];
+  const count = (segments + 1) * strands.length * ribbonCount;
+  const position = new Float32Array(count * 3);
+  const indices = new Uint16Array(segments * strands.length * ribbonCount * 2);
+  let vertex = 0;
+  let index = 0;
+  for (const across of strands) for (let band = 0; band < ribbonCount; band++) for (let step = 0; step <= segments; step++) {
+    position[vertex * 3] = step / segments;
+    position[vertex * 3 + 1] = across;
+    position[vertex * 3 + 2] = band;
+    if (step < segments) { indices[index++] = vertex; indices[index++] = vertex + 1; }
+    vertex++;
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(position, 3));
+  geometry.setAttribute("aStyle", new THREE.BufferAttribute(new Float32Array(count), 1));
+  geometry.setIndex(new THREE.BufferAttribute(indices, 1));
+  return { geometry, strandSize: segments * ribbonCount * 2, strands: strands.length };
+}
+
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+/** The hero and listening room share one canvas, two draw calls and no post-processing. */
 export function createHeroBackdropScene(host: HTMLElement, { section, motion, onState }: BackdropOptions): HeroBackdropController {
   const canvas = document.createElement("canvas");
   canvas.className = "hero-backdrop-canvas";
   canvas.setAttribute("aria-hidden", "true");
-  const context = canvas.getContext("webgl2", { alpha: true, antialias: false, depth: false, stencil: false, powerPreference: "low-power" });
-  if (!context) { onState(false); return { dispose() {}, syncMotion() {} }; }
+  const context = canvas.getContext("webgl2", { alpha: true, antialias: false, depth: false, stencil: false, powerPreference: "low-power", failIfMajorPerformanceCaveat: true });
+  if (!context) return { dispose() {}, syncMotion() {} };
   let renderer: THREE.WebGLRenderer;
   try { renderer = new THREE.WebGLRenderer({ canvas, context, alpha: true, antialias: false }); }
-  catch { onState(false); return { dispose() {}, syncMotion() {} }; }
+  catch { return { dispose() {}, syncMotion() {} }; }
 
-  // Cache the preference: reading MediaQueryList.matches in every RAF can consume
-  // Chromium's pending change notification and prevent animation from resuming.
+  // Cache the media preference so it is never read on the animation path.
   let reducedMotion = motion.matches;
-  const device = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
-  const lowPower = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768 || (device.deviceMemory ?? 8) <= 4 || navigator.hardwareConcurrency <= 4 || Boolean(device.connection?.saveData);
-  let pixelRatio = Math.min(window.devicePixelRatio || 1, lowPower ? 1 : 1.35);
-  let targetFps = lowPower ? 24 : 36;
-  renderer.setPixelRatio(pixelRatio);
+  const device = navigator as Navigator & { deviceMemory?: number };
+  const lowPower = window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 768 || (device.deviceMemory ?? 8) <= 4 || navigator.hardwareConcurrency <= 4;
+  let quality = lowPower ? 1 : 0;
   renderer.setClearColor(0, 0);
   const scene = new THREE.Scene();
   const camera = new THREE.Camera();
   const theme = getComputedStyle(host);
   const color = (name: string) => new THREE.Color(theme.getPropertyValue(name).trim());
   const uniforms = {
-    uTime: { value: 0 }, uScroll: { value: .12 }, uMorph: { value: 0 }, uPulse: { value: 0 },
-    uAspect: { value: 1 }, uMobile: { value: lowPower ? 1 : 0 }, uPixelRatio: { value: pixelRatio }, uPointer: { value: new THREE.Vector2() },
-    uAccent: { value: color("--hero-ribbon-violet") }, uBright: { value: color("--hero-ribbon-pink") }, uHighlight: { value: color("--hero-ribbon-highlight") }, uOpacity: { value: .9 },
+    uTime: { value: 0 }, uScroll: { value: 0 }, uMorph: { value: 0 }, uPulse: { value: 0 },
+    uAspect: { value: 1 }, uMobile: { value: 0 }, uPixelRatio: { value: 1 }, uPointer: { value: new THREE.Vector2() },
+    uAccent: { value: color("--hero-ribbon-violet") }, uBright: { value: color("--hero-ribbon-pink") }, uHighlight: { value: color("--hero-ribbon-highlight") },
   };
 
-  const ribbonCount = 3;
-  const alongCount = lowPower ? 176 : 304;
-  const acrossCount = lowPower ? 22 : 38;
-  const finePointCount = alongCount * acrossCount * ribbonCount;
-  const pointCount = finePointCount + Math.floor(finePointCount / 24);
-  const along = new Float32Array(pointCount);
-  const across = new Float32Array(pointCount);
-  const ribbon = new Float32Array(pointCount);
-  const glow = new Float32Array(pointCount);
-  let fineIndex = 0;
-  for (let index = 0; index < pointCount; index++) {
-    if (index % 25 === 24) {
-      // Sparse soft sprites supply the luminous core without a bloom render pass.
-      const halo = Math.floor(index / 25);
-      along[index] = (Math.floor(halo / ribbonCount) * .61803398875) % 1;
-      across[index] = Math.sin(halo * 2.4) * .08;
-      ribbon[index] = halo % ribbonCount;
-      glow[index] = 1;
-    } else {
-      const point = Math.floor(fineIndex / ribbonCount);
-      along[index] = (point % alongCount) / (alongCount - 1);
-      const cross = ((Math.floor(point / alongCount) * .61803398875) % 1) * 2 - 1;
-      across[index] = Math.sign(cross) * Math.pow(Math.abs(cross), 1.35);
-      ribbon[index] = fineIndex % ribbonCount;
-      fineIndex++;
-    }
-  }
-  const pointGeometry = new THREE.BufferGeometry();
-  pointGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(pointCount * 3), 3));
-  pointGeometry.setAttribute("aAlong", new THREE.BufferAttribute(along, 1));
-  pointGeometry.setAttribute("aAcross", new THREE.BufferAttribute(across, 1));
-  pointGeometry.setAttribute("aRibbon", new THREE.BufferAttribute(ribbon, 1));
-  pointGeometry.setAttribute("aGlow", new THREE.BufferAttribute(glow, 1));
-  const pointMaterial = new THREE.ShaderMaterial({ uniforms, vertexShader, fragmentShader: particleFragment, transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending });
-  const points = new THREE.Points(pointGeometry, pointMaterial);
-  points.frustumCulled = false;
-  scene.add(points);
-
-  const segments = lowPower ? 112 : 192;
-  const strands = lowPower ? 9 : 16;
-  const lineCount = segments * strands * ribbonCount * 2;
-  const lineAlong = new Float32Array(lineCount);
-  const lineAcross = new Float32Array(lineCount);
-  const lineRibbon = new Float32Array(lineCount);
-  let offset = 0;
-  for (let strand = 0; strand < strands; strand++) for (let segment = 0; segment < segments; segment++) for (let layer = 0; layer < ribbonCount; layer++) {
-    const b = (strand / (strands - 1) * 2 - 1);
-    lineAlong[offset] = segment / segments;
-    lineAlong[offset + 1] = (segment + 1) / segments;
-    lineAcross[offset] = lineAcross[offset + 1] = b;
-    lineRibbon[offset] = lineRibbon[offset + 1] = layer;
-    offset += 2;
-  }
-  const lineGeometry = new THREE.BufferGeometry();
-  lineGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(lineCount * 3), 3));
-  lineGeometry.setAttribute("aAlong", new THREE.BufferAttribute(lineAlong, 1));
-  lineGeometry.setAttribute("aAcross", new THREE.BufferAttribute(lineAcross, 1));
-  lineGeometry.setAttribute("aGlow", new THREE.BufferAttribute(new Float32Array(lineCount), 1));
-  lineGeometry.setAttribute("aRibbon", new THREE.BufferAttribute(lineRibbon, 1));
-  const lineMaterial = new THREE.ShaderMaterial({ uniforms: { ...uniforms, uOpacity: { value: .37 } }, vertexShader, fragmentShader: lineFragment, transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending });
-  const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
-  lines.frustumCulled = false;
-  scene.add(lines);
+  const points = buildPoints(lowPower);
+  const lines = buildLines(lowPower);
+  const material = { uniforms, vertexShader, transparent: true, depthTest: false, depthWrite: false, blending: THREE.AdditiveBlending };
+  const pointMaterial = new THREE.ShaderMaterial({ ...material, fragmentShader: particleFragment });
+  const lineMaterial = new THREE.ShaderMaterial({ ...material, fragmentShader: lineFragment });
+  const pointMesh = new THREE.Points(points.geometry, pointMaterial);
+  const lineMesh = new THREE.LineSegments(lines.geometry, lineMaterial);
+  pointMesh.frustumCulled = lineMesh.frustumCulled = false;
+  scene.add(lineMesh, pointMesh);
   host.appendChild(canvas);
 
   let disposed = false;
   let lost = false;
+  let ready = false;
   let inView = false;
-  let blocked = Boolean(document.querySelector('[aria-modal="true"]'));
+  let blocked = Boolean(document.querySelector(modalSelector));
   let frame = 0;
   let lastFrame = 0;
-  let lastRender = 0;
+  let lastDraw = 0;
+  let renderDeadline = 0;
+  let activeUntil = 0;
   let time = 0;
-  let currentX = 0;
-  let currentY = 0;
   let targetX = 0;
   let targetY = 0;
-  let targetScroll = .12;
+  let targetScroll = 0;
   let targetMorph = 0;
   let pulse = 0;
-  let renderCost = 0;
-  let frameCount = 0;
   let slowFrames = 0;
-  let sectionTop = 0;
-  let sectionLeft = 0;
-  let sectionWidth = 1;
-  let sectionHeight = 1;
+  let sampleFrames = 0;
+  let renderCost = 0;
+  let top = 0;
+  let left = 0;
+  let width = 1;
+  let height = 1;
   let activePointer: number | null = null;
-  canvas.dataset.quality = lowPower ? "low" : "standard";
-  canvas.dataset.points = String(pointCount);
 
-  function render() {
-    if (disposed || lost) return;
-    const start = performance.now();
-    try {
-      renderer.render(scene, camera);
-      renderCost = renderCost * .96 + (performance.now() - start) * .04;
-      if (++frameCount > 120 && (renderCost > 12 || slowFrames > 10)) {
-        targetFps = 24;
-        pixelRatio = Math.max(.8, pixelRatio - .15);
-        renderer.setPixelRatio(pixelRatio);
-        uniforms.uPixelRatio.value = pixelRatio;
-        const previous = pointGeometry.drawRange.count === Infinity ? pointCount : pointGeometry.drawRange.count;
-        const count = Math.max(3072, Math.floor(previous * .78));
-        pointGeometry.setDrawRange(0, count);
-        canvas.dataset.points = String(count);
-        canvas.dataset.quality = "adaptive";
-        frameCount = 0;
-        slowFrames = 0;
-      }
-    } catch { lost = true; canvas.style.visibility = "hidden"; onState(false); }
+  function applyQuality() {
+    const tier = qualityTiers[quality];
+    const ratio = Math.min(window.devicePixelRatio || 1, tier.dpr, Math.sqrt(tier.pixels / (width * height)));
+    const pointCount = 360 + points.rowSize * Math.max(2, Math.round(points.rows * tier.fraction));
+    points.geometry.setDrawRange(0, pointCount);
+    lines.geometry.setDrawRange(0, lines.strandSize * Math.max(2, Math.round(lines.strands * tier.fraction)));
+    if (renderer.getPixelRatio() !== ratio) renderer.setPixelRatio(ratio);
+    renderer.setSize(width, height, false);
+    uniforms.uPixelRatio.value = ratio;
+    canvas.dataset.points = String(pointCount);
+    canvas.dataset.quality = tier.name;
   }
-  function update(delta: number, immediate = false) {
-    const ease = immediate ? 1 : 1 - Math.exp(-delta * 6.5);
-    currentX += (targetX - currentX) * ease;
-    currentY += (targetY - currentY) * ease;
-    uniforms.uPointer.value.set(currentX, currentY);
-    uniforms.uScroll.value += (targetScroll - uniforms.uScroll.value) * ease;
-    uniforms.uMorph.value += (targetMorph - uniforms.uMorph.value) * ease * .65;
-    pulse *= Math.exp(-delta * 3.4);
-    uniforms.uPulse.value = immediate ? 0 : pulse;
+
+  function showFallback() {
+    lost = true;
+    ready = false;
+    canvas.style.visibility = "hidden";
+    sync();
+    onState(false);
+  }
+
+  renderer.debug.onShaderError = showFallback;
+
+  function draw(delta: number) {
+    const ease = 1 - Math.exp(-delta * 8);
+    const pointer = uniforms.uPointer.value;
+    pointer.set(pointer.x + (targetX - pointer.x) * ease, pointer.y + (targetY - pointer.y) * ease);
+    uniforms.uScroll.value += (targetScroll - uniforms.uScroll.value) * ease * .8;
+    uniforms.uMorph.value += (targetMorph - uniforms.uMorph.value) * ease * .55;
+    pulse *= Math.exp(-delta * 2.9);
+    uniforms.uPulse.value = pulse;
     uniforms.uTime.value = time;
+    try {
+      const start = performance.now();
+      renderer.render(scene, camera);
+      renderCost = renderCost * .92 + (performance.now() - start) * .08;
+      if (!ready && !lost) { ready = true; onState(true); }
+    } catch { showFallback(); }
   }
-  function canRun() { return !disposed && !lost && inView && !document.hidden && !blocked && !reducedMotion; }
+
   function animate(now: number) {
     frame = 0;
-    if (!canRun()) return;
-    const frameDelay = now - lastFrame;
+    if (disposed || lost || !inView || document.hidden || blocked || reducedMotion) return;
+    if (now - lastFrame > (quality === 0 ? 35 : 48)) slowFrames++;
     lastFrame = now;
-    slowFrames = frameDelay > (lowPower ? 65 : 42) ? slowFrames + 1 : Math.max(0, slowFrames - .1);
-    const interval = 1000 / targetFps;
-    const elapsed = now - lastRender;
-    if (elapsed >= interval) {
-      const delta = Math.min(.08, elapsed / 1000);
-      lastRender = now - elapsed % interval;
+    if (++sampleFrames >= 72) {
+      const overloaded = slowFrames > 10 || renderCost > 9;
+      if (overloaded && quality < qualityTiers.length - 1) {
+        quality++;
+        applyQuality();
+      } else if (overloaded && (slowFrames > 24 || renderCost > 14)) {
+        // Keep native browsing responsive on devices that cannot sustain even the lowest budget.
+        showFallback();
+        return;
+      }
+      sampleFrames = slowFrames = 0;
+    }
+
+    const tier = qualityTiers[quality];
+    const interval = 1000 / (now < activeUntil ? tier.activeFps : tier.idleFps);
+    if (now - renderDeadline >= interval - 1.5) {
+      const delta = Math.min(.065, Math.max(0, now - lastDraw) * .001);
+      renderDeadline = Math.max(renderDeadline + interval, now - interval * .25);
+      lastDraw = now;
       time += delta;
-      update(delta);
-      render();
+      draw(delta);
     }
     if (!lost) frame = requestAnimationFrame(animate);
   }
+
   function sync() {
     cancelAnimationFrame(frame);
     frame = 0;
     canvas.dataset.motion = lost ? "lost" : blocked ? "covered" : document.hidden ? "hidden" : !inView ? "offscreen" : reducedMotion ? "reduced" : "running";
-    if (disposed || lost || !inView || document.hidden || blocked) return;
-    if (reducedMotion) { update(0, true); render(); }
-    else { lastRender = lastFrame = performance.now(); frame = requestAnimationFrame(animate); }
+    if (disposed || lost || !inView || document.hidden || blocked || reducedMotion) return;
+    lastFrame = lastDraw = renderDeadline = performance.now();
+    slowFrames = sampleFrames = renderCost = 0;
+    frame = requestAnimationFrame(animate);
   }
+
   function syncMotion() { reducedMotion = motion.matches; sync(); }
+
   function scroll() {
-    const top = sectionTop - window.scrollY;
-    targetScroll = Math.max(0, Math.min(1, (window.innerHeight * .18 - top) / (sectionHeight * .9)));
-    canvas.dataset.scroll = targetScroll.toFixed(3);
+    targetScroll = clamp((window.innerHeight * .18 + window.scrollY - top) / (height * .86), 0, 1);
+    activeUntil = performance.now() + 550;
   }
+
   function resize() {
     if (disposed || lost) return;
     const bounds = section.getBoundingClientRect();
-    sectionTop = bounds.top + window.scrollY;
-    sectionLeft = bounds.left;
-    sectionWidth = Math.max(1, bounds.width);
-    sectionHeight = Math.max(1, bounds.height);
-    const hostBounds = host.getBoundingClientRect();
-    if (!hostBounds.width || !hostBounds.height) return;
-    renderer.setSize(hostBounds.width, hostBounds.height, false);
-    uniforms.uAspect.value = hostBounds.width / hostBounds.height;
-    uniforms.uMobile.value = hostBounds.width < 768 ? 1 : 0;
+    top = bounds.top + window.scrollY;
+    left = bounds.left;
+    width = Math.max(1, Math.round(bounds.width));
+    height = Math.max(1, Math.round(bounds.height));
+    uniforms.uAspect.value = width / height;
+    uniforms.uMobile.value = width < 768 ? 1 : 0;
+    applyQuality();
     scroll();
-    if (inView && !blocked && !document.hidden) { if (reducedMotion) update(0, true); render(); }
   }
+
   function steer(event: PointerEvent) {
-    if (reducedMotion || (event.pointerType === "touch" && activePointer !== event.pointerId)) return;
-    targetX = Math.max(-1, Math.min(1, (event.clientX - sectionLeft) / sectionWidth * 2 - 1));
-    targetY = Math.max(-1, Math.min(1, 1 - (event.clientY - (sectionTop - window.scrollY)) / sectionHeight * 2));
-    canvas.dataset.pointer = `${targetX.toFixed(2)},${targetY.toFixed(2)}`;
+    if (lost || reducedMotion || (event.pointerType === "touch" && activePointer !== event.pointerId)) return;
+    targetX = clamp((event.clientX - left) / width * 2 - 1, -1, 1);
+    targetY = clamp(1 - (event.clientY + window.scrollY - top) / height * 2, -1, 1);
+    activeUntil = performance.now() + 650;
   }
+
   function pointerDown(event: PointerEvent) {
-    if (!event.isPrimary || event.button !== 0 || reducedMotion || (event.target instanceof Element && event.target.closest("a, button, input, select, textarea, [role='button']"))) return;
+    if (lost || reducedMotion || !event.isPrimary || event.button !== 0 || (event.target instanceof Element && event.target.closest("a, button, input, select, textarea, [role='button']"))) return;
     activePointer = event.pointerId;
     pulse = 1;
-    targetMorph = (targetMorph + 1) % 3;
-    canvas.dataset.variant = String(targetMorph);
+    targetMorph++;
     steer(event);
   }
+
   function resetPointer() { activePointer = null; targetX = targetY = 0; }
   function pointerUp(event: PointerEvent) { if (event.pointerType === "touch") resetPointer(); }
 
   const resizeObserver = new ResizeObserver(resize);
-  resizeObserver.observe(host);
-  const intersection = new IntersectionObserver(([entry]) => { inView = entry.isIntersecting; sync(); }, { threshold: .01 });
+  resizeObserver.observe(section);
+  const intersection = new IntersectionObserver(([entry]) => {
+    inView = entry.isIntersecting;
+    if (inView) blocked = Boolean(document.querySelector(modalSelector));
+    sync();
+  }, { threshold: .01 });
   intersection.observe(section);
   const modalObserver = new MutationObserver(() => {
-    const next = Boolean(document.querySelector('[aria-modal="true"]'));
+    if (!inView) return;
+    const next = Boolean(document.querySelector(modalSelector));
     if (next !== blocked) { blocked = next; sync(); }
   });
-  modalObserver.observe(document.body, { childList: true });
-  const onLost = (event: Event) => { event.preventDefault(); lost = true; canvas.style.visibility = "hidden"; sync(); onState(false); };
-  const onRestored = () => { lost = false; canvas.style.visibility = ""; resize(); onState(true); sync(); };
+  modalObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["open", "aria-modal"] });
+  const onLost = (event: Event) => { event.preventDefault(); showFallback(); };
+  const onRestored = () => { lost = false; canvas.style.visibility = ""; resize(); sync(); };
   canvas.addEventListener("webglcontextlost", onLost);
   canvas.addEventListener("webglcontextrestored", onRestored);
   section.addEventListener("pointermove", steer, { passive: true });
@@ -364,7 +405,7 @@ export function createHeroBackdropScene(host: HTMLElement, { section, motion, on
   window.addEventListener("resize", resize, { passive: true });
   document.addEventListener("visibilitychange", sync);
   resize();
-  onState(true);
+  uniforms.uScroll.value = targetScroll;
 
   return { syncMotion, dispose() {
     disposed = true;
@@ -380,7 +421,7 @@ export function createHeroBackdropScene(host: HTMLElement, { section, motion, on
     window.removeEventListener("scroll", scroll);
     window.removeEventListener("resize", resize);
     document.removeEventListener("visibilitychange", sync);
-    pointGeometry.dispose(); pointMaterial.dispose(); lineGeometry.dispose(); lineMaterial.dispose();
+    points.geometry.dispose(); pointMaterial.dispose(); lines.geometry.dispose(); lineMaterial.dispose();
     renderer.dispose(); renderer.forceContextLoss(); canvas.remove();
   } };
 }

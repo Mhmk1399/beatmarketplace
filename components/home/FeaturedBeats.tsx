@@ -23,11 +23,7 @@ import {
   useAudioActions,
   useAudioTransport,
 } from "@/components/audio/AudioPlayerProvider";
-import {
-  discountNow,
-  synchronizeDiscountClock,
-  useDiscountSecond,
-} from "@/components/discounts/clock";
+import { synchronizeDiscountClock, useDiscountSecond } from "@/components/discounts/clock";
 import { LicensePrice } from "@/components/discounts/LicensePrice";
 import { ArrowRightIcon, MusicNoteIcon } from "@/components/ui/icons";
 import {
@@ -38,7 +34,13 @@ import { effectiveLicensePrice } from "@/lib/marketplace/discounts";
 import type { MarketplaceTrack } from "@/lib/marketplace/types";
 import type { AudioTrack } from "@/lib/audio/types";
 import { marketplaceAudioTrack } from "@/lib/audio/marketplace-track";
-import type { HeroResponse, PublicHeroPlacement } from "@/lib/hero/types";
+import type { PublicHeroPlacement } from "@/lib/hero/types";
+
+export type FeaturedBeatsProps = {
+  placements: PublicHeroPlacement[];
+  tracks: MarketplaceTrack[];
+  serverTime: string;
+};
 
 function Chevron({ previous = false }: { previous?: boolean }) {
   return (
@@ -57,20 +59,15 @@ type HeroSlide = {
   id: string;
   label: string;
   audio: AudioTrack;
-  beat?: MarketplaceTrack;
+  beat: MarketplaceTrack;
+  sponsored: boolean;
 };
 
-function Cover({
-  audio,
-  decorative = false,
-}: {
-  audio: AudioTrack;
-  decorative?: boolean;
-}) {
+function Cover({ audio }: { audio: AudioTrack }) {
   return audio.coverUrl ? (
     <CoverImage
       src={audio.coverUrl}
-      alt={decorative ? "" : `${audio.title} cover artwork`}
+      alt={`${audio.title} cover artwork`}
       draggable={false}
       sizes="(max-width: 600px) 280px, 360px"
       className="hero-featured-cover-image"
@@ -81,131 +78,55 @@ function Cover({
     </div>
   );
 }
-function FeaturedCard({ selected, selectedIndex, total, selectedPlaying, onPlay, now }: { selected: HeroSlide; selectedIndex: number; total: number; selectedPlaying: boolean; onPlay: () => void; now: number }) {
-  const cheapest = selected?.beat
-    ? [...selected.beat.licenses]
-        .filter(
-          (license) =>
-            license.licenseType === "NON_EXCLUSIVE" &&
-            license.formats.length > 0 &&
-            license.formats.every((format) => format === "WAV"),
-        )
-        .sort(
-          (a, b) =>
-            effectiveLicensePrice(a, now) - effectiveLicensePrice(b, now),
-        )[0]
-    : null;
+function FeaturedCard({ slide, index, total, playing, onPlay, now }: { slide: HeroSlide; index: number; total: number; playing: boolean; onPlay: () => void; now: number }) {
+  const { beat, audio, label, sponsored } = slide;
+  const href = trackHref(beat);
+  const cheapest = beat.licenses
+    .filter(license => license.licenseType === "NON_EXCLUSIVE" && license.formats.length > 0 && license.formats.every(format => format === "WAV"))
+    .sort((a, b) => effectiveLicensePrice(a, now) - effectiveLicensePrice(b, now))[0];
 
-  return (<article
-                key={selected.id}
-                className="hero-featured-card hero-featured-card-main"
-                data-demo={!selected.beat}
-                role="group"
-                aria-roledescription="slide"
-                aria-label={`${selectedIndex + 1} of ${total}: ${selected.audio.title}`}
-              >
-                <div className="hero-featured-card-top">
-                  <span>{selected.label || "Producer spotlight"}</span>
-                  <span className="hero-featured-sponsored">
-                    {selected.beat ? "Sponsored" : "Full track"}
-                  </span>
-                </div>
-                <div className="hero-featured-art">
-                {selected.beat ? (
-                  <Link
-                    href={trackHref(selected.beat)}
-                    className="hero-featured-cover"
-                    aria-label={`View ${selected.audio.title} and licenses`}
-                    draggable={false}
-                  >
-                    <Cover audio={selected.audio} />
-                  </Link>
-                ) : (
-                  <NeumorphicButton
-                    className="hero-featured-cover"
-                    aria-label={`${selectedPlaying ? "Pause" : "Play"} cover ${selected.audio.title}`}
-                    onClick={onPlay}
-                  >
-                    <Cover audio={selected.audio} />
-                  </NeumorphicButton>
-                )}
-                  <AudioFavoriteButton track={selected.audio} className="hero-featured-favorite" />
-                </div>
-                <div className="hero-featured-track-row">
-                  <div className="hero-featured-track-copy">
-                    <h3>
-                      {selected.beat ? (
-                        <Link href={trackHref(selected.beat)}>
-                          {selected.audio.title}
-                        </Link>
-                      ) : (
-                        selected.audio.title
-                      )}
-                    </h3>
-                    <p>{selected.audio.artist}</p>
-                  </div>
-                  <NeumorphicButton
-                    variant="accent"
-                    className="hero-featured-play"
-                    aria-label={`${selectedPlaying ? "Pause" : "Play"} featured beat ${selected.audio.title}`}
-                    aria-pressed={selectedPlaying}
-                    disabled={!selected.audio.src}
-                    onClick={onPlay}
-                  >
-                    {selectedPlaying ? <PlayerPauseIcon /> : <PlayerPlayIcon />}
-                  </NeumorphicButton>
-                </div>
-                {selected.beat ? (
-                  <p className="hero-featured-metadata">
-                    <span>{selected.beat.genre?.name || "Original beat"}</span>
-                    <span>{selected.beat.bpm} BPM</span>
-                    <span>{selected.beat.musicalKey}</span>
-                  </p>
-                ) : (
-                  <p className="hero-featured-metadata">
-                    <span>Listening session</span>
-                    <span>MP3</span>
-                  </p>
-                )}
-                <div className="hero-featured-price">
-                  {selected.beat ? (
-                    <>
-                      <span>License from</span>
-                      {cheapest ? (
-                        <LicensePrice license={cheapest} />
-                      ) : (
-                        <Link href={trackHref(selected.beat)}>
-                          View licenses
-                        </Link>
-                      )}
-                    </>
-                  ) : (
-                    <p className="hero-featured-description">
-                      {selected.audio.description}
-                    </p>
-                  )}
-                </div>
-                <div className="hero-featured-audio">
-                  <div>
-                    <TrackSpectrum trackId={selected.audio.id} variant="bars" />
-                  </div>
-                  <span>
-                    {selected.beat ? "30s preview" : "30-second demo"}
-                  </span>
-                </div>
-              </article>);
+  return (
+    <article className="hero-featured-card hero-featured-card-main" role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${total}: ${audio.title}`}>
+      <div className="hero-featured-card-top">
+        <span>{label || "Producer spotlight"}</span>
+        {sponsored && <span className="hero-featured-sponsored">Sponsored</span>}
+      </div>
+      <div className="hero-featured-art">
+        <Link href={href} className="hero-featured-cover" aria-label={`View ${audio.title} and licenses`} draggable={false}>
+          <Cover audio={audio} />
+        </Link>
+        <AudioFavoriteButton track={audio} className="hero-featured-favorite" />
+      </div>
+      <div className="hero-featured-track-row">
+        <div className="hero-featured-track-copy">
+          <h3><Link href={href}>{audio.title}</Link></h3>
+          <p>{audio.artist}</p>
+        </div>
+        <NeumorphicButton variant="accent" className="hero-featured-play" aria-label={`${playing ? "Pause" : "Play"} featured beat ${audio.title}`} aria-pressed={playing} disabled={!audio.src} onClick={onPlay}>
+          {playing ? <PlayerPauseIcon /> : <PlayerPlayIcon />}
+        </NeumorphicButton>
+      </div>
+      <p className="hero-featured-metadata">
+        <span>{beat.genre?.name || "Original beat"}</span>
+        <span>{beat.bpm} BPM</span>
+        <span>{beat.musicalKey}</span>
+      </p>
+      <div className="hero-featured-price">
+        {cheapest ? <><span>License from</span><LicensePrice license={cheapest} /></> : <Link href={href}>View licenses</Link>}
+      </div>
+      <div className="hero-featured-audio">
+        <div><TrackSpectrum trackId={audio.id} variant="bars" /></div>
+        <span>30s preview</span>
+      </div>
+    </article>
+  );
 }
 
-export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; fallbackDemos?: AudioTrack[] }) {
+export function FeaturedBeats({ placements, tracks, serverTime }: FeaturedBeatsProps) {
   const player = useAudioTransport();
   const actions = useAudioActions();
-  const demoMode = Boolean(demos?.length);
   const hostRef = useRef<HTMLDivElement>(null);
   const advanceRef = useRef<(direction: number) => void>(() => {});
-  const [placements, setPlacements] = useState<PublicHeroPlacement[]>([]);
-  const [loading, setLoading] = useState(!demoMode);
-  const [error, setError] = useState("");
-  const [retry, setRetry] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -214,7 +135,7 @@ export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; 
   const [reducedMotion, setReducedMotion] = useState(true);
   const [autoPaused, setAutoPaused] = useState(false);
   const second = useDiscountSecond();
-  const now = second || discountNow();
+  const now = second || Date.parse(serverTime);
   const sponsored: HeroSlide[] = placements
         .filter(
           (placement) =>
@@ -226,11 +147,12 @@ export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; 
           label: placement.label,
           audio: marketplaceAudioTrack(placement.track),
           beat: placement.track,
+          sponsored: true,
         }));
-  const showingDemos = demoMode || sponsored.length === 0 && Boolean(fallbackDemos?.length);
-  const visible: HeroSlide[] = demoMode
-    ? demos!.map(audio => ({ id: audio.id, label: "Listening demo", audio }))
-    : sponsored.length ? sponsored : (fallbackDemos ?? []).map(audio => ({ id: audio.id, label: "Listening demo", audio }));
+  const visible: HeroSlide[] = sponsored.length ? sponsored : tracks.filter(beat => beat.previewUrl).slice(0, 5).map(beat => ({
+    id: beat.id, label: "New release", audio: marketplaceAudioTrack(beat), beat, sponsored: false,
+  }));
+  const queue = visible.map(item => item.audio);
   const signature = visible.map((placement) => placement.id).join("|");
   const selectedIndex = Math.max(
     0,
@@ -252,38 +174,7 @@ export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; 
     !selectedPlaying &&
     visible.length > 1;
 
-  useEffect(() => {
-    if (demoMode) return;
-    const controller = new AbortController();
-    fetch("/api/hero", { signal: controller.signal, cache: "no-store" })
-      .then(async (response) => {
-        const data = (await response.json()) as HeroResponse & {
-          error?: string;
-        };
-        if (!response.ok || !Array.isArray(data.placements))
-          throw new Error(
-            data.error || "Featured beats are taking a moment to load.",
-          );
-        if (controller.signal.aborted) return;
-        synchronizeDiscountClock(
-          data.serverTime ?? response.headers.get("date"),
-        );
-        setPlacements(data.placements.slice(0, 10));
-        setError("");
-      })
-      .catch((failure: unknown) => {
-        if (!controller.signal.aborted)
-          setError(
-            failure instanceof Error
-              ? failure.message
-              : "Featured beats are taking a moment to load.",
-          );
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-    return () => controller.abort();
-  }, [retry, demoMode]);
+  useEffect(() => { synchronizeDiscountClock(serverTime); }, [serverTime]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -332,10 +223,6 @@ export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; 
   function blur(event: FocusEvent<HTMLDivElement>) {
     if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
   }
-  function refresh() {
-    setLoading(true);
-    setRetry((value) => value + 1);
-  }
 
   return (
     <div
@@ -344,9 +231,8 @@ export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; 
       role="region"
       aria-roledescription="carousel"
       aria-label={
-        showingDemos ? "Featured listening demos" : "Featured sponsored beats"
+        sponsored.length ? "Featured sponsored beats" : "Recent beats"
       }
-      aria-busy={loading && !selected}
       onKeyDown={keyboard}
       onFocusCapture={() => setFocused(true)}
       onBlurCapture={blur}
@@ -356,44 +242,20 @@ export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; 
       onPointerLeave={() => setHovered(false)}
     >
       {selected && <div className="hero-featured-heading">
-        <div><h2>{showingDemos ? "Listening demos" : "Producer spotlight"}</h2><p className="hero-featured-context">{showingDemos ? "Full tracks · not for sale" : "Sponsored · 30-second previews"}</p></div>
+        <div><h2>{sponsored.length ? "Producer spotlight" : "Recent releases"}</h2><p className="hero-featured-context">30-second previews</p></div>
         <div className="hero-featured-tools"><span className="hero-featured-counter">{String(selectedIndex + 1).padStart(2,"0")} / {String(visible.length).padStart(2,"0")}</span>
-          {error && !demoMode && <NeumorphicButton variant="quiet" size="sm" className="hero-featured-retry" disabled={loading} aria-label="Retry featured placements" onClick={refresh}>Retry</NeumorphicButton>}
           <NeumorphicButton variant="quiet" size="sm" className="hero-featured-auto" disabled={visible.length < 2 || reducedMotion} aria-label={autoPaused ? "Resume automatic featured slides" : "Pause automatic featured slides"} aria-pressed={autoPaused} onClick={()=>setAutoPaused(value=>!value)}>{autoPaused ? <PlayerPlayIcon/> : <PlayerPauseIcon/>}</NeumorphicButton>
         </div>
       </div>}
-      {loading && !selected ? (
-        <div
-          className="hero-featured-placeholder hero-featured-loading"
-          role="status"
-          aria-label="Loading featured beats"
-        >
-          <div className="hero-featured-loading-art" />
-          <span />
-          <span />
-          <p>Finding your next sound…</p>
-        </div>
-      ) : !selected ? (
+      {!selected ? (
         <div className="hero-featured-placeholder">
           <MusicNoteIcon />
           <p className="hero-featured-empty-kicker">
             Independent sound. New possibilities.
           </p>
-          <h3>
-            {error
-              ? "The spotlight is taking a moment."
-              : "Your next discovery is waiting."}
-          </h3>
-          <p>
-            {error ||
-              "Explore original beats and find the sound that speaks to you."}
-          </p>
+          <h3>Your next discovery is waiting.</h3>
+          <p>Explore original beats and find the sound that speaks to you.</p>
           <div className="hero-featured-empty-actions">
-            {error && (
-              <NeumorphicButton size="sm" onClick={refresh}>
-                Try again
-              </NeumorphicButton>
-            )}
             <NeumorphicLink href="/marketplace" size="sm">
               Explore beats <ArrowRightIcon className="size-4" />
             </NeumorphicLink>
@@ -418,7 +280,7 @@ export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; 
             <div className="hero-featured-motion-window">
               <div ref={trackRef} className="hero-featured-cards-track" aria-live={rotating ? "off" : "polite"}>
                 {visible.map((slide, index) => <HeroCarouselSlot key={slide.id} id={slide.id} position={positions[index]?.position ?? 0} onRegister={registerSlot}>
-                  <FeaturedCard selected={slide} selectedIndex={index} total={visible.length} selectedPlaying={player.track?.id === slide.audio.id && player.playing} onPlay={() => actions.toggle(slide.audio, visible.map((item) => item.audio))} now={now} />
+                  <FeaturedCard slide={slide} index={index} total={visible.length} playing={player.track?.id === slide.audio.id && player.playing} onPlay={() => actions.toggle(slide.audio, queue)} now={now} />
                 </HeroCarouselSlot>)}
               </div>
             </div>
@@ -441,7 +303,6 @@ export function FeaturedBeats({ demos, fallbackDemos }: { demos?: AudioTrack[]; 
               </>
             )}
           </div>
-         
         </>
       )}
     </div>

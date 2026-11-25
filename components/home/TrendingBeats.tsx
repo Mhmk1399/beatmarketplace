@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { CoverImage } from "@/components/ui/CoverImage";
 import { AudioFavoriteButton } from "@/components/audio/AudioFavoriteButton";
 import {
@@ -18,44 +19,23 @@ import {
   NeumorphicButton,
   NeumorphicLink,
 } from "@/components/ui/neumorphic/Button";
-import { demoTracks } from "@/lib/audio/demo-tracks";
-import demoWaveforms from "@/lib/audio/demo-waveforms.json";
+import { marketplaceAudioTrack } from "@/lib/audio/marketplace-track";
 import { formatAudioTime } from "@/lib/audio/utils";
-
-// These are editorial demo selections, without invented play counts or sales rankings.
-const selections = demoTracks.slice(0, 4);
-const waveforms: Record<string, { durationSeconds: number; peaks: number[] }> =
-  demoWaveforms;
+import { trackHref } from "@/lib/marketplace/track-url";
+import type { MarketplaceTrack } from "@/lib/marketplace/types";
 
 function Waveform({ trackId, playing }: { trackId: string; playing: boolean }) {
-  const peaks = waveforms[trackId]?.peaks;
   return (
     <div
       className="trending-waveform"
       data-playing={playing}
       aria-hidden="true"
     >
-      {peaks && (
-        <svg
-          className="trending-waveform-preview"
-          viewBox="0 0 256 48"
-          preserveAspectRatio="none"
-        >
-          {peaks.map((peak, index) => {
-            const height = Math.max(2, peak * 38);
-            return (
-              <line
-                key={index}
-                x1={index * 4 + 2}
-                x2={index * 4 + 2}
-                y1={24 - height / 2}
-                y2={24 + height / 2}
-              />
-            );
-          })}
+      {playing ? <TrackSpectrum trackId={trackId} variant="bars" /> : (
+        <svg className="trending-waveform-preview" viewBox="0 0 256 48" preserveAspectRatio="none">
+          <line x1="2" y1="24" x2="254" y2="24" strokeDasharray="1 4" />
         </svg>
       )}
-      {playing && <TrackSpectrum trackId={trackId} variant="bars" />}
     </div>
   );
 }
@@ -81,9 +61,11 @@ function ParticleWave() {
   );
 }
 
-export function TrendingBeats() {
+export function TrendingBeats({ tracks, headphonesUrl }: { tracks: MarketplaceTrack[]; headphonesUrl: string | null }) {
   const transport = useAudioTransport();
   const actions = useAudioActions();
+  const selections = tracks.filter(beat => beat.previewUrl).slice(0, 4).map(beat => ({ beat, track: marketplaceAudioTrack(beat) }));
+  const queue = selections.map(({ track }) => track);
 
   return (
     <section
@@ -94,16 +76,17 @@ export function TrendingBeats() {
       <div className="music-home-container">
         <div className="trending-panel">
           <ParticleWave />
-          <div className="trending-headphones" aria-hidden="true">
+          {headphonesUrl && <div className="trending-headphones" aria-hidden="true">
             <Image
-              src="/assets/images/trending-headphones.webp"
+              src={headphonesUrl}
               alt=""
               width={640}
               height={616}
               sizes="(max-width: 699px) 150px, (max-width: 999px) 200px, 300px"
               draggable={false}
+              unoptimized
             />
-          </div>
+          </div>}
           <header className="trending-intro">
             <p className="trending-kicker">Listening picks</p>
             <h2 id="trending-beats-title">
@@ -112,8 +95,7 @@ export function TrendingBeats() {
               <span>next vibe.</span>
             </h2>
             <p className="trending-description">
-              A handpicked listening selection. 30-second demos to explore the
-              player, not offered for sale.
+              Hear original beats through 30-second previews chosen by their producers.
             </p>
           </header>
           <NeumorphicLink
@@ -124,14 +106,15 @@ export function TrendingBeats() {
           >
             <PlayerPlayIcon /> Explore all beats <ArrowRightIcon />
           </NeumorphicLink>
-          <ol
+          {selections.length ? <ol
             className="trending-playlist"
-            aria-label="Curated listening demos"
+            aria-label="Listening picks with previews"
           >
-            {selections.map((track) => {
+            {selections.map(({ beat, track }) => {
               const current = transport.track?.id === track.id;
               const playing = current && transport.playing;
               const buffering = current && transport.buffering;
+              const duration = formatAudioTime(beat.durationSeconds);
               return (
                 <li
                   key={track.id}
@@ -140,19 +123,12 @@ export function TrendingBeats() {
                   data-playing={playing}
                 >
                   <div className="trending-track-cover">
-                    {track.coverUrl && (
-                      <CoverImage
-                        src={track.coverUrl}
-                        alt=""
-                        sizes="(max-width: 699px) 48px, 72px"
-                        draggable={false}
-                      />
-                    )}
+                    <CoverImage src={track.coverUrl ?? ""} alt="" sizes="(max-width: 699px) 48px, 72px" />
                   </div>
                   <div className="trending-track-copy">
-                    <h3>{track.title}</h3>
+                    <h3><Link href={trackHref(beat)}>{track.title}</Link></h3>
                     <p>
-                      30-second demo <span aria-hidden="true">·</span> MP3
+                      {track.artist} <span aria-hidden="true">·</span> {beat.bpm} BPM
                     </p>
                   </div>
                   <Waveform
@@ -161,16 +137,16 @@ export function TrendingBeats() {
                   />
                   <span
                     className="trending-track-duration"
-                    aria-label={`Duration ${formatAudioTime(waveforms[track.id]?.durationSeconds ?? 0)}`}
+                    aria-label={`Full beat duration ${duration}`}
                   >
-                    {formatAudioTime(waveforms[track.id]?.durationSeconds ?? 0)}
+                    {duration}
                   </span>
                   <NeumorphicButton
                     variant="accent"
                     className="trending-track-play"
-                    aria-label={`${playing || buffering ? "Pause" : "Play"} trending beat ${track.title}`}
+                    aria-label={`${playing || buffering ? "Pause" : "Play"} preview for ${track.title}`}
                     aria-pressed={playing || buffering}
-                    onClick={() => actions.toggle(track, demoTracks)}
+                    onClick={() => actions.toggle(track, queue)}
                   >
                     {buffering ? (
                       <PlayerLoaderIcon className="trending-loader" />
@@ -188,7 +164,7 @@ export function TrendingBeats() {
                 </li>
               );
             })}
-          </ol>
+          </ol> : <div className="trending-playlist p-5 text-sm text-muted">New listening picks will appear as producers publish beats.</div>}
         </div>
       </div>
     </section>

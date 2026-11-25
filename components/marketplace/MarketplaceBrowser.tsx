@@ -15,7 +15,6 @@ import {
   ArrowRightIcon,
   ChevronDownIcon,
   CloseIcon,
-  GridIcon,
   MusicNoteIcon,
 } from "@/components/ui/icons";
 import {
@@ -78,18 +77,6 @@ function FilterIcon() {
     </svg>
   );
 }
-function ListIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9 5h12M9 12h12M9 19h12M3 5h.01M3 12h.01M3 19h.01"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 function Chevron({ previous = false }: { previous?: boolean }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -106,7 +93,7 @@ function Chevron({ previous = false }: { previous?: boolean }) {
 
 type Style = GenreStyle;
 function genreMatches(track: MarketplaceTrack, style: Style) {
-  if (style.id && track.genre?.id === style.id) return true;
+  if (style.id && track.genre?.id) return track.genre.id === style.id;
   const slug = track.genre?.name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
@@ -223,29 +210,20 @@ export function MarketplaceBrowser({
   const catalog = useBrowseCatalog(initialFilters);
   const { filters, taxonomy, tracks, loading, error } = catalog;
   const styles = getGenreStyles(taxonomy.genres);
-  const selectedStyle = styles.find(
-    (style) =>
-      genreAliases(style.slug).includes(filters.genre) ||
-      style.id === filters.genre,
-  );
-  const [view, setView] = useState<"shelves" | "list">("shelves");
+  const selectedStyle = styles.find(style => style.slug === filters.genre) ??
+    styles.find(style => genreAliases(style.slug).includes(filters.genre));
+  const selectedGenreName = selectedStyle?.name ?? genreName(filters.genre);
   const [allStyles, setAllStyles] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [draft, setDraft] = useState(filters);
   const [filterError, setFilterError] = useState("");
   const formId = useId();
-  const hasFilters = Boolean(
-    filters.q ||
-    filters.genre ||
-    filters.moodId ||
-    filters.key ||
-    filters.minBpm ||
-    filters.maxBpm ||
-    filters.sort !== "newest",
-  );
-  const filterCount = Object.entries(filters).filter(
-    ([key, value]) => value && !(key === "sort" && value === "newest"),
-  ).length;
+  const bpmLabel = filters.minBpm || filters.maxBpm
+    ? `${filters.minBpm || 20}–${filters.maxBpm || 400} BPM`
+    : "";
+  const priceLabel = filters.sort === "price-asc" ? "Lowest price" : filters.sort === "price-desc" ? "Highest price" : "";
+  const filterCount = [filters.genre, filters.moodId, filters.key, bpmLabel, priceLabel].filter(Boolean).length;
+  const hasFilters = Boolean(filters.q.trim() || filterCount);
   const queue = tracks.map(marketplaceAudioTrack);
   const shownStyles = allStyles ? styles : styles.slice(0, 5);
   const populated = styles.filter((style) =>
@@ -317,9 +295,10 @@ export function MarketplaceBrowser({
       });
     });
   }
-  function apply(event: FormEvent<HTMLFormElement>) {
+  function apply(event: FormEvent<HTMLFormElement>, field: "bpm" | "key" | "all") {
     event.preventDefault();
     if (
+      field !== "key" &&
       draft.minBpm &&
       draft.maxBpm &&
       Number(draft.minBpm) > Number(draft.maxBpm)
@@ -328,7 +307,9 @@ export function MarketplaceBrowser({
       return;
     }
     setFilterError("");
-    catalog.commit(draft);
+    if (field === "bpm") update({ minBpm: draft.minBpm, maxBpm: draft.maxBpm });
+    else if (field === "key") update({ key: draft.key });
+    else catalog.commit({ ...draft, q: filters.q });
     setFilterOpen(false);
     event.currentTarget.closest("details")?.removeAttribute("open");
   }
@@ -337,36 +318,47 @@ export function MarketplaceBrowser({
     setDraft({ ...emptyBrowseFilters });
   }
   function showFilters() {
-    setDraft(filters);
+    setDraft({ ...filters, genre: selectedStyle?.slug ?? filters.genre });
     setFilterError("");
     setFilterOpen(true);
   }
   function selectStyle(style: Style, compact = false) {
+    const cardClass = `market-genre-card ${compact ? "market-category" : "market-style-link"}`;
+    const content = (
+      <>
+        <span className="market-category-art" aria-hidden="true">
+          <CoverImage
+            src={style.thumbnailUrl ?? ""}
+            alt=""
+            position="center 35%"
+            sizes="(max-width: 699px) 50vw, 216px"
+          />
+        </span>
+        <span className="market-category-copy">
+          <strong dir="auto">{style.name}</strong>
+          {!compact && <span>{style.description}</span>}
+        </span>
+        {style.slug && (
+          <span className="market-category-arrow" aria-hidden="true">
+            {!compact && <span>View all</span>}
+            <ArrowRightIcon />
+          </span>
+        )}
+      </>
+    );
+    if (!style.slug) return <div className={cardClass}>{content}</div>;
+
     return (
       <NeumorphicLink
         key={style.slug}
         href={browseHref({ ...filters, genre: style.slug })}
         prefetch={false}
         variant="quiet"
-        className={compact ? "market-category" : "market-style-link"}
+        className={cardClass}
+        aria-label={compact ? `Explore ${style.name} beats` : `View all ${style.name} beats`}
         onClick={(event) => choose(event, style)}
       >
-        <span className="market-category-art">
-          <CoverImage
-            src={style.thumbnailUrl ?? `/assets/genres/${style.art}.svg`}
-            alt=""
-            sizes="(max-width:699px) 60px, 110px"
-          />
-        </span>
-        <span className="market-category-copy">
-          <strong>{style.name}</strong>
-          <span>{compact ? "Explore beats" : style.description}</span>
-        </span>
-        {compact && (
-          <span className="market-category-arrow">
-            <Chevron />
-          </span>
-        )}
+        {content}
       </NeumorphicLink>
     );
   }
@@ -376,6 +368,7 @@ export function MarketplaceBrowser({
         key={style.slug}
         className="market-shelf"
         aria-label={`${style.name} beats`}
+        data-single-beat={!loading && beats.length === 1}
       >
         {selectStyle(style)}
         <div className="market-shelf-cards">
@@ -403,15 +396,6 @@ export function MarketplaceBrowser({
             </div>
           )}
         </div>
-        <NeumorphicLink
-          href={browseHref({ ...filters, genre: style.slug })}
-          prefetch={false}
-          className="market-view-all"
-          onClick={(event) => choose(event, style)}
-          aria-label={`View all ${style.name} beats`}
-        >
-          View all <ArrowRightIcon />
-        </NeumorphicLink>
       </section>
     );
   }
@@ -459,7 +443,7 @@ export function MarketplaceBrowser({
           className="market-search"
           onSubmit={(event) => {
             event.preventDefault();
-            catalog.refresh();
+            catalog.submitSearch();
           }}
         >
           <NeumorphicButton
@@ -478,7 +462,7 @@ export function MarketplaceBrowser({
             value={filters.q}
             maxLength={160}
             placeholder="Search beats, producers, or tags…"
-            onChange={(event) => update({ q: event.target.value })}
+            onChange={(event) => catalog.commit({ ...filters, q: event.target.value }, "replace")}
           />
         </form>
         <div className="market-desktop-filters">
@@ -490,12 +474,10 @@ export function MarketplaceBrowser({
                 setFilterError("");
               }}
             >
-              <span>{filters.minBpm || filters.maxBpm
-                ? `${filters.minBpm || 20}–${filters.maxBpm || 400} BPM`
-                : "BPM"}</span>
+              <span>{bpmLabel || "BPM"}</span>
               <ChevronDownIcon />
             </summary>
-            <form onSubmit={apply} className="market-filter-popover">
+            <form onSubmit={(event) => apply(event, "bpm")} className="market-filter-popover">
               <label>
                 Minimum BPM
                 <input
@@ -539,7 +521,7 @@ export function MarketplaceBrowser({
               <span>{filters.key || "Key"}</span>
               <ChevronDownIcon />
             </summary>
-            <form onSubmit={apply} className="market-filter-popover">
+            <form onSubmit={(event) => apply(event, "key")} className="market-filter-popover">
               <label>
                 Musical key
                 <DynamicSelect
@@ -588,8 +570,9 @@ export function MarketplaceBrowser({
         </div>
      
         <NeumorphicButton
-          className="market-mobile-filter"
+          className="market-all-filters"
           aria-label="Open marketplace filters"
+          title="All filters"
           aria-haspopup="dialog"
           onClick={showFilters}
         >
@@ -600,10 +583,12 @@ export function MarketplaceBrowser({
       {hasFilters && (
         <div className="market-active-filters" aria-label="Active filters">
           <span>
-            {filters.genre ? genreName(filters.genre) : "Filtered beats"}
+            {filters.genre ? selectedGenreName : "Filtered beats"}
           </span>
-          {filters.q && <span>“{filters.q}”</span>}
+          {filters.q.trim() && <span>“{filters.q.trim()}”</span>}
           {filters.key && <span>{filters.key}</span>}
+          {bpmLabel && <span>{bpmLabel}</span>}
+          {priceLabel && <span>{priceLabel}</span>}
           {filters.moodId && (
             <span>
               {taxonomy.moods.find((mood) => mood.id === filters.moodId)
@@ -615,14 +600,14 @@ export function MarketplaceBrowser({
           </NeumorphicButton>
         </div>
       )}
-      <div className="market-content" data-view={view} aria-busy={loading}>
+      <div className="market-content" aria-busy={loading}>
         <h2
           id={`${formId}-results`}
           className={hasFilters ? "market-results-title" : "sr-only"}
           tabIndex={-1}
         >
           {filters.genre
-            ? `${genreName(filters.genre)} beats`
+            ? `${selectedGenreName} beats`
             : hasFilters
               ? "Your results"
               : "Browse original beats"}
@@ -633,6 +618,7 @@ export function MarketplaceBrowser({
             <div>
               <strong>The catalog is taking a moment.</strong>
               <p>{error}</p>
+              {tracks.length > 0 && <p>Showing the last loaded results.</p>}
             </div>
             <NeumorphicButton size="sm" onClick={catalog.refresh}>
               Try again
@@ -652,7 +638,13 @@ export function MarketplaceBrowser({
             </NeumorphicButton>
           </div>
         )}
-        {hasFilters || view === "list" ? (
+        {!hasFilters && !loading && (
+          <FeaturedRail
+            tracks={tracks}
+            demos={!tracks.length}
+          />
+        )}
+        {hasFilters ? (
           <>
             {!loading && !error && !tracks.length && (
               <div className="market-empty">
@@ -664,11 +656,7 @@ export function MarketplaceBrowser({
                 </NeumorphicButton>
               </div>
             )}
-            <div
-              className={
-                view === "list" ? "market-result-list" : "market-results-grid"
-              }
-            >
+            <div className="market-results-grid">
               {loading
                 ? [0, 1, 2, 3, 4, 5].map((index) => (
                     <div
@@ -677,8 +665,7 @@ export function MarketplaceBrowser({
                       aria-label="Loading beat"
                     />
                   ))
-                : !error &&
-                  tracks.map((track) => (
+                : tracks.map((track) => (
                     <BrowseBeatCard key={track.id} beat={track} queue={queue} />
                   ))}
             </div>
@@ -702,12 +689,6 @@ export function MarketplaceBrowser({
                 unknown,
               )}
           </div>
-        )}
-        {!hasFilters && !loading && (
-          <FeaturedRail
-            tracks={tracks}
-            demos={Boolean(error) || !tracks.length}
-          />
         )}
         {(catalog.page > 1 || catalog.hasMore) && (
           <nav className="market-pagination" aria-label="Catalog pages">
@@ -741,7 +722,15 @@ export function MarketplaceBrowser({
         presentation="sheet"
         size="md"
       >
-        <form onSubmit={apply} className="market-filter-sheet">
+        <form onSubmit={(event) => apply(event, "all")} className="market-filter-sheet">
+          {catalog.taxonomyError && (
+            <div className="market-filter-error" role="alert">
+              <p>Some filter options could not load.</p>
+              <NeumorphicButton type="button" size="sm" onClick={catalog.retryTaxonomy}>
+                Retry filter options
+              </NeumorphicButton>
+            </div>
+          )}
           <label>
             Genre
             <DynamicSelect

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { SearchIcon, PlusIcon, GridIcon } from "@/components/ui/icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -18,7 +18,36 @@ type StatusAction<T> = {
   description: (item: T) => string;
   payload: (item: T) => unknown;
 };
-export type ResourceConfig<T> = { renderCard?: (item: T, actions: { view: () => void; edit: () => void; remove: () => void }) => ReactNode; title: string; description: string; endpoint: string; columns: DynamicTableColumn<T>[]; label: (item: T) => string; details?: (item: T) => ReactNode; fields?: (item: T | null) => DynamicFormField<Values>[]; values?: (item: T | null) => Values; payload?: (values: Values, item: T | null) => unknown; createLabel?: string; deleteLabel?: string; deleteDescription?: string; emptyTitle?: string; emptyDescription?: string; canCreate?: boolean; canEdit?: boolean; canDelete?: boolean; statusAction?: StatusAction<T>; query?: string; searchable?: boolean; itemsKey?: string; pagination?: "cursor" | "offset"; toolbar?: ReactNode; summary?: (result: (ResourcePage<T> & Record<string, unknown>) | null, state: { loading: boolean; error: string }) => ReactNode; deletePayload?: (item: T) => unknown; editor?: (props: { item: T | null; onClose: () => void; onSaved: () => void }) => ReactNode };
+export type ResourceConfig<T> = {
+  renderCard?: (item: T, actions: { view: () => void; edit: () => void; remove: () => void }) => ReactNode;
+  title: string;
+  description: string;
+  endpoint: string;
+  columns: DynamicTableColumn<T>[];
+  label: (item: T) => string;
+  details?: (item: T) => ReactNode;
+  fields?: (item: T | null) => DynamicFormField<Values>[];
+  values?: (item: T | null) => Values;
+  payload?: (values: Values, item: T | null) => unknown;
+  createLabel?: string;
+  deleteLabel?: string;
+  deleteDescription?: string;
+  emptyTitle?: string;
+  emptyDescription?: string;
+  canCreate?: boolean;
+  canEdit?: boolean;
+  canDelete?: boolean;
+  statusAction?: StatusAction<T>;
+  query?: string;
+  searchable?: boolean;
+  refreshOnReturn?: boolean;
+  itemsKey?: string;
+  pagination?: "cursor" | "offset";
+  toolbar?: ReactNode;
+  summary?: (result: (ResourcePage<T> & Record<string, unknown>) | null, state: { loading: boolean; error: string }) => ReactNode;
+  deletePayload?: (item: T) => unknown;
+  editor?: (props: { item: T | null; onClose: () => void; onSaved: () => void }) => ReactNode;
+};
 export function ResourceManager<T extends { id: string; version?: number }>({ config }: { config: ResourceConfig<T> }) {
   const [layout, setLayout] = useState<"grid" | "list">(config.renderCard ? "grid" : "list");
   const [search, setSearch] = useState(""), [q, setQ] = useState("");
@@ -32,7 +61,6 @@ export function ResourceManager<T extends { id: string; version?: number }>({ co
   const searchParams = useSearchParams();
   const createRequested = searchParams.get("create") === "1";
   const editRequested = searchParams.get("edit");
-  const handledEdit = useRef("");
   useEffect(() => {
     if (!canCreate || !createRequested) return;
     const frame = requestAnimationFrame(() => {
@@ -49,7 +77,7 @@ export function ResourceManager<T extends { id: string; version?: number }>({ co
   if (config.pagination === "offset") { query.set("page", cursor || "1"); query.set("pageSize", "20"); }
   else { query.set("limit", "20"); if (cursor) query.set("cursor", cursor); }
   if (q) query.set("q", q);
-  const cached = useWorkspaceData<ResourcePage<T> & Record<string, unknown>>(`${config.endpoint}?${query}`, { quiet: Boolean(q) });
+  const cached = useWorkspaceData<ResourcePage<T> & Record<string, unknown>>(`${config.endpoint}?${query}`, { quiet: Boolean(q) || config.refreshOnReturn, refreshOnReturn: config.refreshOnReturn });
   const { isLoading: loading, isValidating, refresh } = cached;
   const error = cached.error ? errorMessage(cached.error) : "";
   const result = cached.data;
@@ -59,13 +87,18 @@ export function ResourceManager<T extends { id: string; version?: number }>({ co
     nextCursor: result.nextCursor ?? (config.pagination === "offset" ? String(Number(cursor || 1) + 1) : null),
   } : null, [config.itemsKey, config.pagination, cursor, result]);
   useEffect(() => {
-    if (!canEdit || !editRequested || !data || handledEdit.current === editRequested) return;
+    if (!canEdit || !editRequested || !data) return;
     const item = data.items.find(candidate => candidate.id === editRequested);
     if (!item) return;
-    handledEdit.current = editRequested;
     const frame = requestAnimationFrame(() => {
-      setValues(createValues?.(item) ?? {}); setEditor({ item }); setErrors({}); setFormError("");
-      const url = new URL(window.location.href); url.searchParams.delete("edit"); window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("edit") !== editRequested) return;
+      setValues(createValues?.(item) ?? {});
+      setEditor({ item });
+      setErrors({});
+      setFormError("");
+      url.searchParams.delete("edit");
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
     });
     return () => cancelAnimationFrame(frame);
   }, [canEdit, createValues, data, editRequested]);

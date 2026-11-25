@@ -8,12 +8,13 @@ import { synchronizeDiscountClock } from "@/components/discounts/clock";
 import { tableAffectedByMutation, tableCacheKey, tableCacheScope, type TableCacheKey } from "@/lib/workspace/table-cache";
 import { tableCacheOptions } from "./TableCacheProvider";
 
-export function useWorkspaceData<T>(url: string | null, { quiet = false }: { quiet?: boolean } = {}) {
+export function useWorkspaceData<T>(url: string | null, { quiet = false, refreshOnReturn = false }: { quiet?: boolean; refreshOnReturn?: boolean } = {}) {
   const { user, status } = useAuth(), { mutate } = useSWRConfig();
   const scope = status === "authenticated" ? tableCacheScope(user) : null;
   const key = tableCacheKey(scope, url);
   const result = useSWR<T, ApiRequestError, TableCacheKey | null>(key, ([, , requestUrl]) => apiRequest<T>(requestUrl, { quiet }), {
     ...tableCacheOptions,
+    ...(refreshOnReturn ? { revalidateIfStale: true, revalidateOnFocus: true, revalidateOnReconnect: true, focusThrottleInterval: 2000 } : {}),
     onSuccess(data) {
       // SWR calls this only for accepted responses, not cached mounts or discarded races.
       if (data && typeof data === "object" && "serverTime" in data && typeof data.serverTime === "string") synchronizeDiscountClock(data.serverTime);

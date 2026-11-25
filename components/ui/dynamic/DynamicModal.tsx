@@ -44,6 +44,7 @@ export function DynamicModal({
   const descriptionId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const sheet = presentation === "sheet";
   const { requestClose, dragHandlers } = useSheetGesture({
     enabled: sheet,
@@ -72,7 +73,9 @@ export function DynamicModal({
       );
     }
     const initialControls = controls();
-    (initialControls.find(element => element.hasAttribute("data-autofocus")) ?? initialControls[0] ?? panelRef.current)?.focus({ preventScroll: true });
+    const initialFocus = initialControls.find(element => element.hasAttribute("data-autofocus")) ??
+      initialControls.find(element => element === closeButtonRef.current) ?? initialControls[0] ?? panelRef.current;
+    initialFocus?.focus({ preventScroll: true });
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.defaultPrevented) return;
@@ -187,7 +190,7 @@ export function DynamicModal({
               )}
             </div>
             <button
-              data-autofocus
+              ref={closeButtonRef}
               type="button"
               onClick={requestClose}
               aria-label="Close modal"

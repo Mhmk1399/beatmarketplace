@@ -22,6 +22,8 @@ Producer studio banners use the same image optimizer and private storage adapter
 
 ## Configure object storage
 
+The homepage loads featured placements, public previews, recent and popular beats, and active genres on the server from MongoDB. Editorial media has named `HomeMedia` records that point to verified objects under the configured S3 prefix. Responsive image variants resolve through `/api/home/media/[slot]`, and stored track and taxonomy assets use their existing media routes. Independent server cache windows keep catalog updates timely and avoid a separate browser fetch per section.
+
 Database connections are reused per server process with a bounded 20-connection pool, one warm connection, four concurrent handshakes, a 10-second queue deadline and a 20-second socket deadline. Panel navigation disables speculative route prefetching to avoid querying every authenticated section when a dashboard first opens. These bounds complement indexed cursor queries; additional application replicas each have their own pool and must fit the database's connection limit.
 
 The selected deployment target is S3-compatible storage (AWS S3, MinIO or Liara). Set these environment variables outside source control, using the endpoint and region returned by your chosen provider:

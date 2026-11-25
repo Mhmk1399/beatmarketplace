@@ -1,7 +1,8 @@
-import Image from "next/image";
+import type { HomeResponsiveImage } from "@/lib/home/types";
 import { LayersIcon, SearchIcon, WaveformIcon } from "@/components/ui/icons";
 import { ReleaseWave } from "./ReleaseWave";
 import { HomeQuestions } from "./HomeQuestions";
+import { HomeEditorialPicture } from "./HomeEditorialPicture";
 import styles from "./release-sections.module.css";
 
 function OutlinePlayIcon() { return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m7 4 13 8-13 8V4Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>; }
@@ -13,17 +14,13 @@ const steps = [
   { label: "Make it your own", detail: "Get the full WAV after verified payment and start creating.", icon: WaveformIcon },
 ];
 
-export function HowItWorks() {
+export function HowItWorks({ image }: { image: HomeResponsiveImage | null }) {
   return (
     <section id="how-it-works" className={`music-home-section ${styles.section}`} aria-labelledby="how-it-works-title">
       <div className="music-home-container">
         <div className={`${styles.panel} ${styles.flowPanel}`}>
           <div className={styles.studioArt} aria-hidden="true">
-            <picture>
-              <source media="(max-width: 599px)" srcSet="/assets/home-release/creative-flow-studio-mobile.webp" type="image/webp" />
-              <source srcSet="/assets/home-release/creative-flow-studio-medium.webp 1000w, /assets/home-release/creative-flow-studio.webp 1600w" sizes="(max-width: 1280px) 100vw, 1280px" type="image/webp" />
-              <Image src="/assets/home-release/creative-flow-studio.webp" alt="" width={1600} height={533} unoptimized loading="lazy" />
-            </picture>
+            <HomeEditorialPicture image={image} sizes="(max-width: 1280px) 100vw, 1280px" />
           </div>
           <header className={styles.flowIntro}>
             <p className={styles.kicker}><WaveformIcon />The creative flow</p>

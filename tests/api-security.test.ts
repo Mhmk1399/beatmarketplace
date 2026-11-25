@@ -18,6 +18,7 @@ import { serializeOrder } from "../lib/payments/orders";
 import { marketplaceAudioTrack } from "../lib/audio/marketplace-track";
 import type { MarketplaceTrack } from "../lib/marketplace/types";
 import { demoTracks } from "../lib/audio/demo-tracks";
+import { isHomeDemo } from "../lib/home/media";
 import { POST as login } from "../app/api/auth/login/route";
 import { POST as register } from "../app/api/auth/register/route";
 import { POST as createContract } from "../app/api/contracts/route";
@@ -164,13 +165,19 @@ test("API attack regression checks with isolated local boundaries", async t => {
       const response = await callback(new Request(`https://shop.example.test/api/payments/zarinpal/callback?Authority=${authority}&Status=OK&amount=1&status=PAID`));
       assert.match(response.headers.get("location")!, /unverified/); assert.equal(paid, false);
     });
-    await t.test("public demos have cropped sources and no original download URL", async () => {
+    await t.test("public demos have cropped sources and no original download URL", () => {
       for (const track of demoTracks) {
-        assert.equal(track.durationLimitSeconds, 30); assert.equal(track.downloadSrc, undefined);
-        assert.match(track.src, /^\/assets\/audios\/listening\//);
-        // 30s at 128 kbps plus headers; a UI-only 30s cap on a full song cannot satisfy this.
-        assert.ok((await readFile(path.join(process.cwd(), "public", track.src))).length < 600_000);
+        assert.equal(track.durationLimitSeconds, 30);
+        assert.equal(track.downloadSrc, undefined);
+        assert.equal(track.src, `/api/home/media/${track.id}-128`);
+        assert.equal(track.lowDataSrc, `/api/home/media/${track.id}-96`);
+        assert.equal(track.coverUrl, `/api/home/media/${track.id}-cover`);
       }
+      const preview = { ...master, provider: "S3" as const, key: master.key.replace(".master.wav", ".preview.mp3"), mimeType: "audio/mpeg", sizeBytes: 480_000, durationSeconds: 30 };
+      assert.ok(isHomeDemo(preview));
+      assert.equal(isHomeDemo(master), false);
+      assert.equal(isHomeDemo({ ...preview, durationSeconds: 31 }), false);
+      assert.equal(isHomeDemo({ ...preview, sizeBytes: 600_000 }), false);
     });
   } finally {
     for (const reset of restore.reverse()) reset(); cache.connection = connection;

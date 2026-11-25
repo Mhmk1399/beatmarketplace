@@ -8,7 +8,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { BrandMark } from "@/components/public/BrandMark";
 import { PublicMobileNav } from "@/components/public/PublicMobileNav";
 import { PublicAccountMenu } from "@/components/public/PublicAccountMenu";
-import { CartIcon, DiscIcon, MenuIcon, TagIcon } from "@/components/ui/icons";
+import { CartIcon, DiscIcon, MenuIcon, TagIcon, UserIcon } from "@/components/ui/icons";
 import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
 import { useMarketplace } from "@/components/marketplace/MarketplaceProvider";
 import { GlobalSearch } from "@/components/search/GlobalSearch";
@@ -24,7 +24,7 @@ export function PublicNavbar({ overlay = false }: { overlay?: boolean }) {
   const exploreActive = pathname === "/marketplace" || pathname.startsWith("/tracks/");
   return (
     <><header className={`music-navbar ${overlay ? "fixed inset-x-0 w-screen" : "sticky"} top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-5`}>
-      <nav aria-label="Primary navigation" className={`music-nav-shell mx-auto max-w-7xl ${status !== "anonymous" ? "music-nav-signed-in" : ""}`}>
+      <nav aria-label="Primary navigation" className="music-nav-shell mx-auto max-w-7xl">
         <BrandMark className="music-nav-brand shrink-0" />
         <div className="music-nav-links">
           <Link href="/marketplace" className="music-nav-link" aria-current={exploreActive ? "page" : undefined}>
@@ -45,16 +45,19 @@ export function PublicNavbar({ overlay = false }: { overlay?: boolean }) {
           </NeumorphicLink>
         <div className="music-nav-account">
           {status === "loading" ? (
-            <div className="neo-inset h-11 w-20 animate-pulse rounded-[var(--radius-control)]" aria-label="Loading session" />
+            <div className="music-nav-account-compact neo-inset h-11 w-20 animate-pulse rounded-[var(--radius-control)]" role="status" aria-label="Loading session" />
           ) : user ? (
             <PublicAccountMenu key={`${user.id}:${pathname}`} user={user} />
           ) : (
-            <div className="music-nav-guest">
-              <NeumorphicLink href="/login" variant="quiet" size="sm" className="px-3 sm:px-4">Login</NeumorphicLink>
-              <NeumorphicLink href="/signup" variant="accent" size="sm" className="px-3 sm:px-4">
-                <span className="sm:hidden">Join</span><span className="hidden sm:inline">Join the music</span>
+            <>
+              <NeumorphicLink href="/login" size="sm" className="music-nav-login-icon music-nav-account-compact" aria-label="Log in">
+                <UserIcon className="size-5" />
               </NeumorphicLink>
-            </div>
+              <div className="music-nav-guest">
+                <NeumorphicLink href="/login" variant="quiet" size="sm" className="px-3 sm:px-4">Login</NeumorphicLink>
+                <NeumorphicLink href="/signup" variant="accent" size="sm" className="px-3 sm:px-4">Join the music</NeumorphicLink>
+              </div>
+            </>
           )}
         </div>
         <div className="music-nav-mobile-actions"><button type="button" className="music-menu-control" aria-label="Open navigation menu" aria-expanded={menuOpen} aria-controls={menuId} aria-haspopup="dialog" onClick={() => setMenuOpen(true)}><MenuIcon className="size-5" /></button></div>

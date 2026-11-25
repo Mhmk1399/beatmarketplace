@@ -13,7 +13,7 @@ const sourceNames: Record<string, string> = {
 };
 
 async function main() {
-  const outputDir = path.join(process.cwd(), "public/assets/audios/listening");
+  const outputDir = path.join(process.cwd(), ".data", "demo-previews");
   await mkdir(outputDir, { recursive: true });
   for (const track of demoTracks) {
     const source = path.join(process.env.DEMO_AUDIO_SOURCE_DIR || path.join(process.cwd(), ".data/demo-originals"), sourceNames[track.id]);

@@ -99,13 +99,16 @@ export function DynamicForm<T extends { [K in keyof T]: DynamicFormValue }>({
 }: DynamicFormProps<T>) {
   const generatedId = useId();
   const formId = id ?? `dynamic-form-${generatedId}`;
-  const previousErrorNames = useRef<Set<string>>(new Set());
+  const previousErrors = useRef<DynamicFormErrors<T>>({});
   useEffect(() => {
-    const errorNames = Object.keys(errors).filter((name) => Boolean(errors[name as FieldName<T>]));
-    const firstNewError = errorNames.find((name) => !previousErrorNames.current.has(name));
-    previousErrorNames.current = new Set(errorNames);
-    if (firstNewError) document.getElementById(`${formId}-${firstNewError}`)?.focus();
-  }, [errors, formId]);
+    if (disabled || isSubmitting) return;
+    const previous = previousErrors.current;
+    previousErrors.current = errors;
+
+    // Focus a new or changed error without moving focus when an error clears.
+    const invalidField = fields.find(({ name, disabled }) => !disabled && errors[name] && errors[name] !== previous[name]);
+    if (invalidField) document.getElementById(`${formId}-${invalidField.name}`)?.focus();
+  }, [disabled, errors, fields, formId, isSubmitting]);
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(() => new Set());
 
   function togglePassword(name: string) {
