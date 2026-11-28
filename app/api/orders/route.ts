@@ -4,6 +4,7 @@ import UserModel from "@/models/User";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticateRequest } from "@/lib/auth";
+import { splitSale } from "@/lib/payments/splits";
 import {
   activeContractFilter,
   marketplaceError,
@@ -253,6 +254,7 @@ export async function POST(request: Request) {
         contractVersion: contract.version,
         licenseTitle: contract.title,
         price,
+        revenueAllocations: splitSale(track.producerId, price, track.collaborators ?? []),
         originalPrice,
         discountAmount: originalPrice - price,
         discount: discount

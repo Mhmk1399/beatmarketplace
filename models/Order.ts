@@ -19,6 +19,7 @@ export type OrderItem = {
   contractVersion: number;
   licenseTitle: string;
   price: number;
+  revenueAllocations?: { userId: mongoose.Types.ObjectId; amount: number }[];
   originalPrice?: number;
   discountAmount?: number;
   discount?: OrderDiscountSnapshot;
@@ -33,6 +34,7 @@ export type OrderItem = {
   }[];
 };
 export type OrderFields = {
+  settlements?: { itemIndex: number; producerId: mongoose.Types.ObjectId; amount: number; reference: string; recordedBy: mongoose.Types.ObjectId; recordedAt: Date }[];
   buyerId: mongoose.Types.ObjectId;
   idempotencyKey: string;
   items: OrderItem[];
@@ -55,6 +57,10 @@ const itemSchema = new Schema<OrderItem>(
     contractVersion: { type: Number, required: true },
     licenseTitle: { type: String, required: true },
     price: { type: Number, required: true, min: 1 },
+    revenueAllocations: {
+      type: [{ _id: false, userId: { type: Schema.Types.ObjectId, required: true }, amount: { type: Number, required: true, min: 0 } }],
+      default: undefined,
+    },
     originalPrice: { type: Number, min: 1 },
     discountAmount: { type: Number, min: 0 },
     discount: {
@@ -97,6 +103,17 @@ const itemSchema = new Schema<OrderItem>(
 );
 const schema = new Schema<OrderFields>(
   {
+    settlements: {
+      type: [new Schema({
+        itemIndex: { type: Number, required: true, min: 0 },
+        producerId: { type: Schema.Types.ObjectId, required: true },
+        amount: { type: Number, required: true, min: 1 },
+        reference: { type: String, required: true, maxlength: 160 },
+        recordedBy: { type: Schema.Types.ObjectId, required: true },
+        recordedAt: { type: Date, required: true },
+      }, { _id: false })],
+      select: false,
+    },
     buyerId: {
       type: Schema.Types.ObjectId,
       ref: "User",

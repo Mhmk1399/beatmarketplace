@@ -66,7 +66,7 @@ export function TrackEditor({
 }) {
   const [producerId, setProducerId] = useState(track?.producerId ?? "");
   const [collaborators, setCollaborators] = useState<
-    { id: string; name: string; status?: string }[]
+    { id: string; name: string; status?: string; revenueSharePercentage?: number }[]
   >([]);
   const [collaboratorsReady, setCollaboratorsReady] = useState(admin || !track);
   const [includeCollaborators, setIncludeCollaborators] = useState(!track);
@@ -255,7 +255,13 @@ export function TrackEditor({
           .map((value) => value.trim())
           .filter(Boolean),
         ...(!admin && includeCollaborators
-          ? { collaboratorIds: collaborators.map((value) => value.id) }
+          ? {
+              collaboratorIds: collaborators.map((value) => value.id),
+              ...(track ? { collaboratorShares: Object.fromEntries(
+                collaborators.filter(value => value.status === "ACCEPTED")
+                  .map(value => [value.id, value.revenueSharePercentage ?? 0]),
+              ) } : {}),
+            }
           : {}),
       }),
     );

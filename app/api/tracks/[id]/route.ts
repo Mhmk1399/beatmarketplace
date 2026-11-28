@@ -132,6 +132,16 @@ async function updateProducerTrack(
           },
       );
     }
+    if (data.collaboratorShares) {
+      for (const [id, percentage] of Object.entries(data.collaboratorShares)) {
+        const collaborator = track.collaborators.find(value => String(value.userId) === id);
+        if (!collaborator || collaborator.status !== "ACCEPTED")
+          throw new MarketplaceError("Set revenue shares only for accepted collaborators.", 422);
+        collaborator.revenueSharePercentage = percentage;
+      }
+      const total = track.collaborators.reduce((sum, value) => sum + value.revenueSharePercentage, 0);
+      if (total > 100) throw new MarketplaceError("Collaborator shares cannot exceed 100%.", 422);
+    }
     if (
       data.expectedVersion !== undefined &&
       track.__v !== data.expectedVersion

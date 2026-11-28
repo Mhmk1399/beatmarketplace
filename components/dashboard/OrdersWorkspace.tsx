@@ -8,13 +8,14 @@ import {
   type ResourceConfig,
 } from "@/components/admin/ResourceManager";
 import { TableIdentity } from "@/components/ui/dynamic/DynamicTable";
-import { controlClass } from "@/components/studio/shared";
+import { apiRequest, controlClass, errorMessage } from "@/components/studio/shared";
 import { NeumorphicLink } from "@/components/ui/neumorphic/Button";
 import { SoundKitPurchases } from "@/components/dashboard/SoundKitPurchases";
 type Order = {
   id: string;
   status: string;
   total: number;
+  yourShare?: number;
   gatewayMode: string;
   createdAt: string;
   referenceId?: string;
@@ -23,12 +24,51 @@ type Order = {
     title: string;
     licenseTitle: string;
     price: number;
+    yourShare?: number;
+    settled?: boolean;
+    allocations?: Allocation[];
     terms?: string;
     downloadUrl: string | null;
     downloads?: { format: string; url: string }[];
     agreementUrl?: string | null;
   }[];
 };
+type Allocation = { producerId: string; amount: number; reference?: string; recordedAt?: string };
+
+function ManualSettlement({ orderId, index, share }: { orderId: string; index: number; share: Allocation }) {
+  const [reference, setReference] = useState("");
+  const [recorded, setRecorded] = useState(share.reference);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function record() {
+    setBusy(true);
+    setError("");
+    try {
+      await apiRequest("/api/workspace/settlements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, itemIndex: index, producerId: share.producerId, reference }),
+      });
+      setRecorded(reference.trim());
+    } catch (value) {
+      setError(errorMessage(value));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return <div className="space-y-2 text-sm">
+    <p>Producer {share.producerId} · {share.amount.toLocaleString("en-US")} Toman</p>
+    {recorded ? <p role="status">Settled · {recorded}</p> : <>
+      <label className="block">External transfer reference
+        <input className={controlClass} value={reference} maxLength={160} onChange={event => setReference(event.target.value)} />
+      </label>
+      <button type="button" className="neo-button min-h-11 px-4" disabled={busy || reference.trim().length < 3} onClick={() => void record()}>
+        {busy ? "Recording…" : "Record completed transfer"}
+      </button>
+    </>}
+    {error && <p role="alert">{error}</p>}
+  </div>;
+}
 export function OrdersWorkspace({
   scope = "personal",
   downloads = false,
@@ -59,7 +99,7 @@ export function OrdersWorkspace({
             : "Orders & payments",
     description:
       scope === "producer"
-        ? "Sales of your beats. Amounts are gross sales before any settlement or platform fees."
+        ? "Track sales you own or share. Your share is shown before fees."
         : downloads
           ? "Paid purchases with their full-quality WAV files and saved license agreements."
           : "Verified payment status and order records. Test transactions are labeled separately.",
@@ -134,9 +174,13 @@ export function OrdersWorkspace({
       },
       {
         id: "amount",
-        header: "Amount",
+        header: scope === "producer" ? "Gross sale" : "Amount",
         cell: (order) => `${order.total.toLocaleString("en-US")} Toman`,
       },
+      ...(scope === "producer" ? [{
+        id: "share", header: "Your share",
+        cell: (order: Order) => `${(order.yourShare ?? 0).toLocaleString("en-US")} Toman`,
+      }] : []),
       {
         id: "status",
         header: "Payment",
@@ -174,6 +218,14 @@ export function OrdersWorkspace({
             <p className="text-sm text-muted">
               {item.licenseTitle} · {item.price.toLocaleString("en-US")} Toman
             </p>
+            {scope === "producer" && <p className="text-sm">
+              Your share: {(item.yourShare ?? 0).toLocaleString("en-US")} Toman
+              {item.settled ? " · Settled" : order.gatewayMode === "live" && (item.yourShare ?? 0) > 0 ? " · Unsettled" : ""}
+            </p>}
+            {!!item.allocations?.length && <section className="space-y-3" aria-label="Manual settlements">
+              <p className="text-sm text-muted">Record transfers after they have been completed outside BeatMarketplace.</p>
+              {item.allocations.map(share => <ManualSettlement key={share.producerId} orderId={order.id} index={index} share={share} />)}
+            </section>}
             {item.terms && (
               <details>
                 <summary className="min-h-11 cursor-pointer text-sm font-semibold text-accent-muted">

@@ -7,6 +7,7 @@ import FavoriteModel from "@/models/Favorite";
 import ContractModel from "@/models/Contract";
 import ContactMessageModel from "@/models/ContactMessage";
 import { json, requireUser, workspaceError } from "@/lib/workspace/server";
+import { producerAllocationPipeline } from "@/lib/payments/splits";
 export async function GET(request: Request) { try {
   const query = z.object({ workspace: z.enum(["admin", "producer", "personal"]), days: z.coerce.number().int().min(7).max(90).default(30) }).strict().parse(Object.fromEntries(new URL(request.url).searchParams));
   const auth = await requireUser(request, query.workspace === "admin" ? "ADMIN" : query.workspace === "producer" ? "PRODUCER" : undefined); if (!auth.ok) return auth.response;
@@ -22,8 +23,16 @@ export async function GET(request: Request) { try {
     isAdmin ? ContactMessageModel.countDocuments({ status: "NEW" }) : isProducer ? ContractModel.countDocuments({ producerId: id, isActive: true }) : UserModel.countDocuments({ _id: id, isEmailVerified: true }),
     isAdmin ? ContactMessageModel.find({}).sort({ createdAt: -1, _id: -1 }).limit(5).select("name subject status createdAt") : isProducer ? TrackModel.find({ producerId: id }).sort({ createdAt: -1 }).limit(5).select("title status createdAt") : OrderModel.find({ buyerId: id }).sort({ createdAt: -1 }).limit(5).select("status items.title createdAt"),
   ]);
+  const [allocations, settlements] = isProducer ? await Promise.all([OrderModel.aggregate(producerAllocationPipeline(id, from)).option({ maxTimeMS: 10000 }), OrderModel.aggregate([
+    { $match: { status: "PAID", gatewayMode: "live", paidAt: { $gte: from }, "settlements.producerId": id } },
+    { $unwind: "$settlements" },
+    { $match: { "settlements.producerId": id } },
+    { $group: { _id: null, total: { $sum: "$settlements.amount" } } },
+  ]).option({ maxTimeMS: 10000 })]) : [[], []];
+  const allocatedRevenue = Number(allocations[0]?.total ?? 0);
+  const settledRevenue = Number(settlements[0]?.total ?? 0);
   const amount = Number(money[0]?.total ?? 0), first = Array.isArray(countA) ? Number(countA[0]?.count ?? 0) : countA;
   const stats = isAdmin ? [{ label: "Active users", value: first, href: "/admin/users", icon: "users" }, { label: "Beats in catalog", value: countB, href: "/admin/beats", icon: "tracks" }, { label: "Verified sales", value: orders, href: "/admin/orders", icon: "contracts" }, { label: "Live sales volume", value: amount, money: true, href: "/admin/orders", icon: "store" }] : isProducer ? [{ label: "My beats", value: first, href: "/studio/tracks", icon: "tracks" }, { label: "Published beats", value: countB, href: "/studio/tracks", icon: "store" }, { label: "Verified sales", value: orders, href: "/studio/sales", icon: "contracts" }, { label: "Gross sales", value: amount, money: true, href: "/studio/sales", icon: "store" }] : [{ label: "Purchased beats", value: first, href: "/dashboard/orders", icon: "tracks" }, { label: "Favorites", value: countB, href: "/dashboard/favorites", icon: "tracks" }, { label: "Verified orders", value: orders, href: "/dashboard/orders", icon: "contracts" }, { label: "Total spent", value: amount, money: true, href: "/dashboard/orders", icon: "store" }];
   const activity = recent.map(record => { const value = record.toObject() as unknown as { _id: unknown; title?: string; name?: string; status: string; subject?: string; items?: { title: string }[]; createdAt: Date }; return { id: String(value._id), title: value.title ?? value.name ?? value.items?.[0]?.title ?? "Order", detail: value.subject ?? value.status, createdAt: value.createdAt.toISOString() }; });
-  return json({ stats, daily: daily.map(row => ({ date: row._id, total: row.total })), activity, period: query.days, inboxNew: isAdmin ? countC : undefined, activeLicenses: isProducer ? countC : undefined });
+  return json({ stats, daily: daily.map(row => ({ date: row._id, total: row.total })), activity, period: query.days, allocatedRevenue: isProducer ? allocatedRevenue : undefined, settledRevenue: isProducer ? settledRevenue : undefined, inboxNew: isAdmin ? countC : undefined, activeLicenses: isProducer ? countC : undefined });
  } catch (error) { return workspaceError(error); } }

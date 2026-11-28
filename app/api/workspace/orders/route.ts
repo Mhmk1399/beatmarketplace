@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { orderAllowsDownload } from "@/lib/payments/orders";
+import { producerSaleShare } from "@/lib/payments/splits";
 import { z } from "zod";
 import mongoose from "mongoose";
 import OrderModel, { type OrderFields } from "@/models/Order";
@@ -66,7 +67,7 @@ export async function GET(request: Request) {
       );
     const producerId = new mongoose.Types.ObjectId(auth.user.id);
     const itemCriteria: Record<string, unknown> = producer
-      ? { producerId }
+      ? { $or: [{ producerId }, { "revenueAllocations.userId": producerId }] }
       : {};
     if (producer && (query.q || query.beat))
       itemCriteria.title = {
@@ -114,7 +115,7 @@ export async function GET(request: Request) {
       : null;
     const itemMatches = (item: OrderFields["items"][number]) =>
       !producer ||
-      (item.producerId.equals(producerId) &&
+      (producerSaleShare(item, producerId) !== undefined &&
         (!beatPattern || beatPattern.test(item.title)) &&
         (!queryPattern || queryPattern.test(item.title)) &&
         (!licensePattern || licensePattern.test(item.licenseTitle)));
@@ -138,6 +139,7 @@ export async function GET(request: Request) {
           "Beat",
           "License",
           "Amount (Toman)",
+          "Your share (Toman)",
           "Payment",
           "Mode",
         ],
@@ -150,6 +152,7 @@ export async function GET(request: Request) {
               item.title,
               item.licenseTitle,
               item.price,
+              producerSaleShare(item, producerId) ?? 0,
               order.status,
               order.gatewayMode,
             ]),
@@ -168,7 +171,7 @@ export async function GET(request: Request) {
       ...filter,
       ...cursorFilter(query.cursor),
     })
-      .select(query.scope === "personal" ? "+items.deliverables" : "")
+      .select(query.scope === "personal" ? "+items.deliverables" : "+settlements")
       .sort({ createdAt: -1, _id: -1 })
       .limit(query.limit + 1);
     const result = resourcePage(orders, query.limit),
@@ -192,6 +195,7 @@ export async function GET(request: Request) {
         total: producer
           ? visible.reduce((sum, item) => sum + item.price, 0)
           : order.total,
+        yourShare: producer ? visible.reduce((sum, item) => sum + (producerSaleShare(item, producerId) ?? 0), 0) : undefined,
         gatewayMode: order.gatewayMode,
         createdAt: order.createdAt.toISOString(),
         referenceId: query.scope !== "producer" ? order.referenceId : undefined,
@@ -203,6 +207,20 @@ export async function GET(request: Request) {
           title: item.title,
           licenseTitle: item.licenseTitle,
           price: item.price,
+          yourShare: producer ? producerSaleShare(item, producerId) : undefined,
+          settled: producer && order.settlements?.some(record =>
+            record.itemIndex === order.items.indexOf(item) && String(record.producerId) === String(producerId),
+          ),
+          allocations: query.scope === "admin" && order.status === "PAID" && order.gatewayMode === "live"
+            ? (item.revenueAllocations ?? [{ userId: item.producerId, amount: item.price }])
+              .filter(share => share.amount > 0)
+              .map(share => ({
+                producerId: String(share.userId), amount: share.amount,
+                settlement: order.settlements?.find(record => record.itemIndex === index && String(record.producerId) === String(share.userId)),
+              })).map(({ settlement, ...share }) => ({
+                ...share, reference: settlement?.reference, recordedAt: settlement?.recordedAt,
+              }))
+            : undefined,
           terms: query.scope === "personal" ? item.terms : undefined,
           agreementUrl:
             item.agreementVersion === 1 &&

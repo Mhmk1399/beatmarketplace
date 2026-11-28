@@ -57,6 +57,7 @@ export async function GET(request: Request) {
               id: String(value.userId),
               name: names.get(String(value.userId)) || "Producer",
               status: value.status,
+              revenueSharePercentage: value.revenueSharePercentage,
             })) ?? [],
         },
         { headers: { "Cache-Control": "private, no-store" } },

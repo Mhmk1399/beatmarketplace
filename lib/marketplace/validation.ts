@@ -47,6 +47,7 @@ export const trackInputSchema = z
 export const trackPatchSchema = z
   .object({
     expectedVersion: z.number().int().min(0).optional(),
+    collaboratorShares: z.record(objectIdSchema, z.number().int().min(0).max(100)).optional(),
     ...trackInputSchema.shape,
     description: trackInputSchema.shape.description.removeDefault(),
     genreId: trackInputSchema.shape.genreId.removeDefault(),

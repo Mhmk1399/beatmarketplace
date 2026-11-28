@@ -17,6 +17,9 @@ export async function GET(request: Request) {
       .max(120)
       .default("")
       .parse(new URL(request.url).searchParams.get("q") ?? "");
+    if (q.length < 2) {
+      return NextResponse.json({ items: [] }, { headers: { "Cache-Control": "private, no-store" } });
+    }
     const expression = q
       ? { $regex: escapeRegex(q), $options: "i" }
       : undefined;

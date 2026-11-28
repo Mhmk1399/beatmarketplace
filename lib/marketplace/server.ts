@@ -456,11 +456,7 @@ export async function serializeTracks(
           contract.filesToDeliver.map((file) => file.format),
         ),
     );
-    const readiness = track.deliveryReady ?? {
-      wav: true,
-      mp3: false,
-      stems: false,
-    };
+    const readiness = track.deliveryReady;
     return {
       id: String(track._id),
       title: track.title,
@@ -477,7 +473,11 @@ export async function serializeTracks(
       previewUrl: previewUrl(track.audio.preview),
       previewStartSeconds: track.audio.previewStartSeconds ?? 0,
       previewDurationSeconds: track.audio.previewDurationSeconds ?? 30,
-      deliveryReady: readiness,
+      deliveryReady: {
+        wav: readiness == null ? true : readiness.wav === true,
+        mp3: readiness?.mp3 === true,
+        stems: readiness?.stems === true,
+      },
       durationSeconds: track.metadata.durationSeconds ?? 0,
       bpm: track.metadata.bpm,
       musicalKey: track.metadata.musicalKey,
